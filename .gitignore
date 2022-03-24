@@ -1,0 +1,4 @@
+node_modules/
+arbitraryDBCode
+rutas-app/
+.env

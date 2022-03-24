@@ -1,0 +1,1341 @@
+<!doctype html>
+<html style="height: 100%;">
+
+<head>
+  <title>Rutas Colectivos</title>
+  <link rel="shortcut icon" href="#">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body style="height: 100%;">
+  <div id="floating-panel">
+    <select id="modeSelect" onchange="modeChange(this)">
+      <option value="0">View </option>
+      <option value="1">Add route</option>
+      <option value="2">Edit route</option>
+    </select>
+    <input id="goToLocationInput" onkeypress="goToLocation(event)" />
+    <button class="submitButton" id="goToLocationButton" onclick="goToLocation()">search</button>
+    <button class="functionalButton" id="showHideRoutes" onclick="showHideRoutes()">show/hide routes</button>
+    <div id="routeViewDiv" style="display: none;">
+
+    </div>
+    <div id="routeCreateDiv" style="display: none;">
+      <input id="routeInputPhase" value=0 style="display: none;"></span>
+      <span id="userInstructionText">Click the map to select start location</span>
+      <button class="submitButton" id="confirmButton" type="button" onclick="confirmButtonPress()">confirm</button>
+      <button id="goBackButton" type="button" onclick="goBackButtonPress()" value="back"
+        style="display: none;">back</button>
+      <button id="recalculateButton" type="button" onclick="recalculateRoute()" value="recalculate route"
+        style="display: none;">recalculate route</button>
+    </div>
+    <div id="routeEditDiv" style="display:none;">
+      <input id="routeEditPhase" value=0 style="display: none;">
+      <span id="editInstructionText">Click on a route to edit</span>
+      <div id="routeInformationDiv" style="display: none;">
+        <div style="display:flex" class="pad">
+          <div id="leftColumn" style="display: flex; flex-flow:row wrap;" class="pad">
+
+            <span class="pad">From:
+              <span id="fromLocationInfoTop"> </span><input id="fromLocationInputTop" type="text"></input></span>
+
+            <span class="pad">To: <span id="toLocationInfoTop"></span><input id="toLocationInputTop"
+                type="text"></input></span>
+            <span class="pad">Leaving every ~<span id="frequencyInfoTop"></span><select name="frequency"
+                id="frequencySelectorInfoInputTop" style="display: none;">
+                <option value="?">?</option>
+                <option value="5m">5m</option>
+                <option value="10m">10m</option>
+                <option value="15m">15m</option>
+                <option value="20m">20m</option>
+                <option value="30m">30m</option>
+                <option value="1hr">1hr</option>
+                <option value="2hr">2hr</option>
+              </select></span>
+            <span class="pad">From: <span id="startTimeTop"></span><input type="time" id="startTimeInputTop"
+                style="display: none;">
+            </span>
+            <span class="pad"> To:
+              <span id="endTimeTop"></span><input class="input" type="time" id="endTimeInputTop"
+                style="display: none;"></span>
+
+            <div class="pad">
+              <input id="colourPickerTop" type="color" style="text-align: end; height: 100%;">
+            </div>
+            <button class="pad, functionalButton" id="enableRouteEditsButtonTop"
+              onclick="editRoutePoints(true)">Edit
+              route directions</button>
+            <button class="pad, functionalButton" id="addReturnButtonTop"
+              onclick="enableAddReturnRoute()">Add return
+              route</button>
+          </div>
+        </div>
+        <div id="returnrouteEditDiv" style="display:none;">
+          <div id="returnrouteInformationDiv" style="display: block;">Return information
+            <div style="display:flex" class="pad">
+              <div id="returnleftColumn" style="display: flex; flex-flow:row wrap;" class="pad">
+                <span id="returnInfoTop"></span>
+                <span class="pad">From: <input type="time" id="startTimeReturnTop" style="display: block;">
+                </span>
+                <span class="pad"> To:
+                  <input class="input" type="time" id="endTimeReturnTop" style="display: block;"></span>
+  
+              </div>
+            </div>
+  
+          </div>
+  
+  
+        </div>
+        <button class="pad, submitButton" id="submitEditsButtonTop" onclick="submitEditsTop(true)">Confirm
+          edits</button>
+        <button class="pad, redButton" id="deleteRouteButtonTop"
+          onclick="deleteHighlightedRoute(false)">Delete
+          route</button>
+        <button class="pad, redButton" id="reallyDeleteRouteButtonTop" style="display: none;"
+          onclick="deleteHighlightedRoute(true)">Confirm delete route</button>
+        <button class="pad, functionalButton" id="cancelDeleteButton" style="display: none;"
+          onclick="cancelDelete()">Cancel delete</button>
+      </div>
+    </div>
+  </div>
+  <div id="routeCreateDivTop" style="display: none;">
+    <b>Start: </b>
+    <input id="start" value="San Cristobal De Las Casas" /><input type="button" onclick="recenterOnStart">
+    <input id="fromLat" style="width: 15px;" value="0" /><input id="fromLng" value="0"
+      style="width: 15px; display: none;" />
+    <input id="toLat" style="width: 15px;" value="0" /><input id="toLng" value="0"
+      style="width: 15px; display: none;" />
+    <b>End: </b>
+    <input id="end" value="Tuxla" />
+    <button id="findDirections" onclick="findDirections()" type="button" value="Go!">find directions</button>
+    <input id="colourPicker" type="color">
+    <span> Frequency - goes every</span>
+    <select name="frequency" id="frequencySelectorInput">
+      <option value="5m">5m</option>
+      <option value="10m">10m</option>
+      <option value="15m">15m</option>
+      <option value="20m">20m</option>
+      <option value="30m">30m</option>
+      <option value="1hr">1hr</option>
+      <option value="2hr">2hr</option>
+    </select>
+    <button id="submitRoute" onclick="submitRoute()" value="Submit route to app" type="button">submit route</button>
+    <button id="drawKnownRoutes" onclick="drawRoutes()" type="button" value="Draw Known Routes">draw known
+      routes</button>
+  </div>
+  </div>
+  <div id="map" style="height: 100%;"></div>
+  <div id="warnings-panel"></div>
+  <div id="infoPanel" style="display:none">
+    <div id="rowDiv" style="display: flex;">
+      <div id="outboundInfo" style="flex:50%; border-right: solid; padding-right:5px;">
+        <p style="font-weight: bold;"><span id="fromLocationInfo"></span></p>
+        <p style="font-weight: bold;">-> <span id="toLocationInfo"></span></p>
+        <p>Every ~<span id="frequencyInfo"></span></p>
+        <p>First: <span id="startTime"></span> Last: <span id="endTime"></span> </p>
+      </div>
+      <div id="returnInfo" style="flex:50%; border-left: solid; padding-left: 5px;">
+        <p style="font-weight: bold;"><span id="fromLocationInfoReturn"></span></p>
+        <p style="font-weight: bold;">-> <span id="toLocationInfoReturn"></span></p>
+        <p>Every ~<span id="frequencyInfoReturn"></span></p>
+        <p>First: <span id="startTimeReturn"></span> Last: <span id="endTimeReturn"></span> </p>
+      </div>
+    </div>
+  </div>
+  <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0&callback=initMap&v=weekly"
+    async></script>
+</body>
+
+</html>
+<style>
+  .pad {
+    padding: 3px;
+  }
+
+  .redButton {
+    color: whitesmoke;
+    background-color: maroon;
+  }
+
+  .submitButton {
+    /* 
+sapphire blue #1667A3;
+opal #A5BCBE;
+apple green #85B500;
+*/
+    color: whitesmoke;
+    background-color: #85B500;
+  }
+
+  .functionalButton {
+    /* 
+sapphire blue #1667A3;
+opal #A5BCBE;
+apple green #85B500;
+*/
+    color: whitesmoke;
+    background-color: #8800d6;
+  }
+</style>
+
+<script>
+
+  routes = []
+  points = []
+  var returnPoints = [];
+
+  polyline = []
+  overview_polyline = null;
+  return_overview_polyline = null;
+  polylines = []
+  overlays = []
+  markers = []
+  mode = 0
+  var mapLocal = ""
+  var currentHighlightedRoute
+  var currentHighlightedReturn
+  var greenMarker = null
+  var redMarker = null
+  var directionsRendererLocal = ""
+  var currentEditId = null;
+
+  var confirmedStartLocation = null;
+  var confirmedEndLocation = null;
+  var infoPanelLocal = null;
+  var initialized = false;
+  var showingRoutes = true;
+  var editingDirections = false;
+  //var editingReturn = false;
+
+  var myIp = "http://18.190.48.100:2222"
+  //var myIp = "http://localhost:2222"
+
+
+
+  var windowHtml = document.getElementById("infoPanel").cloneNode(true);
+  //collectivo = <div><h2 id="routeTitle" value="#title"></h2><p value="#contents"></p></div>
+  function showHideRoutes(){
+    console.log(polylines)
+    if(showingRoutes){
+      polylines.forEach(x => x.setMap(null))
+      showingRoutes = false;
+    }
+    else{
+    drawRoutes()
+      showingRoutes = true;
+    }
+  }
+  
+  function recalculateRoute() {
+    if (directionsRendererLocal != "") {
+      directionsRendererLocal.setMap(null)
+    }
+    findDirections(editingDirections == "return")
+  }
+
+  function searchKeyPress(event) {
+    var key = e.keyCode || e.which;
+    if (key == 13) {
+      search
+    }
+  }
+
+  function cancelDelete() {
+    document.getElementById("reallyDeleteRouteButtonTop").style.display = "none"
+    document.getElementById("cancelDeleteButton").style.display = "none"
+  }
+
+  function deleteHighlightedRoute(really) {
+    if (really == false) {
+      document.getElementById("reallyDeleteRouteButtonTop").style.display = "flex"
+      document.getElementById("cancelDeleteButton").style.display = "flex"
+
+    }
+    else if (really = true) {
+      fetch(myIp + '/deleteRoute', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: currentHighlightedRoute.id }) //here this is how you send your datas
+      })
+        .then(response => console.log(response.text)).then(x => {
+          initMap()
+          
+        })
+    }
+  }
+
+  // function blurCurrentLines(){
+
+  // }
+
+  function editRoutePoints(moveMarkers) {
+    if (currentHighlightedRoute) {
+      currentHighlightedRoute.setOptions({ strokeOpacity: 0.3 })
+      if(currentHighlightedReturn){
+        currentHighlightedReturn.setOptions({ strokeOpacity: 0.3 })
+      }
+      
+      var path = currentHighlightedRoute.getPath()
+      var trybesmart
+      console.log(path)
+      var i = 0
+      Object.keys(path).forEach(key => {
+        console.log("yo", i)
+        i++
+        console.log(key)
+        console.log(path[key])
+        console.log(path[key].length)
+        if(path[key].length && path.length && path[key].length == path.length){
+          trybesmart = key;
+        }
+      })
+      console.log(trybesmart)
+      greenMarker.setPosition(path[trybesmart][0])
+      redMarker.setPosition(path[trybesmart][path[trybesmart].length - 1])
+      findDirections(editingDirections == "return")
+    }
+  }
+
+  function initPage(){
+    var apis = fetch()
+  }
+
+  function getLineById(id) {
+    polylines.forEach(element => {
+      if (element.id == id) {
+        return element
+      }
+    });
+  }
+
+
+  function setLocationName(locName, isEnd) {
+    var phaseint = document.getElementById("routeInputPhase").value
+    console.log(phaseint)
+
+    if (!isEnd) {
+      //startlocation
+      console.log(locName)
+      document.getElementById("fromLocationInputTop").value = locName
+    }
+    else{
+      //endlocation
+      document.getElementById("toLocationInputTop").value = locName
+
+    }
+  }
+
+  function findNameOfLocation(loc, isReturn) {
+
+    console.log("finding location ", loc)
+    var geocoder = new google.maps.Geocoder;
+
+    // var latitude = greenMarker.getPosition().lat();
+    // var longitude = greenMarker.getPosition().lng();
+    // var latlng = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
+
+    var ret = ""
+
+    var code = geocoder.geocode({ 'location': loc }, function (results, status) {
+      if (status === google.maps.GeocoderStatus.OK) {
+        var locationString = ""
+        if (results[0].types.includes('plus_code')) {
+          locationString += results[0].address_components[1].long_name
+          locationString += ", "
+          locationString += results[0].address_components[2].long_name
+          console.log(results[0].address_components[2].long_name)
+        }
+        else {
+          locationString += results[0].address_components[2].long_name
+          locationString += ", "
+          locationString += results[0].address_components[3].long_name
+          console.log(results[0].address_components[2].long_name)
+        }
+        if(mode == 1){
+          setLocationName(locationString, isReturn)
+        } 
+
+        if (results[1]) {
+        } else {
+          window.alert('No results found');
+        }
+      } else {
+        window.alert('Geocoder failed due to: ' + status);
+      }
+    });
+
+  }
+
+  function confirmButtonPress() {
+    var phaseint = document.getElementById("routeInputPhase").value
+    phaseint++
+    document.getElementById("routeInputPhase").value = phaseint
+    setInstructionText(phaseint)
+  }
+
+  function goBackButtonPress() {
+    var phaseint = document.getElementById("routeInputPhase").value
+    phaseint--
+    document.getElementById("routeInputPhase").value = phaseint
+    setInstructionText(phaseint)
+  }
+
+  function setInstructionText(number) {
+    var instructionText = document.getElementById("userInstructionText")
+    var goBackButton = document.getElementById("goBackButton")
+    var recalculateButton = document.getElementById("recalculateButton")
+    var confirmButton = document.getElementById("confirmButton")
+
+    recalculateButton.style.display = "none"
+    if (number == 0) {
+      instructionText.textContent = "Click the map to select start location"
+      goBackButton.style.display = "none"
+    }
+    if (number == 1) {
+      instructionText.textContent = "Click to set end location"
+      goBackButton.style.display = "block"
+    }
+    if (number == 2) {
+      instructionText.textContent = "Calculating route..."
+      goBackButton.style.display = "none"
+      confirmButton.style.display = "none"
+      findDirections()
+    }
+    if (number == 3) {
+      instructionText.textContent = "Drag the start/end markers or the blue line to match it to the route..."
+      confirmButton.style.display = "block"
+      recalculateButton.style.display = "block"
+      goBackButton.style.display = "none"
+    }
+    if (number == 4) {
+      instructionText.textContent = "Please fill out the following information for the service"
+      document.getElementById("routeEditDiv").style.display = "block"
+      document.getElementById("editInstructionText").style.display = "none"
+      enableEditTop()
+    }
+    if (number == 5) {
+      //sub
+      var curr = submitEditsTop(false)
+
+      var line  = drawLine(curr)
+      line.route = curr
+      currentHighlightedRoute = line;
+      instructionText.textContent = "Please fill out the return information, and edit the return route on the map"
+      document.getElementById("returnInfoTop").style.display = "block"
+      enableAddReturnRoute()
+      
+    }
+    if (number == 6) {
+
+      var curr = submitEditsTop(true)
+      var line  = drawLineFromPoints(curr.returnPoints, curr, true)
+      line.route = curr
+      currentHighlightedRoute = line;
+      instructionText.textContent = "Thank you!"
+    }
+  }
+
+  function enableAddReturnRoute() {
+    editingDirections = "return"
+    editRoutePoints(false)
+    var rml = redMarker.getPosition();
+    var gml = greenMarker.getPosition();
+    redMarker.setPosition(gml);
+    greenMarker.setPosition(rml);
+    //setInstructionText(6)
+    if (currentHighlightedRoute) {
+      currentHighlightedRoute.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: 0.4 })
+      
+    }
+    if (currentHighlightedReturn) {
+        currentHighlightedReturn.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: 0.4 })
+      }
+    //findDirections(true)
+    document.getElementById("returnrouteEditDiv").style.display = "block"
+
+    setEditInstructionText("editing return route directions")
+  }
+
+  function setSelectedIndex(selector, valueToSet) {
+    for (var i = 0; i < selector.options.length; i++) {
+      if (selector.options[i].value == valueToSet) {
+        selector.options[i].selected = true;
+        return;
+      }
+    }
+    return false
+  }
+
+  function goToLocation(event) {
+    if (event) {
+      if (event.keyCode == 13) {
+        search()
+        return
+      }
+    }
+    else {
+      search()
+    }
+  }
+
+  function showEditbuttons(show) {
+    var elemns = []
+    var ids = 
+    ["enableRouteEditsButtonTop",
+"addReturnButtonTop",
+"submitEditsButtonTop",
+"deleteRouteButtonTop"]
+    ids.forEach(id => {
+      elemns.push(document.getElementById(id))
+    });
+
+    if (show == true) {
+      for (let item of elemns) {
+        item.style.display = "block"
+
+      }
+    }
+    else {
+      for (let item of elemns) {
+        item.style.display = "none"
+
+      }
+    }
+  }
+
+  function modeChange(div) {
+    setMapOnAll(null)
+    clearAllLines()
+    document.getElementById("reallyDeleteRouteButtonTop").style.display = "none"
+    document.getElementById("cancelDeleteButton").style.display = "none"
+
+
+    if (document.getElementById("editRoutePointsButton") == null) {
+      createInfoIfNotExist()
+    }
+    //clearAllLines();
+
+    //view
+    if (div.selectedIndex == 0) {
+      drawRoutes()
+
+      var editButton = document.getElementById("editButton")
+      if (editButton != null) {
+        editButton.style.display = "none"
+      }
+
+      var editPointsButton = document.getElementById("editRoutePointsButton")
+      if (editPointsButton != null) {
+        editPointsButton.style.display = "none"
+      }
+      document.getElementById("routeCreateDiv").style.display = "none"
+      document.getElementById("routeEditDiv").style.display = "none"
+      document.getElementById("routeViewDiv").style.display = "block"
+      mode = 0
+      currentEditId = null;
+      showEditbuttons(false)
+    }
+    //add
+    else if (div.selectedIndex == 1) {
+      drawRoutes()
+      document.getElementById("routeViewDiv").style.display = "none"
+
+      document.getElementById("routeCreateDiv").style.display = "block"
+      document.getElementById("routeEditDiv").style.display = "none"
+      clearAllLines()
+      mode = 1
+      currentEditId = null;
+      showEditbuttons(false)
+    }
+    //edit
+    else if (div.selectedIndex == 2) {
+      drawRoutes()
+
+      var editButton = document.getElementById("editButton")
+      if (editButton != null) {
+        editButton.style.display = "block"
+      }
+
+      var editPointsButton = document.getElementById("editRoutePointsButton")
+      if (editPointsButton != null) {
+        editPointsButton.style.display = "block"
+      }
+      document.getElementById("routeEditDiv").style.display = "block"
+      document.getElementById("routeViewDiv").style.display = "none"
+      document.getElementById("routeCreateDiv").style.display = "none"
+
+      mode = 2
+      showEditbuttons(true)
+    }
+
+  }
+
+  function clearAllLines() {
+    if(polylines){
+      //console.log(polylines)
+      polylines.forEach(x => x.setMap(null))
+
+    } 
+  }
+
+
+  function enableEditTop() {
+    var startLocationInput = document.getElementById("fromLocationInputTop")
+    var toLocationInput = document.getElementById("toLocationInputTop")
+    var frequencySelectorInput = document.getElementById("frequencySelectorInfoInputTop")
+
+
+    if (mode == 2) {
+      startLocationInput.value = document.getElementById("fromLocationInfoTop").textContent
+      toLocationInput.value = document.getElementById("toLocationInfoTop").textContent
+    }
+    startLocationInput.style.display = "block"
+    toLocationInput.style.display = "block"
+    frequencySelectorInput.style.display = "block"
+
+
+    if (setSelectedIndex(frequencySelectorInput, document.getElementById("frequencyInfoTop").textContent) == false) {
+      //frequencySelectorInput.selectedIndex = 0
+    }
+    var startTimeInput = document.getElementById("startTimeInputTop")
+    if (document.getElementById("startTimeTop").textContent != null) {
+      startTimeInput.value = document.getElementById("startTimeTop").textContent
+    }
+    else {
+      startTimeInput.value = null
+    }
+    startTimeInput.style.display = "block"
+
+    var endTimeInput = document.getElementById("endTimeInputTop")
+    if (document.getElementById("endTimeTop").textContent != null) {
+      endTimeInput.value = document.getElementById("endTimeTop").textContent
+    }
+    else {
+      endTimeInput.value = null
+    }
+    endTimeInput.style.display = "block"
+    if (currentHighlightedRoute && currentHighlightedRoute.returnPoints) {
+      document.getElementById("returnrouteEditDiv").style.display = "block"
+    }
+    else {
+      document.getElementById("returnrouteEditDiv").style.display = "none"
+    }
+    document.getElementById("fromLocationInfoTop").style.display = "none"
+    document.getElementById("toLocationInfoTop").style.display = "none"
+    document.getElementById("frequencyInfoTop").style.display = "none"
+    document.getElementById("startTimeTop").style.display = "none"
+    document.getElementById("endTimeTop").style.display = "none"
+    document.getElementById("routeInformationDiv").style.display = "block"
+
+  }
+
+  function findDirections(isReturnRoute) {
+
+    console.log("findDirections", currentHighlightedRoute) 
+    console.log("currentHightlightedReturn", currentHighlightedReturn)
+    const directionsRenderer = new google.maps.DirectionsRenderer({ map: mapLocal, draggable: true, suppressMarkers: true, polylineOptions : { zIndex : 10, strokeColor: "#0000FF", strokeWeight: 10, strokeOpacity: 0.7 } });
+    const directionsService = new google.maps.DirectionsService();
+    directionsRendererLocal = directionsRenderer;
+    //directionsRenderer.setMap()
+
+    if(isReturnRoute){
+      editingDirections = "return"
+    }
+    else{
+      editingDirections = "out"
+    }
+    google.maps.event.addListener(directionsRenderer,
+      'directions_changed',
+      function () {
+        // directionsRendererLocal.setMap(null)
+        // directionsRendererLocal.setMap(mapLocal)
+        var directions = directionsRenderer.getDirections();
+        if (mode == 1) {
+          // adding route
+          if(document.getElementById("routeInputPhase").value <4){
+            document.getElementById("routeInputPhase").value = "3"
+          setInstructionText(document.getElementById("routeInputPhase").value)
+          }
+          
+        }
+        else if (mode == 2) {
+          // editing route
+          //confirmedStartLocation directions.getPath()
+          var newLat = (greenMarker.position.lat + redMarker.position.lat) / 2
+          var newLng = (greenMarker.position.lng + redMarker.position.lng) / 2
+
+        }
+        onDirectionsChange(directions, editingDirections == "return")
+      }
+    );
+    const stepDisplay = new google.maps.InfoWindow();
+    calculateAndDisplayRoute(
+      directionsRenderer,
+      directionsService,
+      markers,
+      stepDisplay,
+      mapLocal
+    );
+  }
+
+  function drawRoutes() {
+    fetch(myIp + '/getRoutes', {
+      method: "GET",
+      headers: { "Content-Type": "application/json", "encoding": "utf-8" }
+    }).then(response => response.json()).then(x => {
+      drawPolylines(x)
+    })
+  }
+
+  function submitEditsTop(refresh) {
+    var startName = document.getElementById("fromLocationInputTop").value
+    var endName = document.getElementById("toLocationInputTop").value
+    var freq = document.getElementById("frequencySelectorInfoInputTop").value
+    var startTime = document.getElementById("startTimeInputTop").value
+    var endTime = document.getElementById("endTimeInputTop").value
+    var returnstartTime = document.getElementById("startTimeReturnTop").value
+    var returnendTime = document.getElementById("endTimeReturnTop").value
+
+    var pointsEdited = points.length > 0
+    var returnPointsEdited = returnPoints.length > 0
+
+    console.log("yo")
+    console.log("return points edited", returnPointsEdited)
+    console.log(returnPoints)
+    console.log("points edited", pointsEdited)
+    console.log(points)
+
+    var routeJson = {
+      colour: document.getElementById("colourPickerTop").value,
+      startTime: startTime,
+      endTime: endTime,
+      origin: startName,
+      destination: endName,
+      points: pointsEdited ? points : currentHighlightedRoute.route.points,
+      polyline: pointsEdited ? overview_polyline : currentHighlightedRoute.route.polyline,
+      frequency: freq,
+      returnPoints: returnPointsEdited ? returnPoints : currentHighlightedRoute ? currentHighlightedRoute.route.returnPoints : null,
+      returnPolyline: returnPointsEdited ? return_overview_polyline : currentHighlightedRoute ? currentHighlightedRoute.route.returnPolyline : null,
+      returnStartTime: returnstartTime,
+      returnEndTime: returnendTime,
+      id: currentHighlightedRoute ? currentHighlightedRoute.route._id : null
+    }
+
+    var overlaps = getOverlappingSegments(routeJson)
+    if (overlaps) {
+      routeJson.outArrowPercents = overlaps.out;
+      routeJson.returnArrowPercents = overlaps.return;
+    }
+
+
+    console.log("submitting edits top")
+
+    fetch(myIp + '/saveRoute', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(routeJson) //here this is how you send your datas
+    })
+      .then(response => console.log(response.text)).then(x => { if(refresh){initMap()}})
+
+    return routeJson
+  }
+
+  function search() {
+    fetch(myIp + '/search', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: document.getElementById("goToLocationInput").value }) //here this is how you send your datas
+    }).then(response => response.json()).then(x => {
+      mapLocal.setCenter(x.results[0].geometry.location)
+
+    })
+  }
+
+  function submitRoute() {
+    routes.push(points)
+    var originName = document.getElementById("start").value
+    var destinationName = document.getElementById("end").value
+
+    console.log(document.getElementById("frequencySelector").value)
+
+    var routeJson = {
+      colour: document.getElementById("colourPicker").value,
+      startTime: startTime,
+      endTime: endTime,
+      origin: originName,
+      destination: destinationName,
+      points: points,
+      polyline: overview_polyline,
+      frequency: document.getElementById("frequencySelector").value,
+      returnPoints: returnPoints,
+      returnPolyline: return_overview_polyline,
+      returnstartTime: returnstartTime,
+      returnEndTime: returnendTime
+    }
+
+
+    console.log("submitting route", routeJson)
+    fetch(myIp + '/saveRoute', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(routeJson) //here this is how you send your datas
+    })
+      .then(response => console.log(response.text))
+  }
+
+  function populateInfoTop(route) {
+    var from = document.getElementById("fromLocationInfoTop")
+    if (from) { from.textContent = route.origin }
+
+    document.getElementById("toLocationInfoTop").textContent = route.destination;
+    document.getElementById("frequencyInfoTop").textContent = route.frequency
+    document.getElementById("startTimeTop").textContent = route.startTime
+    document.getElementById("endTimeTop").textContent = route.endTime
+    document.getElementById("colourPickerTop").value = route.colour
+    if (route.returnPoints) {
+      document.getElementById("returnInfoTop").style.display = "block"
+      document.getElementById("startTimeReturnTop").value = route.returnStartTime
+      document.getElementById("endTimeReturnTop").value = route.returnEndTime
+      document.getElementById("addReturnButtonTop").textContent = "Edit return route"
+    }
+    else {
+      document.getElementById("startTimeReturnTop").value = null
+      document.getElementById("endTimeReturnTop").value = null
+      document.getElementById("addReturnButtonTop").textContent = "Add return route"
+    }
+
+  }
+
+  function populateInfo(route) {
+    var from = document.getElementById("fromLocationInfo")
+    if (from) { from.textContent = route.origin }
+    document.getElementById("toLocationInfo").textContent = route.destination;
+    document.getElementById("frequencyInfo").textContent = route.frequency
+    document.getElementById("startTime").textContent = route.startTime
+    document.getElementById("endTime").textContent = route.endTime
+    document.getElementById("infoPanel").style.display = "block"
+    if (route.returnPoints) {
+      document.getElementById("toLocationInfoReturn").textContent = route.origin;
+      document.getElementById("fromLocationInfoReturn").textContent = route.destination;
+      document.getElementById("startTimeReturn").textContent = route.returnStartTime;
+      document.getElementById("endTimeReturn").textContent = route.returnEndTime;
+      document.getElementById("frequencyInfoReturn").textContent = route.frequency;
+      document.getElementById("returnInfo").style.display = "block";
+    }
+    else {
+      document.getElementById("returnInfo").style.display = "none";
+    }
+  }
+
+  function SetEndLocation(loc) {
+    document.getElementById("toLat").value = loc.lat();
+    document.getElementById("toLng").value = loc.lng();
+    redMarker.setPosition(loc)
+    findNameOfLocation(loc, true)
+  }
+
+  function SetStartLocation(loc) {
+    document.getElementById("fromLat").value = loc.lat();
+    document.getElementById("fromLng").value = loc.lng();
+    greenMarker.setPosition(loc);
+    var startLocation = document.getElementById("fromLocationInputTop")
+
+    startLocation.value = findNameOfLocation(loc, false)
+  }
+
+  function initialize() {
+    var myLatlng = new google.maps.LatLng(40.713956, -74.006653);
+    let color = "green"
+    let url = "http://maps.google.com/mapfiles/ms/icons/";
+    url += color + "-dot.png";
+
+    greenMarker = new google.maps.Marker({
+      draggable: true,
+      position: myLatlng,
+      map: mapLocal,
+      title: "Your location",
+      icon: {
+        url: url
+      },
+      label: "start"
+    });
+
+    color = "red"
+    url = "http://maps.google.com/mapfiles/ms/icons/";
+    url += color + "-dot.png";
+
+    redMarker = new google.maps.Marker({
+      draggable: true,
+      position: myLatlng,
+      map: mapLocal,
+      title: "Your location",
+      icon: {
+        url: url
+      },
+      label: "destination"
+    });
+
+    google.maps.event.addListener(greenMarker, 'dragend', function (event) {
+      SetStartLocation(event.latLng)
+      console.log(document.getElementById("routeEditPhase"));
+      if (document.getElementById("routeInputPhase").value >= 2 || mode == 2) {
+        recalculateRoute()
+      }
+    });
+
+    google.maps.event.addListener(redMarker, 'dragend', function (event) {
+      SetEndLocation(event.latLng)
+      recalculateRoute()
+    });
+
+    google.maps.event.addListener(mapLocal, 'click', function (event) {
+
+      if (mode == 1) {
+        var phase = document.getElementById("routeInputPhase").value
+
+        if (phase == 0) {
+          SetStartLocation(event.latLng)
+        }
+        else if (phase == 1) {
+          SetEndLocation(event.latLng)
+
+        }
+      }
+
+    });
+  }
+
+  function removeIsolatedPoints(sequence) {
+    var prev = 10000
+    var validSequences = []
+
+    var currentSequence = []
+    for (let index = 0; index < sequence.length; index++) {
+      const element = sequence[index];
+      if (Math.abs(element - prev) > 1) {
+
+        if (!validSequences.includes(currentSequence)) {
+          validSequences.push(currentSequence)
+
+        }
+        currentsequence = []
+      }
+      else {
+        currentSequence.push(sequence[index])
+      }
+
+      prev = element;
+    }
+
+    var fin = []
+    validSequences.forEach(element => {
+
+      fin = fin.concat(element)
+    });
+
+    // console.log(validSequences)
+    // console.log(fin)
+    return fin
+  }
+
+  function getPercentages(outs, returns) {
+    var i = 0
+    var indexes = []
+    outs.forEach(element => {
+      i++
+      if (!returns.includes(element)) {
+        var jser = JSON.parse(element)
+        var submit = { lat: Number(jser[0]), lng: Number(jser[1]) }
+        //placeNewMarker(submit)
+        indexes.push(i)
+      }
+    });
+
+    var noIsolated = removeIsolatedPoints(indexes)
+
+    var percentages = []
+    noIsolated.forEach(indexerino => {
+      var percent = Math.round(indexerino / outs.length * 100)
+      if (!percentages.includes(percent)) {
+        percentages.push(percent)
+      }
+    });
+
+    return percentages
+  }
+
+  function getOverlappingSegments(route) {
+    console.log(route)
+    if (route.returnPoints != null) {
+      var resolution = 3
+
+      var returns = route.returnPoints.map(function (each_element) {
+        return JSON.stringify([each_element[0].toFixed(resolution), each_element[1].toFixed(resolution)]);
+      });
+
+      var outs = route.points.map(function (each_element) {
+        return JSON.stringify([each_element[0].toFixed(resolution), each_element[1].toFixed(resolution)]);
+      });
+
+      var outPercents = getPercentages(outs, returns)
+      var retPercents = getPercentages(returns, outs)
+
+      return {
+        out: outPercents,
+        return: retPercents
+      }
+    }
+
+  }
+
+  function drawPolylines(routes) {
+    routes.forEach(route => {
+      var line = drawLine(route)
+      var returnLine = drawLineFromPoints(route.returnPoints, route, true)
+
+      setClickEvent(line, route, returnLine)
+      setClickEvent(returnLine, route, line)
+    });
+  }
+
+  function createInfoIfNotExist() {
+    var infoHtml = document.getElementById("infoPanel")
+    if (infoHtml == null) {
+      infoHtml = windowHtml.cloneNode(true)
+      infoHtml.style.display = "none"
+      infoPanelLocal = document.body.appendChild(infoHtml)
+    }
+  }
+
+  function drawLineFromPoints(points, route, isReturn) {
+    var coords = points
+    var tosend = []
+    if (coords != null) {
+      coords.forEach(coord => {
+        tosend.push({ lat: coord[0], lng: coord[1] })
+      });
+    }
+
+
+    var routePath = new google.maps.Polyline({
+      path: tosend,
+      geodesic: false,
+      strokeColor: route.colour ? route.colour : "#FFFFFF",
+      strokeOpacity: 0.8,
+      strokeWeight: 5,
+      icons: generateIcons(route, isReturn)
+    });
+
+    polylines.push(routePath)
+    routePath.setMap(mapLocal);
+    routePath.id = route._id
+    return routePath
+  }
+
+  function placeNewMarker(loc) {
+    var url = "http://maps.google.com/mapfiles/ms/icons/";
+    url += "blue" + "-dot.png";
+
+    redMarker = new google.maps.Marker({
+      draggable: true,
+      position: loc,
+      map: mapLocal,
+      title: "Your location",
+      icon: {
+        url: url
+      }
+    });
+  }
+
+  function generateIcons(route, isReturn) {
+    var numWanted = 20
+
+    var spacing = Math.floor(100 / numWanted)
+
+    var pathy = !isReturn ? "M -1,0 1,0 0,-1 z" : "M -1,0 1,0 0,1 z" 
+
+    const symbolOne = {
+      path: pathy,
+      strokeColor: route.colour,
+      fillColor: route.colour,
+      fillOpacity: 1
+    };
+
+
+    var icons = []
+    for (var i = 0; i < numWanted; i++) {
+      var actuallyDoIt = false;
+      if (!isReturn) {
+        if (route.outArrowPercents && route.outArrowPercents.includes(spacing * i)) {
+          actuallyDoIt = true;
+        }
+      }
+      else {
+        if (route.returnArrowPercents && route.returnArrowPercents.includes(spacing * i)) {
+          actuallyDoIt = true;
+        }
+      }
+
+      if (actuallyDoIt) {
+        var str = spacing * i + "%"
+        icons.push(
+          {
+            icon: symbolOne,
+            offset: str
+          }
+        )
+      }
+    }
+
+    //var pc = isReturn ? 100: 0
+
+    // if(icons.length > 0){
+    //   icons.push({
+    //   icon:symbolOne,
+    //   offset: 100 + "%"
+    // })
+    // icons.push({
+    //   icon:symbolOne,
+    //   offset: 0 + "%"
+    // })
+    // }
+    // else{
+     // pathy = "M -1,0 1,0 0,-1 z"
+    //pathy = "M -1,0 1,0 0,1 z" 
+
+    var symbol = {
+      path: pathy,
+      strokeColor: route.colour,
+      fillColor: route.colour,
+      fillOpacity: 1
+    };
+    icons.push({
+      icon:symbol,
+      offset: 100 + "%"
+    })
+    icons.push({
+      icon:symbol,
+      offset: 0 + "%"
+    })
+  
+    return icons
+  }
+
+  function drawLine(route) {
+    //out
+    var coords = route.points
+    var tosend = []
+    if (coords != null) {
+      coords.forEach(coord => {
+        tosend.push({ lat: coord[0], lng: coord[1] })
+      });
+    }
+
+    var icons = generateIcons(route, false)
+
+    var routePath = new google.maps.Polyline({
+      path: tosend,
+      geodesic: false,
+      strokeColor: route.colour,
+      strokeOpacity: 0.8,
+      strokeWeight: 5,
+      icons: icons
+    });
+
+    polylines.push(routePath)
+    routePath.setMap(mapLocal);
+    routePath.id = route._id
+    return routePath
+  }
+
+  function setClickEvent(routePath, route, returnRoutepath) {
+    google.maps.event.addListener(routePath, 'click', function (click) {
+
+
+      console.log(route)
+      var boxText = document.createElement("div");
+      createInfoIfNotExist()
+      var infoHtml = document.getElementById("infoPanel")
+
+      if (currentHighlightedRoute != null) {
+        //old path
+        currentHighlightedRoute.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: 0.8 })
+      }
+      if (currentHighlightedReturn != null) {
+        currentHighlightedReturn.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: 0.8 })
+      }
+      routePath.setOptions({ zIndex: 5, strokeWeight: 8, strokeOpacity: 1 })
+      if (returnRoutepath != null) {
+        returnRoutepath.setOptions({ zIndex: 4, strokeWeight: 8, strokeOpacity: 1 })
+        currentHighlightedReturn = returnRoutepath
+      }
+      currentHighlightedRoute = routePath;
+      currentHighlightedRoute.route = route;
+      document.getElementById("returnInfo").style.borderLeftColor = route.colour
+      document.getElementById("outboundInfo").style.borderRightColor = route.colour
+
+      
+      currentEditId = routePath.id;
+      if (mode == 0) {
+        populateInfo(route)
+        boxText.appendChild(infoHtml)
+        console.log(route.points[0])
+        var myOptions = {
+          content: boxText,
+          position: {lat: route.points[0][0], lng :route.points[0][1]}
+        };
+        // end example code for custom infobox
+        var ib = new google.maps.InfoWindow(myOptions);
+        markers.forEach(marker => {
+          marker.setMap(null)
+
+        })
+        //infoPanelLocal = ImageBitmapRenderingContext
+        ib.open(mapLocal, this);
+        markers.push(ib);
+      }
+      else if (mode == 2) {
+        setEditInstructionText("edit the route information as you like then click finished when you are done")
+        populateInfoTop(route);
+        enableEditTop()
+        //editRoutePoints()
+      }
+      populateInfoTop(route);
+
+      getOverlappingSegments(route)
+    });
+  }
+
+  function setEditInstructionText(newText) {
+    document.getElementById("editInstructionText").textContent = newText
+  }
+  // Sets the map on all markers in the array.
+  function setMapOnAll(map) {
+    for (let i = 0; i < markers.length; i++) {
+      markers[i].setMap(map);
+    }
+  }
+  // Removes the markers from the map, but keeps them in the array.
+  function hideMarkers() {
+    setMapOnAll(null);
+  }
+
+  // Shows any markers currently in the array.
+  function showMarkers() {
+    setMapOnAll(map);
+  }
+
+  // Deletes all markers in the array by removing references to them.
+  function deleteMarkers() {
+    hideMarkers();
+    markers = [];
+  }
+
+  function initMap() {
+    const markerArray = [];
+    setMapOnAll(null)
+    
+    editingDirections = false
+    //modeChange()
+    // Instantiate a directions service.
+    const directionsService = new google.maps.DirectionsService();
+
+
+    // Create a map and center it on Manhattan.
+    const map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 13,
+      center: { lat: 16.715, lng: -92.63143780343951 },
+      clickableIcons: false,
+      streetViewControl: false,
+    });
+    mapLocal = map;
+
+    drawRoutes()
+    initialize()
+
+    modeChange(document.getElementById("modeSelect"))
+    initialized = true
+  }
+
+  function onDirectionsChange(newDirections, isReturnRoute) {
+    var newPoints = []
+    newDirections.routes[0].overview_path.forEach(point => {
+      newPoints.push([point.lat(), point.lng()])
+    });
+    console.log("is return", isReturnRoute);
+
+    if (isReturnRoute == true) {
+      returnPoints = newPoints
+      return_overview_polyline = newDirections.routes[0].overview_polyline
+    }
+    else {
+      points = newPoints
+      overview_polyline = newDirections.routes[0].overview_polyline
+    }
+    //polylines.push(newDirections.routes[0].overview_polyline)
+
+  }
+
+  function calculateAndDisplayRoute(
+    directionsRenderer,
+    directionsService,
+    markerArray,
+    stepDisplay,
+    map
+  ) {
+    // First, remove any existing markers from the map.
+    for (let i = 0; i < markerArray.length; i++) {
+      markerArray[i].setMap(null);
+    }
+    //directionsRenderer.set('directions', null);
+    // Retrieve the start and end locations and create a DirectionsRequest using
+    // WALKING directions.
+    var shouldWeUseMarkers = document.getElementById("routeInputPhase").value == 2
+
+    directionsService
+      .route({
+        origin: greenMarker.position,
+        destination: redMarker.position,
+        travelMode: google.maps.TravelMode.DRIVING,
+      })
+      .then((result) => {
+        // Route the directions and pass the response to a function to create
+        // markers for each step.
+        document.getElementById("warnings-panel").innerHTML =
+          "<b>" + result.routes[0].warnings + "</b>";
+        directionsRenderer.setMap(null)
+        directionsRenderer.setMap(mapLocal)
+        directionsRenderer.setDirections(result);
+
+        //points = result.routes[0].points
+        onDirectionsChange(result, editingDirections == "return")
+        showSteps(result, markerArray, stepDisplay, map);
+      })
+      .catch((e) => {
+        window.alert("Directions request failed due to " + e);
+      });
+  }
+
+  function showSteps(directionResult, markerArray, stepDisplay, map) {
+    // For each step, place a marker, and add the text to the marker's infowindow.
+    // Also attach the marker to an array so we can keep track of it and remove it
+    // when calculating new routes.
+    // const myRoute = directionResult.routes[0].legs[0];
+
+    // for (let i = 0; i < myRoute.steps.length; i++) {
+    //   const marker = (markerArray[i] =
+    //     markerArray[i] || new google.maps.Marker());
+
+    //   //marker.setMap(map);
+    //   //marker.setPosition(myRoute.steps[i].start_location);
+    // }
+  }
+
+
+</script>
+
+</html>
