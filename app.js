@@ -36,11 +36,11 @@ app.post('/saveRoute', (req, res) => {
 app.get('/', function (req, res) {
   if(__dirname.includes("bintami")){
     console.log("running in the cloud")
-  res.sendFile(__dirname + '/colectivo/Index.html');
+  res.sendFile(__dirname + '/colectivo/index.html');
 
   }
   else{
-    res.sendFile(__dirname + '/Index.html');
+    res.sendFile(__dirname + '/index.html');
   }
 });
 
