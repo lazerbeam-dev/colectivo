@@ -6,6 +6,9 @@ on:
       - mexson
       - main
 
+env:
+  AWS_DEFAULT_REGION: us-west-1
+
 jobs:
   deploy:
     name: deploy
@@ -13,6 +16,12 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
+    steps:
+    - name: Make envfile
+      uses: SpicyPizza/create-envfile@v1.3
+      with:
+        MONGO_URI: ${{ secrets.MONGO_URI }}
+        API_KEY: ${{ secrets.API_KEY }}
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
