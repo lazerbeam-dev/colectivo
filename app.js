@@ -9,6 +9,7 @@ const axios = require('axios');
 const express = require('express');
 const cors = require("cors");
 const bodyParser = require('body-parser');
+const sls = require('serverless-http')
 
 const uri = process.env.MONGO_URI;
 const apiKey = process.env.API_KEY;
@@ -31,6 +32,10 @@ app.use(cors())
 app.post('/saveRoute', (req, res) => {
   saveRoute(req.body)
   res.send("route saved!")
+})
+
+app.get('/_health', (req, res) => {
+  res.send("live")
 })
 
 app.get('/', function (req, res) {
@@ -182,5 +187,6 @@ const beautify = filePath => {
 };
 
 module.exports = {
-	beautify
+	beautify,
+  server: sls(app)
 };
