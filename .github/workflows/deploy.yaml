@@ -22,7 +22,6 @@ jobs:
       with:
         MONGO_URI: ${{ secrets.MONGO_URI }}
         API_KEY: ${{ secrets.API_KEY }}
-    steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
