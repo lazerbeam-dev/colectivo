@@ -35,7 +35,7 @@ app.post('/saveRoute', (req, res) => {
 })
 
 app.get('/_health', (req, res) => {
-  res.send("live")
+  res.send({"status": true})
 })
 
 app.get('/', function (req, res) {
