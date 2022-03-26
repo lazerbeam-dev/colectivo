@@ -9,8 +9,6 @@
     }
   },
   "server": {
-    "cleartext": true,
-    "hostname": "www.rutascolectivos.info",
-    "androidScheme": "https"
+    "cleartext": true
   }
 }

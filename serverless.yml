@@ -4,6 +4,7 @@ frameworkVersion: '3'
 service: serverless-nodejs-app
 plugins:
   - serverless-dotenv-plugin
+  - serverless-cors-plugin
 
 useDotenv: true
 
@@ -30,6 +31,8 @@ custom:
     include:
       - MONGO_URI
       - API_KEY
+  cors:
+    allowOrigin: [["capacitor://localhost", "http://localhost"]]
 
 functions:
   app:

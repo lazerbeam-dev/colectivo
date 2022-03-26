@@ -26,7 +26,8 @@ app.use(
 app.use(bodyParser.json())
 app.use(cors({
   // allow for ios and android mobile
-  origin: ["capacitor://localhost", "http://localhost"]
+  origin: ["capacitor://localhost", "http://localhost"],
+  optionsSuccessStatus: 200
 }))
 
 app.post('/saveRoute', (req, res) => {
