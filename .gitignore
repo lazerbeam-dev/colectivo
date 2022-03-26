@@ -5,3 +5,9 @@ rutas-app/
 
 # Serverless directories
 .serverless
+
+.idea/
+.vscode/
+*.map
+.DS_Store
+.sourcemaps

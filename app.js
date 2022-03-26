@@ -1,15 +1,12 @@
-// const http = require('http');
-// const nanoajax = require('nanoajax')
-// const fs = require('fs')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
-require('dotenv').config()
+require('dotenv').config();
 
 const axios = require('axios');
 const express = require('express');
 const cors = require("cors");
 const bodyParser = require('body-parser');
-const sls = require('serverless-http')
+const sls = require('serverless-http');
 
 const uri = process.env.MONGO_URI;
 const apiKey = process.env.API_KEY;
@@ -41,11 +38,11 @@ app.get('/_health', (req, res) => {
 app.get('/', function (req, res) {
   if(__dirname.includes("bintami")){
     console.log("running in the cloud")
-  res.sendFile(__dirname + '/colectivo/index.html');
+  res.sendFile(__dirname + '/colectivo/app/index.html');
 
   }
   else{
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(__dirname + '/app/index.html');
   }
 });
 

@@ -16,9 +16,13 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "mongodb": "^4.4.0",
-    "serverless-http": "^2.7.0"
+    "serverless-http": "^2.7.0",
+    "@capacitor/splash-screen": "latest"
   },
   "devDependencies": {
+    "@capacitor/android": "^3.4.3",
+    "@capacitor/cli": "latest",
+    "@capacitor/core": "latest",
     "serverless-dotenv-plugin": "^3.12.2"
   }
 }

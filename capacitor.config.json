@@ -1,0 +1,11 @@
+{
+  "appId": "com.rutascolectivos.app",
+  "appName": "Rutas Colectivos",
+  "bundledWebRuntime": true,
+  "webDir": "app",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}
