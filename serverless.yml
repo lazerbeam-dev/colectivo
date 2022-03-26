@@ -32,7 +32,7 @@ custom:
       - MONGO_URI
       - API_KEY
   cors:
-    allowOrigin: [["capacitor://localhost", "http://localhost"]]
+    allowOrigin: ["capacitor://localhost", "http://localhost"]
 
 functions:
   app:
