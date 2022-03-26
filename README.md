@@ -19,3 +19,28 @@
 3. Ready to deploy
 
     `sls deploy`
+
+
+## Android
+
+`npm run android`
+
+It will open Android Studio if configured in PATH. Alternatively you can open Studio with path `android`.
+
+
+## App assets
+
+1. Install plugin
+
+    `npm install -g cordova-res`
+
+2. Update icon or splash in `resources` folder.
+
+    Note: icon size is 1024x1024px, Splash size is 2732x2732px
+
+3. Run command
+
+    ```
+    $ cordova-res ios --skip-config --copy
+    $ cordova-res android --skip-config --copy
+    ```

@@ -5,7 +5,8 @@
   "bin": "./bin.js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "android": "npx cap sync && npx cap open android"
   },
   "author": "jt",
   "license": "ISC",
