@@ -24,9 +24,14 @@ app.use(
 )
 
 app.use(bodyParser.json())
+
+var allowOrigins = ["capacitor://localhost", "http://localhost"]
+if (process.env.NODE_ENV === "development") {
+  allowOrigins.push("http://localhost:5555")
+}
 app.use(cors({
   // allow for ios and android mobile
-  origin: ["capacitor://localhost", "http://localhost"],
+  origin: allowOrigins,
   optionsSuccessStatus: 200
 }))
 
@@ -42,11 +47,11 @@ app.get('/_health', (req, res) => {
 app.get('/', function (req, res) {
   if(__dirname.includes("bintami")){
     console.log("running in the cloud")
-  res.sendFile(__dirname + '/colectivo/app/index.html');
+  res.sendFile(__dirname + '/colectivo/views/index.html');
 
   }
   else{
-    res.sendFile(__dirname + '/app/index.html');
+    res.sendFile(__dirname + '/views/index.html');
   }
 });
 
