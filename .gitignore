@@ -11,3 +11,4 @@ rutas-app/
 *.map
 .DS_Store
 .sourcemaps
+prod.env

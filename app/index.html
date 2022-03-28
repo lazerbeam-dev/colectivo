@@ -17,7 +17,8 @@
     </select>
     <input id="goToLocationInput" onkeypress="goToLocation(event)" />
     <button class="submitButton" id="goToLocationButton" onclick="goToLocation()">search</button>
-    <button class="functionalButton" id="showHideRoutes" onclick="showHideRoutes()">show/hide routes</button>
+    <button class="functionalButton pad" id="showHideRoutes" onclick="showHideRoutes()">show/hide routes</button>
+    <button class="functionalButton pad" id="showHideRoutes" onclick="showMyLocation()">show my locatio (beta)</button>
     <div id="routeViewDiv" style="display: none;">
 
     </div>
@@ -209,9 +210,11 @@ apple green #85B500;
   var initialized = false;
   var showingRoutes = true;
   var editingDirections = false;
+  var directionsRendered = null;
   //var editingReturn = false;
 
-  var myIp = 'https://www.rutascolectivos.info'
+  //var myIp = 'https://www.rutascolectivos.info'
+  var myIp = 'http://localhost:5555'
 
   var windowHtml = document.getElementById("infoPanel").cloneNode(true);
   //collectivo = <div><h2 id="routeTitle" value="#title"></h2><p value="#contents"></p></div>
@@ -240,6 +243,7 @@ apple green #85B500;
       search
     }
   }
+
 
   function cancelDelete() {
     document.getElementById("reallyDeleteRouteButtonTop").style.display = "none"
@@ -416,19 +420,18 @@ apple green #85B500;
     }
     if (number == 5) {
       //sub
-      var curr = submitEditsTop(false)
+      var curr = submitEditsTop(false, uuidv4(), false)
 
       var line  = drawLine(curr)
+      line.id = curr._id
       line.route = curr
       currentHighlightedRoute = line;
       instructionText.textContent = "Please fill out the return information, and edit the return route on the map"
       document.getElementById("returnInfoTop").style.display = "block"
       enableAddReturnRoute()
-      
     }
     if (number == 6) {
-
-      var curr = submitEditsTop(true)
+      var curr = submitEditsTop(true, currentHighlightedRoute.route.findMeId, true)
       var line  = drawLineFromPoints(curr.returnPoints, curr, true)
       line.route = curr
       currentHighlightedRoute = line;
@@ -680,6 +683,7 @@ apple green #85B500;
   }
 
   function drawRoutes() {
+    console.log(myIp)
     fetch(myIp + '/getRoutes', {
       method: "GET",
       headers: { "Content-Type": "application/json", "encoding": "utf-8" }
@@ -688,7 +692,7 @@ apple green #85B500;
     })
   }
 
-  function submitEditsTop(refresh) {
+  function submitEditsTop(refresh, followOnId, submittingReturn) {
     var startName = document.getElementById("fromLocationInputTop").value
     var endName = document.getElementById("toLocationInputTop").value
     var freq = document.getElementById("frequencySelectorInfoInputTop").value
@@ -719,7 +723,9 @@ apple green #85B500;
       returnPolyline: returnPointsEdited ? return_overview_polyline : currentHighlightedRoute ? currentHighlightedRoute.route.returnPolyline : null,
       returnStartTime: returnstartTime,
       returnEndTime: returnendTime,
-      id: currentHighlightedRoute ? currentHighlightedRoute.route._id : null
+      id: currentHighlightedRoute ? currentHighlightedRoute.route._id : null,
+      findMeId: followOnId ? followOnId : null, 
+      originalFindId: submittingReturn ? followOnId : null, 
     }
 
     var overlaps = getOverlappingSegments(routeJson)
@@ -736,7 +742,16 @@ apple green #85B500;
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(routeJson) //here this is how you send your datas
     })
-      .then(response => console.log(response.text)).then(x => { if(refresh){initMap()}})
+      .then(response => console.log(response.text)).then(x => { 
+        if(refresh){
+          initMap()
+        }
+        // else{
+        //   // since we don't want to refresh, we just want to populate the id with the one we got from back end
+        //   currentEditId = response.text
+        //   console.log("yoyoy", response.text)
+        // }
+    })
 
     return routeJson
   }
@@ -750,6 +765,12 @@ apple green #85B500;
       mapLocal.setCenter(x.results[0].geometry.location)
 
     })
+  }
+
+  function uuidv4() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
   }
 
   function submitRoute() {
@@ -1207,6 +1228,31 @@ apple green #85B500;
     });
   }
 
+  function showMyLocation(){
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+
+          // infoWindow.setPosition(pos);
+          // infoWindow.setContent("Location found.");
+          // infoWindow.open(map);
+          mapLocal.setCenter(pos);
+          placeNewMarker(pos)
+        },
+        () => {
+          handleLocationError(true, infoWindow, map.getCenter());
+        }
+      );
+    } else {
+      // Browser doesn't support Geolocation
+      handleLocationError(false, infoWindow, map.getCenter());
+    }
+  }
+
   function setEditInstructionText(newText) {
     document.getElementById("editInstructionText").textContent = newText
   }
@@ -1304,10 +1350,14 @@ apple green #85B500;
         // markers for each step.
         document.getElementById("warnings-panel").innerHTML =
           "<b>" + result.routes[0].warnings + "</b>";
+        
         directionsRenderer.setMap(null)
         directionsRenderer.setMap(mapLocal)
+        if(directionsRendered != null){
+          directionsRendered.setMap(null)
+        }
         directionsRenderer.setDirections(result);
-
+        directionsRendered = directionsRenderer
         //points = result.routes[0].points
         onDirectionsChange(result, editingDirections == "return")
         showSteps(result, markerArray, stepDisplay, map);
