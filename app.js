@@ -23,6 +23,8 @@ app.use(
   })
 )
 
+app.use('/', express.static('views'))
+
 app.use(bodyParser.json())
 
 var allowOrigins = ["capacitor://localhost", "http://localhost"]
