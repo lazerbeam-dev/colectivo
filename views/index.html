@@ -6,6 +6,7 @@
   <link rel="shortcut icon" href="#">
   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="/capacitor.js"></script>  
 </head>
 
 <body style="height: 100%;">
@@ -332,9 +333,8 @@ apple green #85B500;
   }
 
   function findNameOfLocation(loc, isReturn) {
-
     console.log("finding location ", loc)
-    var geocoder = new google.maps.Geocoder;
+    var geocoder = new google.maps.Geocoder();
 
     // var latitude = greenMarker.getPosition().lat();
     // var longitude = greenMarker.getPosition().lng();
@@ -1229,29 +1229,22 @@ apple green #85B500;
     });
   }
 
-  function showMyLocation(){
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const pos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-
-          // infoWindow.setPosition(pos);
-          // infoWindow.setContent("Location found.");
-          // infoWindow.open(map);
-          mapLocal.setCenter(pos);
-          placeNewMarker(pos)
-          console.log(position)
-        }
-        // () => {
-        //   handleLocationError(true, infoWindow, map.getCenter());
-        // }
-      );
-    } else {
-      // Browser doesn't support Geolocation
-      handleLocationError(false, infoWindow, map.getCenter());
+  async function showMyLocation(){
+    try {
+      const position = await Capacitor.Plugins.Geolocation.getCurrentPosition();
+      const pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
+      alert(JSON.stringify(pos))
+      // infoWindow.setPosition(pos);
+      // infoWindow.setContent("Location found.");
+      // infoWindow.open(map);
+      mapLocal.setCenter(pos);
+      placeNewMarker(pos)
+    } catch(e) {
+      console.log(JSON.stringify(e), 'error')
+      handleLocationError(true, infoWindow, map.getCenter());
     }
   }
 

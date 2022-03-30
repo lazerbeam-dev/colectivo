@@ -6,14 +6,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "android": "npx cap sync && npx cap open android"
+    "android": "npx cap sync android && npx cap open android",
+    "ios": "npx cap sync ios && npx cap open ios"
   },
   "author": "jt",
   "license": "ISC",
   "dependencies": {
-    "@capacitor/splash-screen": "latest",
+    "@capacitor/ios": "^2.5.0",
     "axios": "^0.26.0",
     "body-parser": "^1.19.2",
+    "com-darryncampbell-cordova-plugin-intent": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
@@ -21,9 +23,9 @@
     "serverless-http": "^2.7.0"
   },
   "devDependencies": {
-    "@capacitor/android": "^3.4.3",
-    "@capacitor/cli": "latest",
-    "@capacitor/core": "latest",
-    "serverless-dotenv-plugin": "^3.12.2"
+    "serverless-dotenv-plugin": "^3.12.2",
+    "@capacitor/cli": "^2.5.0",
+    "@capacitor/core": "^2.5.0",
+    "@capacitor/android": "^2.5.0"
   }
 }

@@ -27,6 +27,9 @@
 
 It will open Android Studio if configured in PATH. Alternatively you can open Studio with path `android`.
 
+## iOS
+
+`npm run ios`
 
 ## App assets
 
