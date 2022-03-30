@@ -211,6 +211,7 @@ apple green #85B500;
   var showingRoutes = true;
   var editingDirections = false;
   var directionsRendered = null;
+  var standardRouteOpacity = 0.5;
   //var editingReturn = false;
 
   var myIp = 'https://www.rutascolectivos.info'
@@ -1043,7 +1044,7 @@ apple green #85B500;
       path: tosend,
       geodesic: false,
       strokeColor: route.colour ? route.colour : "#FFFFFF",
-      strokeOpacity: 0.8,
+      strokeOpacity: standardRouteOpacity,
       strokeWeight: 5,
       icons: generateIcons(route, isReturn)
     });
@@ -1159,7 +1160,7 @@ apple green #85B500;
       path: tosend,
       geodesic: false,
       strokeColor: route.colour,
-      strokeOpacity: 0.8,
+      strokeOpacity: standardRouteOpacity,
       strokeWeight: 5,
       icons: icons
     });
@@ -1181,14 +1182,14 @@ apple green #85B500;
 
       if (currentHighlightedRoute != null) {
         //old path
-        currentHighlightedRoute.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: 0.8 })
+        currentHighlightedRoute.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: standardRouteOpacity })
       }
       if (currentHighlightedReturn != null) {
-        currentHighlightedReturn.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: 0.8 })
+        currentHighlightedReturn.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: standardRouteOpacity })
       }
-      routePath.setOptions({ zIndex: 5, strokeWeight: 8, strokeOpacity: 1 })
+      routePath.setOptions({ zIndex: 5, strokeWeight: 8, strokeOpacity: standardRouteOpacity })
       if (returnRoutepath != null) {
-        returnRoutepath.setOptions({ zIndex: 4, strokeWeight: 8, strokeOpacity: 1 })
+        returnRoutepath.setOptions({ zIndex: 4, strokeWeight: 8, strokeOpacity: standardRouteOpacity })
         currentHighlightedReturn = returnRoutepath
       }
       currentHighlightedRoute = routePath;
@@ -1242,10 +1243,11 @@ apple green #85B500;
           // infoWindow.open(map);
           mapLocal.setCenter(pos);
           placeNewMarker(pos)
-        },
-        () => {
-          handleLocationError(true, infoWindow, map.getCenter());
+          console.log(position)
         }
+        // () => {
+        //   handleLocationError(true, infoWindow, map.getCenter());
+        // }
       );
     } else {
       // Browser doesn't support Geolocation
