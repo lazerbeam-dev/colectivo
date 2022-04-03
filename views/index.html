@@ -6,7 +6,7 @@
   <link rel="shortcut icon" href="#">
   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script src="/capacitor.js"></script>  
+  <script src="/capacitor.js"></script>
 </head>
 
 <body style="height: 100%;">
@@ -19,7 +19,7 @@
     <input id="goToLocationInput" onkeypress="goToLocation(event)" />
     <button class="submitButton" id="goToLocationButton" onclick="goToLocation()">search</button>
     <button class="functionalButton pad" id="showHideRoutes" onclick="showHideRoutes()">show/hide routes</button>
-    <button class="functionalButton pad" id="showHideRoutes" onclick="showMyLocation()">show my locatio (beta)</button>
+    <button class="functionalButton pad" id="showMyLocation" onclick="showMyLocation()">show my location (beta)</button>
     <div id="routeViewDiv" style="display: none;">
 
     </div>
@@ -27,6 +27,8 @@
       <input id="routeInputPhase" value=0 style="display: none;"></span>
       <span id="userInstructionText">Click the map to select start location</span>
       <button class="submitButton" id="confirmButton" type="button" onclick="confirmButtonPress()">confirm</button>
+      <span class="pad"> or follow my location! (beta)  <button class="functionalButton pad" id="showHideRoutes" onclick="startFollowing()">follow</button></span>
+      <button class="redButton pad" id="stopFollowingButton" style="display: none;" onclick="stopFollowing()">stop following</button>
       <button id="goBackButton" type="button" onclick="goBackButtonPress()" value="back"
         style="display: none;">back</button>
       <button id="recalculateButton" type="button" onclick="recalculateRoute()" value="recalculate route"
@@ -38,7 +40,6 @@
       <div id="routeInformationDiv" style="display: none;">
         <div style="display:flex" class="pad">
           <div id="leftColumn" style="display: flex; flex-flow:row wrap;" class="pad">
-
             <span class="pad">From:
               <span id="fromLocationInfoTop"> </span><input id="fromLocationInputTop" type="text"></input></span>
 
@@ -65,11 +66,9 @@
             <div class="pad">
               <input id="colourPickerTop" type="color" style="text-align: end; height: 100%;">
             </div>
-            <button class="pad, functionalButton" id="enableRouteEditsButtonTop"
-              onclick="editRoutePoints(true)">Edit
+            <button class="pad, functionalButton" id="enableRouteEditsButtonTop" onclick="editRoutePoints(true)">Edit
               route directions</button>
-            <button class="pad, functionalButton" id="addReturnButtonTop"
-              onclick="enableAddReturnRoute()">Add return
+            <button class="pad, functionalButton" id="addReturnButtonTop" onclick="enableAddReturnRoute()">Add return
               route</button>
           </div>
         </div>
@@ -82,18 +81,17 @@
                 </span>
                 <span class="pad"> To:
                   <input class="input" type="time" id="endTimeReturnTop" style="display: block;"></span>
-  
+
               </div>
             </div>
-  
+
           </div>
-  
-  
+
+
         </div>
         <button class="pad, submitButton" id="submitEditsButtonTop" onclick="submitEditsTop(true)">Confirm
           edits</button>
-        <button class="pad, redButton" id="deleteRouteButtonTop"
-          onclick="deleteHighlightedRoute(false)">Delete
+        <button class="pad, redButton" id="deleteRouteButtonTop" onclick="deleteHighlightedRoute(false)">Delete
           route</button>
         <button class="pad, redButton" id="reallyDeleteRouteButtonTop" style="display: none;"
           onclick="deleteHighlightedRoute(true)">Confirm delete route</button>
@@ -205,14 +203,13 @@ apple green #85B500;
   var directionsRendererLocal = ""
   var currentEditId = null;
 
-  var confirmedStartLocation = null;
-  var confirmedEndLocation = null;
-  var infoPanelLocal = null;
+  var confirmedStartLocation, confirmedEndLocation, infoPanelLocal, directionsRendered, userIp, locationInterval, currentRouteTrackLine;
   var initialized = false;
   var showingRoutes = true;
   var editingDirections = false;
-  var directionsRendered = null;
   var standardRouteOpacity = 0.5;
+  var trackingPoints = [];
+  var debugIterator = 0;
   //var editingReturn = false;
 
   var myIp = 'https://www.rutascolectivos.info'
@@ -220,23 +217,36 @@ apple green #85B500;
 
   var windowHtml = document.getElementById("infoPanel").cloneNode(true);
   //collectivo = <div><h2 id="routeTitle" value="#title"></h2><p value="#contents"></p></div>
-  function showHideRoutes(){
+  function showHideRoutes() {
     console.log(polylines)
-    if(showingRoutes){
+    if (showingRoutes) {
       polylines.forEach(x => x.setMap(null))
       showingRoutes = false;
     }
-    else{
-    drawRoutes()
+    else {
+      drawRoutes()
       showingRoutes = true;
     }
   }
-  
+
   function recalculateRoute() {
     if (directionsRendererLocal != "") {
       directionsRendererLocal.setMap(null)
     }
     findDirections(editingDirections == "return")
+  }
+
+  function startFollowing(){
+    trackingPoints = [];
+    pushMyLocation();
+    locationInterval = setInterval(function(){
+      pushMyLocation()
+    }, 5000);
+    document.getElementById("stopFollowingButton").style.display = "flex"
+  }
+
+  function stopFollowing(save){
+    clearInterval(locationInterval)
   }
 
   function searchKeyPress(event) {
@@ -266,7 +276,7 @@ apple green #85B500;
       })
         .then(response => console.log(response.text)).then(x => {
           initMap()
-          
+
         })
     }
   }
@@ -278,10 +288,10 @@ apple green #85B500;
   function editRoutePoints(moveMarkers) {
     if (currentHighlightedRoute) {
       currentHighlightedRoute.setOptions({ strokeOpacity: 0.3 })
-      if(currentHighlightedReturn){
+      if (currentHighlightedReturn) {
         currentHighlightedReturn.setOptions({ strokeOpacity: 0.3 })
       }
-      
+
       var path = currentHighlightedRoute.getPath()
       var trybesmart
       console.log(path)
@@ -292,18 +302,21 @@ apple green #85B500;
         console.log(key)
         console.log(path[key])
         console.log(path[key].length)
-        if(path[key].length && path.length && path[key].length == path.length){
+        if (path[key].length && path.length && path[key].length == path.length) {
           trybesmart = key;
         }
       })
       console.log(trybesmart)
+      greenMarker.setMap(mapLocal)
+      redMarker.setMap(mapLocal)
       greenMarker.setPosition(path[trybesmart][0])
+
       redMarker.setPosition(path[trybesmart][path[trybesmart].length - 1])
       findDirections(editingDirections == "return")
     }
   }
 
-  function initPage(){
+  function initPage() {
     var apis = fetch()
   }
 
@@ -325,7 +338,7 @@ apple green #85B500;
       console.log(locName)
       document.getElementById("fromLocationInputTop").value = locName
     }
-    else{
+    else {
       //endlocation
       document.getElementById("toLocationInputTop").value = locName
 
@@ -357,9 +370,9 @@ apple green #85B500;
           locationString += results[0].address_components[3].long_name
           console.log(results[0].address_components[2].long_name)
         }
-        if(mode == 1){
+        if (mode == 1) {
           setLocationName(locationString, isReturn)
-        } 
+        }
 
         if (results[1]) {
         } else {
@@ -423,7 +436,7 @@ apple green #85B500;
       //sub
       var curr = submitEditsTop(false, uuidv4(), false)
 
-      var line  = drawLine(curr)
+      var line = drawLine(curr)
       line.id = curr._id
       line.route = curr
       currentHighlightedRoute = line;
@@ -433,7 +446,7 @@ apple green #85B500;
     }
     if (number == 6) {
       var curr = submitEditsTop(true, currentHighlightedRoute.route.findMeId, true)
-      var line  = drawLineFromPoints(curr.returnPoints, curr, true)
+      var line = drawLineFromPoints(curr.returnPoints, curr, true)
       line.route = curr
       currentHighlightedRoute = line;
       instructionText.textContent = "Thank you!"
@@ -443,18 +456,20 @@ apple green #85B500;
   function enableAddReturnRoute() {
     editingDirections = "return"
     editRoutePoints(false)
+    greenMarker.setMap(mapLocal)
+    redMarker.setMap(mapLocal)
     var rml = redMarker.getPosition();
     var gml = greenMarker.getPosition();
     redMarker.setPosition(gml);
     greenMarker.setPosition(rml);
     //setInstructionText(6)
     if (currentHighlightedRoute) {
-      currentHighlightedRoute.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: 0.4 })
-      
+      currentHighlightedRoute.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: standardRouteOpacity })
+
     }
     if (currentHighlightedReturn) {
-        currentHighlightedReturn.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: 0.4 })
-      }
+      currentHighlightedReturn.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: 0.3 })
+    }
     //findDirections(true)
     document.getElementById("returnrouteEditDiv").style.display = "block"
 
@@ -485,11 +500,11 @@ apple green #85B500;
 
   function showEditbuttons(show) {
     var elemns = []
-    var ids = 
-    ["enableRouteEditsButtonTop",
-"addReturnButtonTop",
-"submitEditsButtonTop",
-"deleteRouteButtonTop"]
+    var ids =
+      ["enableRouteEditsButtonTop",
+        "addReturnButtonTop",
+        "submitEditsButtonTop",
+        "deleteRouteButtonTop"]
     ids.forEach(id => {
       elemns.push(document.getElementById(id))
     });
@@ -576,11 +591,11 @@ apple green #85B500;
   }
 
   function clearAllLines() {
-    if(polylines){
+    if (polylines) {
       //console.log(polylines)
       polylines.forEach(x => x.setMap(null))
 
-    } 
+    }
   }
 
 
@@ -636,17 +651,17 @@ apple green #85B500;
 
   function findDirections(isReturnRoute) {
 
-    console.log("findDirections", currentHighlightedRoute) 
+    console.log("findDirections", currentHighlightedRoute)
     console.log("currentHightlightedReturn", currentHighlightedReturn)
-    const directionsRenderer = new google.maps.DirectionsRenderer({ map: mapLocal, draggable: true, suppressMarkers: true, polylineOptions : { zIndex : 10, strokeColor: "#0000FF", strokeWeight: 10, strokeOpacity: 0.7 } });
+    const directionsRenderer = new google.maps.DirectionsRenderer({ map: mapLocal, draggable: true, suppressMarkers: true, polylineOptions: { zIndex: 10, strokeColor: "#0000FF", strokeWeight: 10, strokeOpacity: 0.7 } });
     const directionsService = new google.maps.DirectionsService();
     directionsRendererLocal = directionsRenderer;
     //directionsRenderer.setMap()
 
-    if(isReturnRoute){
+    if (isReturnRoute) {
       editingDirections = "return"
     }
-    else{
+    else {
       editingDirections = "out"
     }
     google.maps.event.addListener(directionsRenderer,
@@ -657,11 +672,11 @@ apple green #85B500;
         var directions = directionsRenderer.getDirections();
         if (mode == 1) {
           // adding route
-          if(document.getElementById("routeInputPhase").value <4){
+          if (document.getElementById("routeInputPhase").value < 4) {
             document.getElementById("routeInputPhase").value = "3"
-          setInstructionText(document.getElementById("routeInputPhase").value)
+            setInstructionText(document.getElementById("routeInputPhase").value)
           }
-          
+
         }
         else if (mode == 2) {
           // editing route
@@ -725,8 +740,8 @@ apple green #85B500;
       returnStartTime: returnstartTime,
       returnEndTime: returnendTime,
       id: currentHighlightedRoute ? currentHighlightedRoute.route._id : null,
-      findMeId: followOnId ? followOnId : null, 
-      originalFindId: submittingReturn ? followOnId : null, 
+      findMeId: followOnId ? followOnId : null,
+      originalFindId: submittingReturn ? followOnId : null,
     }
 
     var overlaps = getOverlappingSegments(routeJson)
@@ -743,8 +758,8 @@ apple green #85B500;
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(routeJson) //here this is how you send your datas
     })
-      .then(response => console.log(response.text)).then(x => { 
-        if(refresh){
+      .then(response => console.log(response.text)).then(x => {
+        if (refresh) {
           initMap()
         }
         // else{
@@ -752,7 +767,7 @@ apple green #85B500;
         //   currentEditId = response.text
         //   console.log("yoyoy", response.text)
         // }
-    })
+      })
 
     return routeJson
   }
@@ -769,7 +784,7 @@ apple green #85B500;
   }
 
   function uuidv4() {
-    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
       (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
     );
   }
@@ -853,6 +868,7 @@ apple green #85B500;
   function SetEndLocation(loc) {
     document.getElementById("toLat").value = loc.lat();
     document.getElementById("toLng").value = loc.lng();
+    redMarker.setMap(mapLocal)
     redMarker.setPosition(loc)
     findNameOfLocation(loc, true)
   }
@@ -860,6 +876,7 @@ apple green #85B500;
   function SetStartLocation(loc) {
     document.getElementById("fromLat").value = loc.lat();
     document.getElementById("fromLng").value = loc.lng();
+    greenMarker.setMap(mapLocal);
     greenMarker.setPosition(loc);
     var startLocation = document.getElementById("fromLocationInputTop")
 
@@ -867,7 +884,7 @@ apple green #85B500;
   }
 
   function initialize() {
-    var myLatlng = new google.maps.LatLng(40.713956, -74.006653);
+    var myLatlng = new google.maps.LatLng(16.733911888003078, -92.64308697053372);
     let color = "green"
     let url = "https://maps.google.com/mapfiles/ms/icons/";
     url += color + "-dot.png";
@@ -875,7 +892,7 @@ apple green #85B500;
     greenMarker = new google.maps.Marker({
       draggable: true,
       position: myLatlng,
-      map: mapLocal,
+      map: null,
       title: "Your location",
       icon: {
         url: url
@@ -890,7 +907,7 @@ apple green #85B500;
     redMarker = new google.maps.Marker({
       draggable: true,
       position: myLatlng,
-      map: mapLocal,
+      map: null,
       title: "Your location",
       icon: {
         url: url
@@ -926,6 +943,12 @@ apple green #85B500;
       }
 
     });
+
+    logUserVisit()
+  }
+
+  function logUserVisit() {
+
   }
 
   function removeIsolatedPoints(sequence) {
@@ -1031,27 +1054,35 @@ apple green #85B500;
   }
 
   function drawLineFromPoints(points, route, isReturn) {
-    var coords = points
     var tosend = []
+    
+    if(points && points[0].lat != null){
+      console.log(points)
+      tosend = points
+    }
+    else{
+      var coords = points
     if (coords != null) {
       coords.forEach(coord => {
         tosend.push({ lat: coord[0], lng: coord[1] })
       });
     }
 
+    }
+    
 
     var routePath = new google.maps.Polyline({
       path: tosend,
       geodesic: false,
-      strokeColor: route.colour ? route.colour : "#FFFFFF",
+      strokeColor: route?.colour ? route.colour : "#FFFFFF",
       strokeOpacity: standardRouteOpacity,
       strokeWeight: 5,
-      icons: generateIcons(route, isReturn)
+      icons: route? generateIcons(route, isReturn): null
     });
 
     polylines.push(routePath)
     routePath.setMap(mapLocal);
-    routePath.id = route._id
+    routePath.id = route ? route._id : null
     return routePath
   }
 
@@ -1075,7 +1106,7 @@ apple green #85B500;
 
     var spacing = Math.floor(100 / numWanted)
 
-    var pathy = !isReturn ? "M -1,0 1,0 0,-1 z" : "M -1,0 1,0 0,1 z" 
+    var pathy = !isReturn ? "M -1,0 1,0 0,-1 z" : "M -1,0 1,0 0,1 z"
 
     const symbolOne = {
       path: pathy,
@@ -1123,7 +1154,7 @@ apple green #85B500;
     // })
     // }
     // else{
-     // pathy = "M -1,0 1,0 0,-1 z"
+    // pathy = "M -1,0 1,0 0,-1 z"
     //pathy = "M -1,0 1,0 0,1 z" 
 
     var symbol = {
@@ -1133,14 +1164,14 @@ apple green #85B500;
       fillOpacity: 1
     };
     icons.push({
-      icon:symbol,
+      icon: symbol,
       offset: 100 + "%"
     })
     icons.push({
-      icon:symbol,
+      icon: symbol,
       offset: 0 + "%"
     })
-  
+
     return icons
   }
 
@@ -1197,7 +1228,7 @@ apple green #85B500;
       document.getElementById("returnInfo").style.borderLeftColor = route.colour
       document.getElementById("outboundInfo").style.borderRightColor = route.colour
 
-      
+
       currentEditId = routePath.id;
       if (mode == 0) {
         populateInfo(route)
@@ -1205,7 +1236,7 @@ apple green #85B500;
         console.log(route.points[0])
         var myOptions = {
           content: boxText,
-          position: {lat: route.points[0][0], lng :route.points[0][1]}
+          position: { lat: route.points[0][0], lng: route.points[0][1] }
         };
         // end example code for custom infobox
         var ib = new google.maps.InfoWindow(myOptions);
@@ -1229,8 +1260,32 @@ apple green #85B500;
     });
   }
 
-  async function showMyLocation(){
-    try {
+  async function pushMyLocation(){
+  
+    // try {
+      const position = await Capacitor.Plugins.Geolocation.getCurrentPosition();
+      const pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      };
+      //alert(JSON.stringify(pos))
+      // infoWindow.setPosition(pos);
+      // infoWindow.setContent("Location found.");
+      // infoWindow.open(map);
+      mapLocal.setCenter(pos);
+      placeNewMarker(pos);
+      trackingPoints.push(pos);
+      debugIterator++;
+      if(currentRouteTrackLine != null){ currentRouteTrackLine.setMap(null)}
+      drawLineFromPoints(trackingPoints)
+      console.log(pos)
+    // } catch (e) {
+    //   console.log(e)
+    // }
+  }
+
+  async function showMyLocation() {
+    // try {
       const position = await Capacitor.Plugins.Geolocation.getCurrentPosition();
       const pos = {
         lat: position.coords.latitude,
@@ -1242,10 +1297,10 @@ apple green #85B500;
       // infoWindow.open(map);
       mapLocal.setCenter(pos);
       placeNewMarker(pos)
-    } catch(e) {
-      console.log(JSON.stringify(e), 'error')
-      handleLocationError(true, infoWindow, map.getCenter());
-    }
+    // } catch (e) {
+    //   console.log(JSON.stringify(e), 'error')
+    //   handleLocationError(true, infoWindow, map.getCenter());
+    // }
   }
 
   function setEditInstructionText(newText) {
@@ -1276,7 +1331,7 @@ apple green #85B500;
   function initMap() {
     const markerArray = [];
     setMapOnAll(null)
-    
+
     editingDirections = false
     //modeChange()
     // Instantiate a directions service.
@@ -1345,10 +1400,10 @@ apple green #85B500;
         // markers for each step.
         document.getElementById("warnings-panel").innerHTML =
           "<b>" + result.routes[0].warnings + "</b>";
-        
+
         directionsRenderer.setMap(null)
         directionsRenderer.setMap(mapLocal)
-        if(directionsRendered != null){
+        if (directionsRendered != null) {
           directionsRendered.setMap(null)
         }
         directionsRenderer.setDirections(result);
