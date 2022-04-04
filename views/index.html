@@ -1262,7 +1262,7 @@ apple green #85B500;
 
   async function pushMyLocation(){
   
-    // try {
+    try {
       const position = await Capacitor.Plugins.Geolocation.getCurrentPosition();
       const pos = {
         lat: position.coords.latitude,
@@ -1279,13 +1279,13 @@ apple green #85B500;
       if(currentRouteTrackLine != null){ currentRouteTrackLine.setMap(null)}
       drawLineFromPoints(trackingPoints)
       console.log(pos)
-    // } catch (e) {
-    //   console.log(e)
-    // }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async function showMyLocation() {
-    // try {
+    try {
       const position = await Capacitor.Plugins.Geolocation.getCurrentPosition();
       const pos = {
         lat: position.coords.latitude,
@@ -1297,10 +1297,10 @@ apple green #85B500;
       // infoWindow.open(map);
       mapLocal.setCenter(pos);
       placeNewMarker(pos)
-    // } catch (e) {
-    //   console.log(JSON.stringify(e), 'error')
-    //   handleLocationError(true, infoWindow, map.getCenter());
-    // }
+    } catch (e) {
+      console.log(JSON.stringify(e), 'error')
+      handleLocationError(true, infoWindow, map.getCenter());
+    }
   }
 
   function setEditInstructionText(newText) {
