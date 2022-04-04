@@ -12,3 +12,5 @@ rutas-app/
 .DS_Store
 .sourcemaps
 prod.env
+android/capacitor.settings.gradle
+android/app/capacitor.build.gradle
