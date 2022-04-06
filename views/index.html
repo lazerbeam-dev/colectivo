@@ -3,9 +3,9 @@
 
 <head>
   <title>Rutas Colectivos</title>
-  <meta name="keywords" content="rutas colectivo colectivos routes map directions san cristobal de las casas bus buses collectivo transportation transporte mexico"></meta>
+  <meta name="keywords" content="rutas colectivo colectivos routes map directions san cristobal de las casas bus buses collectivo transportation transporte mexico llegar viajar"></meta>
   <meta name="author" content="Rutas Colectivos">
-  <meta name="description" content="una mapa con rutas colectivos para San Cristobal de las Casas, Chiapas, Mexico - a map of colectivo routes for San Cristobal de las Casas, Chiapas, Mexico">
+  <meta name="description" content="una mapa con rutas colectivos para llegar o viajar en San Cristobal de las Casas, Chiapas, Mexico- a map of colectivo routes coming or going from San Cristobal de las Casas, Chiapas, Mexico">
 
   <link rel="shortcut icon" href="https://i.ibb.co/XjwhkdC/3.png" alt="Rutas Colectivos" type="image/png">
   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
@@ -14,7 +14,7 @@
 </head>
 
 <body id="body" style="height: 99%; ">
-  <div id="floating-panel" style="min-height: 6%;" class="center">
+  <article id="floating-panel" style="min-height: 6%;" class="center">
     <img src="https://i.ibb.co/XjwhkdC/3.png" style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
     <select id="modeSelect" onchange="modeChange(this)" class="center">
       <option value="0">View </option>
@@ -136,8 +136,8 @@
     <button id="drawKnownRoutes" onclick="drawRoutes()" type="button" value="Draw Known Routes">draw known
       routes</button>
   </div>
-  </div>
-  <div id="map" style="height: 94%;"></div>
+  </article>
+  <main id="map" style="height: 94%;"></main>
   <div id="warnings-panel"></div>
   <div id="infoPanel" style="display:none">
     <div id="rowDiv" style="display: flex;">
