@@ -129,7 +129,7 @@ saveRoute = async function(newRoute) {
     const result = await routes.insertOne(newRoute).then(x => {  });
     console.log(result);
     console.log('new document');
-    var updated = x;
+    //var updated = x;
   }
   
 } 

@@ -3,31 +3,41 @@
 
 <head>
   <title>Rutas Colectivos</title>
-  <link rel="shortcut icon" href="/favicon.ico" type="image/icon">
+  <link rel="shortcut icon" href="https://i.ibb.co/XjwhkdC/3.png" alt="Rutas Colectivos" type="image/png">
   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="/capacitor.js"></script>
 </head>
 
-<body style="height: 100%;">
-  <div id="floating-panel">
-    <select id="modeSelect" onchange="modeChange(this)">
+<body id="body" style="height: 99%; ">
+  <div id="floating-panel" style="min-height: 6%;" class="center">
+    <img src="https://i.ibb.co/XjwhkdC/3.png" style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
+    <select id="modeSelect" onchange="modeChange(this)" class="center">
       <option value="0">View </option>
       <option value="1">Add route</option>
       <option value="2">Edit route</option>
     </select>
-    <input id="goToLocationInput" onkeypress="goToLocation(event)" />
-    <button class="submitButton" id="goToLocationButton" onclick="goToLocation()">search</button>
-    <button class="functionalButton pad" id="showHideRoutes" onclick="showHideRoutes()">show/hide routes</button>
-    <button class="functionalButton pad" id="showMyLocation" onclick="showMyLocation()">show my location (beta)</button>
+    <input id="goToLocationInput" onkeypress="goToLocation(event)" class="center"/>
+    <button  class="submitButton" id="goToLocationButton" onclick="goToLocation()" class="center">
+      <img id="goToLocationButtonImage" src="https://i.ibb.co/BPSDW54/search.png" style="max-width: 8px; max-height: 8px;" alt="search">
+    </button>
+    <!-- <button class="functionalButton pad" id="showHideRoutes" onclick="showHideRoutes()">show/hide routes</button> -->
+    <button class="functionalButton pad center" id="showMyLocation" onclick="showMyLocation()" style="display: none;">show my location (beta)</button>
+    <span class="pad center" style="float: right;">
+      <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg" style="max-width: 14px; max-height: 14px;">
+      <select id="languageSelect" onchange="languageChange(this)">
+        <option value="0">Español</option>
+        <option value="1">English</option>
+      </select>
+    </span>
     <div id="routeViewDiv" style="display: none;">
 
     </div>
     <div id="routeCreateDiv" style="display: none;">
       <input id="routeInputPhase" value=0 style="display: none;"></span>
       <span id="userInstructionText">Click the map to select start location</span>
-      <button class="submitButton" id="confirmButton" type="button" onclick="confirmButtonPress()">confirm</button>
-      <span class="pad"> or follow my location! (beta)  <button class="functionalButton pad" id="showHideRoutes" onclick="startFollowing()">follow</button></span>
+      <button class="submitButton" id="confirmButtonTop" type="button" onclick="confirmButtonPress()">confirm</button>
+      <span style="display: none;" class="pad"> or follow my location! (beta)  <button class="functionalButton pad" id="followMeButton" onclick="startFollowing()">follow</button></span>
       <button class="redButton pad" id="stopFollowingButton" style="display: none;" onclick="stopFollowing()">stop following</button>
       <button id="goBackButton" type="button" onclick="goBackButtonPress()" value="back"
         style="display: none;">back</button>
@@ -40,12 +50,12 @@
       <div id="routeInformationDiv" style="display: none;">
         <div style="display:flex" class="pad">
           <div id="leftColumn" style="display: flex; flex-flow:row wrap;" class="pad">
-            <span class="pad">From:
-              <span id="fromLocationInfoTop"> </span><input id="fromLocationInputTop" type="text"></input></span>
+            <span class="pad" id="fromLocationLabel">From:</span>
+              <span id="fromLocationInfoTop"> </span><input id="fromLocationInputTop" type="text"></input>
 
-            <span class="pad">To: <span id="toLocationInfoTop"></span><input id="toLocationInputTop"
-                type="text"></input></span>
-            <span class="pad">Leaving every ~<span id="frequencyInfoTop"></span><select name="frequency"
+            <span class="pad" id="toLocationLabel">To:</span> <span id="toLocationInfoTop"></span><input id="toLocationInputTop"
+                type="text"></input>
+            <span class="pad" id="frequencySelectorLabel">Frequency - every~</span><span id="frequencyInfoTop"></span><select name="frequency"
                 id="frequencySelectorInfoInputTop" style="display: none;">
                 <option value="?">?</option>
                 <option value="5m">5m</option>
@@ -55,13 +65,12 @@
                 <option value="30m">30m</option>
                 <option value="1hr">1hr</option>
                 <option value="2hr">2hr</option>
-              </select></span>
-            <span class="pad">From: <span id="startTimeTop"></span><input type="time" id="startTimeInputTop"
+              </select>
+            <span class="pad" id="startTimeLabelTop">From:</span> <span id="startTimeTop"></span><input type="time" id="startTimeInputTop"
                 style="display: none;">
-            </span>
-            <span class="pad"> To:
+            <span class="pad" id="endTimeLabelTop"> To:</span>
               <span id="endTimeTop"></span><input class="input" type="time" id="endTimeInputTop"
-                style="display: none;"></span>
+                style="display: none;">
 
             <div class="pad">
               <input id="colourPickerTop" type="color" style="text-align: end; height: 100%;">
@@ -77,11 +86,9 @@
             <div style="display:flex" class="pad">
               <div id="returnleftColumn" style="display: flex; flex-flow:row wrap;" class="pad">
                 <span id="returnInfoTop"></span>
-                <span class="pad">From: <input type="time" id="startTimeReturnTop" style="display: block;">
-                </span>
-                <span class="pad"> To:
-                  <input class="input" type="time" id="endTimeReturnTop" style="display: block;"></span>
-
+                <span class="pad" id="startTimeEditLabel">From: </span><input type="time" id="startTimeReturnTop" style="display: block;">
+                <span class="pad" id="endTimeEditLabel"> To:</span>
+                  <input class="input" type="time" id="endTimeReturnTop" style="display: block;">
               </div>
             </div>
 
@@ -126,21 +133,23 @@
       routes</button>
   </div>
   </div>
-  <div id="map" style="height: 100%;"></div>
+  <div id="map" style="height: 94%;"></div>
   <div id="warnings-panel"></div>
   <div id="infoPanel" style="display:none">
     <div id="rowDiv" style="display: flex;">
       <div id="outboundInfo" style="flex:50%; border-right: solid; padding-right:5px;">
         <p style="font-weight: bold;"><span id="fromLocationInfo"></span></p>
         <p style="font-weight: bold;">-> <span id="toLocationInfo"></span></p>
-        <p>Every ~<span id="frequencyInfo"></span></p>
-        <p>First: <span id="startTime"></span> Last: <span id="endTime"></span> </p>
+        <p><span id="everyLabel">Every ~</span><span id="frequencyInfo"></span></p>
+        <p><span id="startTimeLabel">First:</span> <span id="startTime"></span> <span id="endTimeLabel">Last: </span> <span id="endTime"></span> </p>
       </div>
       <div id="returnInfo" style="flex:50%; border-left: solid; padding-left: 5px;">
         <p style="font-weight: bold;"><span id="fromLocationInfoReturn"></span></p>
         <p style="font-weight: bold;">-> <span id="toLocationInfoReturn"></span></p>
-        <p>Every ~<span id="frequencyInfoReturn"></span></p>
-        <p>First: <span id="startTimeReturn"></span> Last: <span id="endTimeReturn"></span> </p>
+        <p><span id="everyLabelReturn">Every ~</span><span id="frequencyInfoReturn"></span></p>
+        <p><span id="startTimeLabelReturn">First:</span><span id="startTimeReturn"></span>
+           <span id="endTimeLabelRet">Last: </span> <span id="endTimeReturn"></span> 
+        </p>
       </div>
     </div>
   </div>
@@ -153,12 +162,17 @@
 </html>
 <style>
   .pad {
-    padding: 3px;
+    padding: 5px;
   }
 
   .redButton {
     color: whitesmoke;
     background-color: maroon;
+  }
+
+  #body {
+    background-color: #87fbb5;
+    background-image: linear-gradient(140deg, #D1E6D9 0%, #A8DAB5 50%, #94D2A5 75%, #D1E6D9 95%);
   }
 
   .submitButton {
@@ -167,8 +181,7 @@ sapphire blue #1667A3;
 opal #A5BCBE;
 apple green #85B500;
 */
-    color: whitesmoke;
-    background-color: #85B500;
+    background-color: #9ED6AD;
   }
 
   .functionalButton {
@@ -179,6 +192,10 @@ apple green #85B500;
 */
     color: whitesmoke;
     background-color: #8800d6;
+  }
+
+  .center{
+    top:50%
   }
 </style>
 
@@ -316,10 +333,6 @@ apple green #85B500;
     }
   }
 
-  function initPage() {
-    var apis = fetch()
-  }
-
   function getLineById(id) {
     polylines.forEach(element => {
       if (element.id == id) {
@@ -385,11 +398,29 @@ apple green #85B500;
 
   }
 
+  function validateConfirm(phaseInt){
+    console.log(phaseInt)
+    switch(phaseInt){
+      case 0:
+        console.log(greenMarker)
+        break;
+      case 1:
+      case 2:
+    }
+    return true
+  }
+
   function confirmButtonPress() {
     var phaseint = document.getElementById("routeInputPhase").value
-    phaseint++
-    document.getElementById("routeInputPhase").value = phaseint
-    setInstructionText(phaseint)
+    var validate = validateConfirm(phaseint)
+    if(validate == true){
+      phaseint++
+      document.getElementById("routeInputPhase").value = phaseint
+      setInstructionText(phaseint)
+    }
+    else{
+      console.log(validate)
+    }
   }
 
   function goBackButtonPress() {
@@ -400,6 +431,8 @@ apple green #85B500;
   }
 
   function setInstructionText(number) {
+    var spanish = document.getElementById("languageSelect").selectedIndex == 0
+
     var instructionText = document.getElementById("userInstructionText")
     var goBackButton = document.getElementById("goBackButton")
     var recalculateButton = document.getElementById("recalculateButton")
@@ -407,27 +440,27 @@ apple green #85B500;
 
     recalculateButton.style.display = "none"
     if (number == 0) {
-      instructionText.textContent = "Click the map to select start location"
+      instructionText.textContent = spanish ? "Haga clic en el mapa para establecer la ubicación de inicio y luego presione confirmar" : "Click the map to select start location and then press confirm"
       goBackButton.style.display = "none"
     }
     if (number == 1) {
-      instructionText.textContent = "Click to set end location"
+      instructionText.textContent = spanish ? "Haga clic para establecer la ubicación final y luego presione confirmar" : "Click to set end location and then press confirm"
       goBackButton.style.display = "block"
     }
     if (number == 2) {
-      instructionText.textContent = "Calculating route..."
+      instructionText.textContent = spanish ? "Calculando ruta..." : "Calculating route..."
       goBackButton.style.display = "none"
       confirmButton.style.display = "none"
       findDirections()
     }
     if (number == 3) {
-      instructionText.textContent = "Drag the start/end markers or the blue line to match it to the route..."
+      instructionText.textContent = spanish ? "Arrastra los marcadores de inicio/fin o la línea azul para que coincida con la ruta... luego haga clic en confirmar." : "Drag the start/end markers or the blue line to match it to the route... then click confirm."
       confirmButton.style.display = "block"
       recalculateButton.style.display = "block"
       goBackButton.style.display = "none"
     }
     if (number == 4) {
-      instructionText.textContent = "Please fill out the following information for the service"
+      instructionText.textContent = spanish ? "Por favor complete la siguiente información para el servicio" : "Please fill out the following information for the service"
       document.getElementById("routeEditDiv").style.display = "block"
       document.getElementById("editInstructionText").style.display = "none"
       enableEditTop()
@@ -440,7 +473,7 @@ apple green #85B500;
       line.id = curr._id
       line.route = curr
       currentHighlightedRoute = line;
-      instructionText.textContent = "Please fill out the return information, and edit the return route on the map"
+      instructionText.textContent = spanish? "Complete la información de la ruta de regreso y edite la ruta de regreso en el mapa" : "Please fill out the return information, and edit the return route on the map"
       document.getElementById("returnInfoTop").style.display = "block"
       enableAddReturnRoute()
     }
@@ -473,7 +506,7 @@ apple green #85B500;
     //findDirections(true)
     document.getElementById("returnrouteEditDiv").style.display = "block"
 
-    setEditInstructionText("editing return route directions")
+    setEditInstructionText(0)
   }
 
   function setSelectedIndex(selector, valueToSet) {
@@ -823,6 +856,8 @@ apple green #85B500;
 
   function populateInfoTop(route) {
     var from = document.getElementById("fromLocationInfoTop")
+    var spanish = document.getElementById("languageSelect").selectedIndex ==0
+
     if (from) { from.textContent = route.origin }
 
     document.getElementById("toLocationInfoTop").textContent = route.destination;
@@ -834,12 +869,12 @@ apple green #85B500;
       document.getElementById("returnInfoTop").style.display = "block"
       document.getElementById("startTimeReturnTop").value = route.returnStartTime
       document.getElementById("endTimeReturnTop").value = route.returnEndTime
-      document.getElementById("addReturnButtonTop").textContent = "Edit return route"
+      document.getElementById("addReturnButtonTop").textContent = spanish ? "Editar ruta de regreso" : "Edit return route"
     }
     else {
       document.getElementById("startTimeReturnTop").value = null
       document.getElementById("endTimeReturnTop").value = null
-      document.getElementById("addReturnButtonTop").textContent = "Add return route"
+      document.getElementById("addReturnButtonTop").textContent = spanish ? "Crear ruta de regreso" : "Add return route"
     }
 
   }
@@ -884,6 +919,19 @@ apple green #85B500;
   }
 
   function initialize() {
+    var userLang = navigator.language || navigator.userLanguage; 
+    console.log("The language is: " + userLang);
+    if(userLang.includes("en-")){
+      document.getElementById("languageSelect").selectedIndex = 1
+      languageChange({selectedIndex: 1})
+    }
+    else{
+      document.getElementById("languageSelect").selectedIndex = 0
+      languageChange({selectedIndex: 0})
+
+
+    }
+
     var myLatlng = new google.maps.LatLng(16.733911888003078, -92.64308697053372);
     let color = "green"
     let url = "https://maps.google.com/mapfiles/ms/icons/";
@@ -1249,7 +1297,7 @@ apple green #85B500;
         markers.push(ib);
       }
       else if (mode == 2) {
-        setEditInstructionText("edit the route information as you like then click finished when you are done")
+        setEditInstructionText(1)
         populateInfoTop(route);
         enableEditTop()
         //editRoutePoints()
@@ -1303,7 +1351,15 @@ apple green #85B500;
     }
   }
 
-  function setEditInstructionText(newText) {
+  function setEditInstructionText(newInt) {
+    var spanish = document.getElementById("languageSelect").selectedIndex == 0
+    var newText = ""
+    if(newInt == 0){
+      newText = spanish ? "edición de direcciones de ruta de regreso" : "editing return route directions"
+    }
+    else if(newInt == 1){
+      newText = spanish ? "edite la información de la ruta como desee y luego haga clic en confirmar cuando haya terminado" : "edit the route information as you like then click confirm when you are done"
+    }
     document.getElementById("editInstructionText").textContent = newText
   }
   // Sets the map on all markers in the array.
@@ -1415,6 +1471,115 @@ apple green #85B500;
       .catch((e) => {
         window.alert("Directions request failed due to " + e);
       });
+    }
+
+  function languageChange(element){
+    console.log(element.selectedIndex)
+    var languageIndex = element.selectedIndex
+    var spanish = languageIndex == 0;
+    var phaseInt = document.getElementById("routeInputPhase").value
+    setInstructionText(phaseInt)
+    if(greenMarker){
+      greenMarker.setLabel(spanish ? "Inicio de Ruta" : "Route Start")
+    }
+    if(redMarker){
+      redMarker.setLabel(spanish ? "Fin de Ruta" : "Route End")
+    }
+
+
+    if(languageIndex == 0){
+      //spanish
+      console.log("language now spanish")
+      document.getElementById("editInstructionText").textContent = "Haga clic en una ruta para editarla"
+      document.getElementById("frequencySelectorLabel").textContent = "Frequencia - Cada ~"
+      document.getElementById("goToLocationButtonImage").alt = "Buscar"
+      document.getElementById("showMyLocation").textContent = "Mostrar Mi Ubicación"
+      document.getElementById("followMeButton").textContent = "Sígueme"
+      document.getElementById("stopFollowingButton").textContent = "Deja de seguirme"
+      document.getElementById("goBackButton").textContent = "Regresa"
+      document.getElementById("recalculateButton").textContent = "Recalcular Ruta"
+      document.getElementById("fromLocationLabel").textContent = "Inicio: "
+      document.getElementById("toLocationLabel").textContent = "Fin: "
+      document.getElementById("startTimeLabelTop").textContent = "Comienza: "
+      document.getElementById("endTimeLabelTop").textContent = "Termina: "
+      document.getElementById("enableRouteEditsButtonTop").textContent = "Editar Ruta"
+      document.getElementById("addReturnButtonTop").textContent = "Crear ruta de regreso"
+      document.getElementById("startTimeEditLabel").textContent = "Comienza: "
+      document.getElementById("endTimeEditLabel").textContent = "Termina: "
+      document.getElementById("submitEditsButtonTop").textContent = "Confirmar Cambios"
+      document.getElementById("deleteRouteButtonTop").textContent = "Borrar Ruta"
+      document.getElementById("reallyDeleteRouteButtonTop").textContent = "Realmente Borrar Ruta"
+      document.getElementById("cancelDeleteButton").textContent = "Cancelar Borrar"
+      document.getElementById("everyLabel").textContent = "Cada: "
+      document.getElementById("everyLabelReturn").textContent = "Cada: "
+      document.getElementById("startTimeLabel").textContent = "Comienza: "
+      document.getElementById("startTimeLabelReturn").textContent = "Comienza: "
+      document.getElementById("endTimeLabel").textContent = "Termina: "
+      document.getElementById("endTimeLabelRet").textContent = "Termina: "
+      document.getElementById("confirmButtonTop").textContent = "Confirmar"
+
+      var options = Array.from(document.getElementById("modeSelect").options)
+      options.forEach(element => {
+        if(element.value == 0){
+          element.textContent = "Ver"
+        }
+        else if(element.value == 1){
+          element.textContent = "Crear"
+        }
+        else if(element.value == 2){
+          element.textContent = "Editar"
+        }
+      });
+    }
+    else if(languageIndex==1){
+      //english
+      console.log("language now english")
+      document.getElementById("editInstructionText").textContent = "Click on a route to edit"
+
+      document.getElementById("frequencySelectorLabel").textContent = "Frequency - Every ~"
+      document.getElementById("goToLocationButtonImage").alt = "Search"
+      document.getElementById("showMyLocation").textContent = "Show My Location"
+      document.getElementById("followMeButton").textContent = "Follow Me"
+      document.getElementById("stopFollowingButton").textContent = "Stop Following"
+      document.getElementById("goBackButton").textContent = "Go Back"
+      document.getElementById("recalculateButton").textContent = "Recalculate Route"
+      document.getElementById("fromLocationLabel").textContent = "From: "
+      document.getElementById("toLocationLabel").textContent = "To: "
+      document.getElementById("startTimeLabelTop").textContent = "First: "
+      document.getElementById("endTimeLabelTop").textContent = "Last: "
+      document.getElementById("enableRouteEditsButtonTop").textContent = "Edit Route"
+      document.getElementById("addReturnButtonTop").textContent = "Add Return Route"
+      document.getElementById("startTimeEditLabel").textContent = "First: "
+      document.getElementById("endTimeEditLabel").textContent = "Last: "
+      document.getElementById("submitEditsButtonTop").textContent = "Submit Edits"
+      document.getElementById("deleteRouteButtonTop").textContent = "Delete Route"
+      document.getElementById("reallyDeleteRouteButtonTop").textContent = "Really Delete Route"
+      document.getElementById("cancelDeleteButton").textContent = "Cancel Delete"
+      document.getElementById("everyLabel").textContent = "Every: "
+      document.getElementById("everyLabelReturn").textContent = "Every: "
+      document.getElementById("startTimeLabel").textContent = "First: "
+      document.getElementById("startTimeLabelReturn").textContent = "First: "
+      document.getElementById("endTimeLabel").textContent = "Last: "
+      document.getElementById("endTimeLabelRet").textContent = "Last: "
+      confirmButtonTop
+      document.getElementById("confirmButtonTop").textContent = "Confirm"
+      
+      var options = Array.from(document.getElementById("modeSelect").options)
+      options.forEach(element => {
+        if(element.value == 0){
+          element.textContent = "View"
+        }
+        else if(element.value == 1){
+          element.textContent = "Create"
+        }
+        else if(element.value == 2){
+          element.textContent = "Edit"
+        }
+      });
+    }
+    else{
+      console.log("something went wrong")
+    }
   }
 
   function showSteps(directionResult, markerArray, stepDisplay, map) {
