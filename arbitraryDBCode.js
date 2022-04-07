@@ -16,6 +16,14 @@ getAllRoutes = async function(){
     return await routes.find().toArray()
 }
 
+deleteAll = async function(){
+  await client.connect()
+      const database = client.db("Collectivivo");
+      const routes = database.collection("routes");
+      const result = await routes.deleteMany({});
+      console.log(result);
+}
+
 saveRoute = async function(newRoute) {
     console.log(newRoute)
     if(newRoute.id != null){
@@ -37,12 +45,14 @@ saveRoute = async function(newRoute) {
   } 
   
 
-getAllRoutes().then((got) =>{ got.forEach(x => {
-    console.log(x.points[0], x.points[x.points.length -1])
-    var updated = x;
-    updated.startLat = x.points[0][0]
-    updated.startLng = x.points[0][1]
-    updated.endLat = x.points[x.points.length -1][0]
-    updated.endLng = x.points[x.points.length -1][1]
-    saveRoute(updated)
-})})
+deleteAll()
+
+// getAllRoutes().then((got) =>{ got.forEach(x => {
+//     console.log(x.points[0], x.points[x.points.length -1])
+//     var updated = x;
+//     updated.startLat = x.points[0][0]
+//     updated.startLng = x.points[0][1]
+//     updated.endLat = x.points[x.points.length -1][0]
+//     updated.endLng = x.points[x.points.length -1][1]
+//     saveRoute(updated)
+// })})

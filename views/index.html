@@ -233,8 +233,8 @@ apple green #85B500;
   var debugIterator = 0;
   //var editingReturn = false;
 
-  //var myIp = 'https://www.rutascolectivos.info'
-  var myIp = 'http://localhost:5555'
+  var myIp = 'https://www.rutascolectivos.info'
+ // var myIp = 'http://localhost:5555'
 
   var windowHtml = document.getElementById("infoPanel").cloneNode(true);
   //collectivo = <div><h2 id="routeTitle" value="#title"></h2><p value="#contents"></p></div>
@@ -465,22 +465,29 @@ apple green #85B500;
     }
     if (number == 5) {
       //sub
-      var curr = submitEditsTop(false, uuidv4(), false)
+      var newId = uuidv4()
+      var curr = submitEditsTop(false, newId, false)
 
       var line = drawLine(curr)
       line.id = curr._id
       line.route = curr
+      line.route.findMeId = newId
       currentHighlightedRoute = line;
       instructionText.textContent = spanish? "Complete la información de la ruta de regreso y edite la ruta de regreso en el mapa" : "Please fill out the return information, and edit the return route on the map"
       document.getElementById("returnInfoTop").style.display = "block"
       enableAddReturnRoute()
     }
     if (number == 6) {
-      var curr = submitEditsTop(false, currentHighlightedRoute.route.findMeId, true)
-      var line = drawLineFromPoints(curr.returnPoints, curr, true)
-      line.route = curr
-      currentHighlightedRoute = line;
+      var curr = submitEditsTop(false, currentHighlightedRoute.route.findMeId, true);
+
       instructionText.textContent = "Thank you!"
+
+      var line = drawLineFromPoints(curr.returnPoints, curr, true)
+      directionsRendererLocal.setMap(null)
+      number++;
+      //line.route = curr
+      //currentHighlightedRoute = line;
+      
     }
   }
 
@@ -665,7 +672,8 @@ apple green #85B500;
       endTimeInput.value = null
     }
     endTimeInput.style.display = "block"
-    if (currentHighlightedRoute && currentHighlightedRoute.returnPoints) {
+    console.log(currentHighlightedRoute)
+    if (currentHighlightedRoute.route && currentHighlightedRoute.route.returnPoints) {
       document.getElementById("returnrouteEditDiv").style.display = "block"
     }
     else {
@@ -1068,6 +1076,7 @@ apple green #85B500;
   }
 
   function drawPolylines(routes) {
+    console.log(routes.length, "routes")
     routes.forEach(route => {
       var line = drawLine(route)
       var returnLine = drawLineFromPoints(route.returnPoints, route, true)
