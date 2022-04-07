@@ -104,7 +104,9 @@ app.listen(port, () => {
 });
 
 saveRoute = async function(newRoute) {
-  console.log(newRoute)
+
+  var findId = newRoute.findId;
+  delete newRoute.findId;
 
   if(newRoute.points.length > 0){
     newRoute.startLat = newRoute.points[0][0]
@@ -113,23 +115,38 @@ saveRoute = async function(newRoute) {
     newRoute.endLng = newRoute.points[newRoute.points.length -1][1]
   }
 
-  if(newRoute.id != null){
+  if(findId != null){
+    //looking to find a route we just made
+    console.log('update return');
+
     await client.connect()
     const database = client.db("Collectivivo");
     const routes = database.collection("routes");
+    const query = {newId : findId}
+    const options = {}
+    var natch = await routes.find(query)
+    
+    if(natch != null){
+      console.log("found a match!")
+      const result = await routes.findOneAndReplace({"newId" : findId}, newRoute).then(x => {  });
 
+      console.log(result)
+    }
+  }
+  else if(newRoute.id != null){
+    // classic update
+    await client.connect()
+    const database = client.db("Collectivivo");
+    const routes = database.collection("routes");
     const result = await routes.findOneAndReplace({"_id" : ObjectId(newRoute.id)}, newRoute).then(x => {  });
-    console.log(result);
     console.log('update');
   }
-  else{
+  else if(newRoute.newId != null){
     await client.connect()
     const database = client.db("Collectivivo");
     const routes = database.collection("routes"); 
     const result = await routes.insertOne(newRoute).then(x => {  });
-    console.log(result);
     console.log('new document');
-    var updated = x;
   }
   
 } 
@@ -188,6 +205,7 @@ getAllRoutes = async function(){
 }
 
 const fs = require('fs');
+const res = require('express/lib/response');
 const beautify = filePath => {
 	let data = fs.readFileSync(filePath).toString();
 	let object = JSON.parse(data);

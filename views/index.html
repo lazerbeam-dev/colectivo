@@ -234,12 +234,11 @@ apple green #85B500;
   //var editingReturn = false;
 
   var myIp = 'https://www.rutascolectivos.info'
-  //var myIp = 'http://localhost:5555'
+ // var myIp = 'http://localhost:5555'
 
   var windowHtml = document.getElementById("infoPanel").cloneNode(true);
   //collectivo = <div><h2 id="routeTitle" value="#title"></h2><p value="#contents"></p></div>
   function showHideRoutes() {
-    console.log(polylines)
     if (showingRoutes) {
       polylines.forEach(x => x.setMap(null))
       showingRoutes = false;
@@ -315,14 +314,9 @@ apple green #85B500;
 
       var path = currentHighlightedRoute.getPath()
       var trybesmart
-      console.log(path)
       var i = 0
       Object.keys(path).forEach(key => {
-        console.log("yo", i)
         i++
-        console.log(key)
-        console.log(path[key])
-        console.log(path[key].length)
         if (path[key].length && path.length && path[key].length == path.length) {
           trybesmart = key;
         }
@@ -440,7 +434,7 @@ apple green #85B500;
     var instructionText = document.getElementById("userInstructionText")
     var goBackButton = document.getElementById("goBackButton")
     var recalculateButton = document.getElementById("recalculateButton")
-    var confirmButton = document.getElementById("confirmButton")
+    var confirmButton = document.getElementById("confirmButtonTop")
 
     recalculateButton.style.display = "none"
     if (number == 0) {
@@ -471,22 +465,29 @@ apple green #85B500;
     }
     if (number == 5) {
       //sub
-      var curr = submitEditsTop(false, uuidv4(), false)
+      var newId = uuidv4()
+      var curr = submitEditsTop(false, newId, false)
 
       var line = drawLine(curr)
       line.id = curr._id
       line.route = curr
+      line.route.findMeId = newId
       currentHighlightedRoute = line;
       instructionText.textContent = spanish? "Complete la información de la ruta de regreso y edite la ruta de regreso en el mapa" : "Please fill out the return information, and edit the return route on the map"
       document.getElementById("returnInfoTop").style.display = "block"
       enableAddReturnRoute()
     }
     if (number == 6) {
-      var curr = submitEditsTop(true, currentHighlightedRoute.route.findMeId, true)
-      var line = drawLineFromPoints(curr.returnPoints, curr, true)
-      line.route = curr
-      currentHighlightedRoute = line;
+      var curr = submitEditsTop(false, currentHighlightedRoute.route.findMeId, true);
+
       instructionText.textContent = "Thank you!"
+
+      var line = drawLineFromPoints(curr.returnPoints, curr, true)
+      directionsRendererLocal.setMap(null)
+      number++;
+      //line.route = curr
+      //currentHighlightedRoute = line;
+      
     }
   }
 
@@ -671,7 +672,8 @@ apple green #85B500;
       endTimeInput.value = null
     }
     endTimeInput.style.display = "block"
-    if (currentHighlightedRoute && currentHighlightedRoute.returnPoints) {
+    console.log(currentHighlightedRoute)
+    if (currentHighlightedRoute.route && currentHighlightedRoute.route.returnPoints) {
       document.getElementById("returnrouteEditDiv").style.display = "block"
     }
     else {
@@ -757,12 +759,6 @@ apple green #85B500;
     var pointsEdited = points.length > 0
     var returnPointsEdited = returnPoints.length > 0
 
-    console.log("yo")
-    console.log("return points edited", returnPointsEdited)
-    console.log(returnPoints)
-    console.log("points edited", pointsEdited)
-    console.log(points)
-
     var routeJson = {
       colour: document.getElementById("colourPickerTop").value,
       startTime: startTime,
@@ -777,8 +773,8 @@ apple green #85B500;
       returnStartTime: returnstartTime,
       returnEndTime: returnendTime,
       id: currentHighlightedRoute ? currentHighlightedRoute.route._id : null,
-      findMeId: followOnId ? followOnId : null,
-      originalFindId: submittingReturn ? followOnId : null,
+      newId: followOnId ? followOnId : null,
+      findId: submittingReturn == true ? followOnId : null,
     }
 
     var overlaps = getOverlappingSegments(routeJson)
@@ -786,7 +782,7 @@ apple green #85B500;
       routeJson.outArrowPercents = overlaps.out;
       routeJson.returnArrowPercents = overlaps.return;
     }
-
+    console.log(routeJson.findId)
 
     console.log("submitting edits top")
 
@@ -830,9 +826,6 @@ apple green #85B500;
     routes.push(points)
     var originName = document.getElementById("start").value
     var destinationName = document.getElementById("end").value
-
-    console.log(document.getElementById("frequencySelector").value)
-
     var routeJson = {
       colour: document.getElementById("colourPicker").value,
       startTime: startTime,
@@ -969,7 +962,6 @@ apple green #85B500;
 
     google.maps.event.addListener(greenMarker, 'dragend', function (event) {
       SetStartLocation(event.latLng)
-      console.log(document.getElementById("routeEditPhase"));
       if (document.getElementById("routeInputPhase").value >= 2 || mode == 2) {
         recalculateRoute()
       }
@@ -1031,8 +1023,6 @@ apple green #85B500;
       fin = fin.concat(element)
     });
 
-    // console.log(validSequences)
-    // console.log(fin)
     return fin
   }
 
@@ -1063,7 +1053,6 @@ apple green #85B500;
   }
 
   function getOverlappingSegments(route) {
-    console.log(route)
     if (route.returnPoints != null) {
       var resolution = 3
 
@@ -1087,6 +1076,7 @@ apple green #85B500;
   }
 
   function drawPolylines(routes) {
+    console.log(routes.length, "routes")
     routes.forEach(route => {
       var line = drawLine(route)
       var returnLine = drawLineFromPoints(route.returnPoints, route, true)
@@ -1109,7 +1099,6 @@ apple green #85B500;
     var tosend = []
     
     if(points && points[0].lat != null){
-      console.log(points)
       tosend = points
     }
     else{
@@ -1258,7 +1247,6 @@ apple green #85B500;
     google.maps.event.addListener(routePath, 'click', function (click) {
 
 
-      console.log(route)
       var boxText = document.createElement("div");
       createInfoIfNotExist()
       var infoHtml = document.getElementById("infoPanel")
@@ -1285,7 +1273,6 @@ apple green #85B500;
       if (mode == 0) {
         populateInfo(route)
         boxText.appendChild(infoHtml)
-        console.log(route.points[0])
         var myOptions = {
           content: boxText,
           position: { lat: route.points[0][0], lng: route.points[0][1] }
@@ -1330,7 +1317,6 @@ apple green #85B500;
       debugIterator++;
       if(currentRouteTrackLine != null){ currentRouteTrackLine.setMap(null)}
       drawLineFromPoints(trackingPoints)
-      console.log(pos)
     } catch (e) {
       console.log(e)
     }
@@ -1419,7 +1405,6 @@ apple green #85B500;
     newDirections.routes[0].overview_path.forEach(point => {
       newPoints.push([point.lat(), point.lng()])
     });
-    console.log("is return", isReturnRoute);
 
     if (isReturnRoute == true) {
       returnPoints = newPoints
@@ -1478,7 +1463,6 @@ apple green #85B500;
     }
 
   function languageChange(element){
-    console.log(element.selectedIndex)
     var languageIndex = element.selectedIndex
     var spanish = languageIndex == 0;
     var phaseInt = document.getElementById("routeInputPhase").value
@@ -1493,7 +1477,6 @@ apple green #85B500;
 
     if(languageIndex == 0){
       //spanish
-      console.log("language now spanish")
       document.getElementById("editInstructionText").textContent = "Haga clic en una ruta para editarla"
       document.getElementById("frequencySelectorLabel").textContent = "Frequencia - Cada ~"
       document.getElementById("goToLocationButtonImage").alt = "Buscar"
@@ -1537,7 +1520,6 @@ apple green #85B500;
     }
     else if(languageIndex==1){
       //english
-      console.log("language now english")
       document.getElementById("editInstructionText").textContent = "Click on a route to edit"
 
       document.getElementById("frequencySelectorLabel").textContent = "Frequency - Every ~"
