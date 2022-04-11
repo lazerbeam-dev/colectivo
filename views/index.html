@@ -26,7 +26,7 @@
       <img id="goToLocationButtonImage" src="https://i.ibb.co/BPSDW54/search.png" style="max-width: 8px; max-height: 8px;" alt="search">
     </button>
     <!-- <button class="functionalButton pad" id="showHideRoutes" onclick="showHideRoutes()">show/hide routes</button> -->
-    <button class="functionalButton pad center" id="showMyLocation" onclick="showMyLocation()" style="display: none;">show my location (beta)</button>
+    <button class="functionalButton pad center" id="showMyLocation" onclick="showMyLocation()" style="display: block">show my location (beta)</button>
     <span class="pad center" style="float: right;">
       <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg" style="max-width: 14px; max-height: 14px;">
       <select id="languageSelect" onchange="languageChange(this)">
@@ -45,8 +45,10 @@
       <button class="redButton pad" id="stopFollowingButton" style="display: none;" onclick="stopFollowing()">stop following</button>
       <button id="goBackButton" type="button" onclick="goBackButtonPress()" value="back"
         style="display: none;">back</button>
-      <button id="recalculateButton" type="button" onclick="recalculateRoute()" value="recalculate route"
+      <button id="recalculateButton" class="functionalButton" type="button" onclick="recalculateRoute()" value="recalculate route"
         style="display: none;">recalculate route</button>
+        <button id="addAnotherRoute" class="submitButton" type="button" onclick="addAnotherRoute(this)" value="Add another route"
+        style="display: none;">Add Another Route</button>
     </div>
     <div id="routeEditDiv" style="display:none;">
       <input id="routeEditPhase" value=0 style="display: none;">
@@ -233,10 +235,20 @@ apple green #85B500;
   var debugIterator = 0;
   //var editingReturn = false;
 
-  var myIp = 'https://www.rutascolectivos.info'
- // var myIp = 'http://localhost:5555'
+  //var myIp = 'https://www.rutascolectivos.info'
+ var myIp = 'http://localhost:5555'
 
   var windowHtml = document.getElementById("infoPanel").cloneNode(true);
+  
+  function addAnotherRoute(button){
+    document.getElementById("routeInputPhase").value = 0;
+    document.getElementById("confirmButtonTop").style.display = "block"
+    document.getElementById(button.style.display = "none")
+    setInstructionText(0)
+    points = [];
+    returnPoints = [];
+  }
+  
   //collectivo = <div><h2 id="routeTitle" value="#title"></h2><p value="#contents"></p></div>
   function showHideRoutes() {
     if (showingRoutes) {
@@ -483,6 +495,10 @@ apple green #85B500;
       instructionText.textContent = "Thank you!"
 
       var line = drawLineFromPoints(curr.returnPoints, curr, true)
+      document.getElementById("routeEditDiv").style.display = "none"
+      document.getElementById("confirmButtonTop").style.display = "none"
+
+      document.getElementById("addAnotherRoute").style.display = "block"
       directionsRendererLocal.setMap(null)
       number++;
       //line.route = curr
@@ -673,7 +689,7 @@ apple green #85B500;
     }
     endTimeInput.style.display = "block"
     console.log(currentHighlightedRoute)
-    if (currentHighlightedRoute.route && currentHighlightedRoute.route.returnPoints) {
+    if (currentHighlightedRoute && currentHighlightedRoute.route && currentHighlightedRoute.route.returnPoints) {
       document.getElementById("returnrouteEditDiv").style.display = "block"
     }
     else {
@@ -1026,7 +1042,7 @@ apple green #85B500;
     return fin
   }
 
-  function getPercentages(outs, returns) {
+  function getPercentages(outs, returns, isReturn) {
     var i = 0
     var indexes = []
     outs.forEach(element => {
@@ -1034,7 +1050,7 @@ apple green #85B500;
       if (!returns.includes(element)) {
         var jser = JSON.parse(element)
         var submit = { lat: Number(jser[0]), lng: Number(jser[1]) }
-        //placeNewMarker(submit)
+        placeNewMarker(submit)
         indexes.push(i)
       }
     });
@@ -1043,8 +1059,12 @@ apple green #85B500;
 
     var percentages = []
     noIsolated.forEach(indexerino => {
-      var percent = Math.round(indexerino / outs.length * 100)
+      var percent = Math.round((indexerino  / outs.length) * 100)
+      console.log(indexerino, percent)
       if (!percentages.includes(percent)) {
+        if(isReturn){
+          percent = 100 - percent
+        }
         percentages.push(percent)
       }
     });
@@ -1060,12 +1080,20 @@ apple green #85B500;
         return JSON.stringify([each_element[0].toFixed(resolution), each_element[1].toFixed(resolution)]);
       });
 
+      console.log(returns)
+      console.log(route.returnPoints)
+
       var outs = route.points.map(function (each_element) {
         return JSON.stringify([each_element[0].toFixed(resolution), each_element[1].toFixed(resolution)]);
       });
 
-      var outPercents = getPercentages(outs, returns)
-      var retPercents = getPercentages(returns, outs)
+      //var latlng = polyline.GetPointAtDistance(polyline.Distance()*(desiredPercentage)/100);
+
+      var outPercents = getPercentages(outs, returns, false)
+      var retPercents = getPercentages(returns, outs, true)
+
+      console.log(outPercents)
+      console.log(outs.length)
 
       return {
         out: outPercents,
@@ -1156,6 +1184,38 @@ apple green #85B500;
       fillOpacity: 1
     };
 
+    var outArrowPercents = route.outArrowPercents;
+    var returnArrowPercents = route.returnArrowPercents;
+
+    
+
+    var percent = -50;
+    var previousPercent = -50;
+    var sections = []
+    var currentSection = []
+    for(var i =0; i<outArrowPercents.length; i++){
+      percent=outArrowPercents[i]
+
+      if(percent - previousPercent == 1){
+        currentSection.push(percent)
+      }
+      else{
+        if(currentSection.length > 0){
+          sections.push(currentSection)
+          currentSection = []
+        }
+      }
+    }
+    if(outArrowPercents.length > 0){
+      // console.log(outArrowPercents)
+      // console.log(returnArrowPercents)
+      // console.log(currentSection)
+      // console.log(sections)
+      for(var sectionIndex = 0; i<sections.length; i++){
+        console.log(i, sections[i])
+      }
+    }
+    //console.log("generateIcons")
 
     var icons = []
     for (var i = 0; i < numWanted; i++) {
@@ -1172,7 +1232,7 @@ apple green #85B500;
       }
 
       if (actuallyDoIt) {
-        var str = spacing * i + "%"
+        var str = (isReturn ? 100 - spacing * i : spacing * i) + "%"
         icons.push(
           {
             icon: symbolOne,
@@ -1295,7 +1355,7 @@ apple green #85B500;
       }
       populateInfoTop(route);
 
-      getOverlappingSegments(route)
+      //getOverlappingSegments(route)
     });
   }
 
