@@ -1,14 +1,14 @@
 {
-	"appId": "com.rutascolectivos.app",
-	"appName": "Rutas Colectivos",
-	"bundledWebRuntime": true,
-	"webDir": "views",
-	"plugins": {
-		"SplashScreen": {
-			"launchShowDuration": 0
-		}
-	},
-	"server": {
-		"cleartext": true
-	}
+  "appId": "com.rutascolectivos.app",
+  "appName": "Rutas Colectivos",
+  "bundledWebRuntime": true,
+  "webDir": "views",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  },
+  "server": {
+    "cleartext": true
+  }
 }
