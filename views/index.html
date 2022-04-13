@@ -142,6 +142,7 @@
   <div id="map" style="height: 94%;"></div>
   <div id="warnings-panel"></div>
   <div id="infoPanel" style="display:none">
+    <img src="https://cdn2.iconfinder.com/data/icons/arrows-1-1/512/xxx034-512.png" alt="swap">
     <div id="rowDiv" style="display: flex;">
       <div id="outboundInfo" style="flex:50%; border-right: solid; padding-right:5px;">
         <p style="font-weight: bold;"><span id="fromLocationInfo"></span></p>
@@ -1050,21 +1051,17 @@ apple green #85B500;
       if (!returns.includes(element)) {
         var jser = JSON.parse(element)
         var submit = { lat: Number(jser[0]), lng: Number(jser[1]) }
-        placeNewMarker(submit)
+        //placeNewMarker(submit)
         indexes.push(i)
       }
     });
 
-    var noIsolated = removeIsolatedPoints(indexes)
+    var noIsolated = indexes //removeIsolatedPoints(indexes)
 
     var percentages = []
     noIsolated.forEach(indexerino => {
       var percent = Math.round((indexerino  / outs.length) * 100)
-      console.log(indexerino, percent)
       if (!percentages.includes(percent)) {
-        if(isReturn){
-          percent = 100 - percent
-        }
         percentages.push(percent)
       }
     });
@@ -1077,11 +1074,11 @@ apple green #85B500;
       var resolution = 3
 
       var returns = route.returnPoints.map(function (each_element) {
-        return JSON.stringify([each_element[0].toFixed(resolution), each_element[1].toFixed(resolution)]);
+        return JSON.stringify([each_element[0].toFixed(3), each_element[1].toFixed(3)]);
       });
 
-      console.log(returns)
-      console.log(route.returnPoints)
+      // console.log(returns)
+      // console.log(route.returnPoints)
 
       var outs = route.points.map(function (each_element) {
         return JSON.stringify([each_element[0].toFixed(resolution), each_element[1].toFixed(resolution)]);
@@ -1159,7 +1156,7 @@ apple green #85B500;
     var url = "http://maps.google.com/mapfiles/ms/icons/";
     url += "blue" + "-dot.png";
 
-    redMarker = new google.maps.Marker({
+    var blueMarker = new google.maps.Marker({
       draggable: true,
       position: loc,
       map: mapLocal,
@@ -1171,6 +1168,8 @@ apple green #85B500;
   }
 
   function generateIcons(route, isReturn) {
+    var finPercents = []
+
     var numWanted = 20
 
     var spacing = Math.floor(100 / numWanted)
@@ -1187,7 +1186,9 @@ apple green #85B500;
     var outArrowPercents = route.outArrowPercents;
     var returnArrowPercents = route.returnArrowPercents;
 
-    
+    if(!outArrowPercents || !returnArrowPercents){
+      return
+    }
 
     var percent = -50;
     var previousPercent = -50;
@@ -1195,68 +1196,63 @@ apple green #85B500;
     var currentSection = []
     for(var i =0; i<outArrowPercents.length; i++){
       percent=outArrowPercents[i]
-
-      if(percent - previousPercent == 1){
+      if(percent - previousPercent <= route.points.length < 100 ? 100 / route.points.length : 1){
         currentSection.push(percent)
       }
       else{
-        if(currentSection.length > 0){
-          sections.push(currentSection)
-          currentSection = []
-        }
+        //endsection
+        sections.push(currentSection)
+        //console.log("ends", currentSection)
+        currentSection = []
       }
     }
+    sections.push(currentSection)
     if(outArrowPercents.length > 0){
-      // console.log(outArrowPercents)
-      // console.log(returnArrowPercents)
-      // console.log(currentSection)
-      // console.log(sections)
-      for(var sectionIndex = 0; i<sections.length; i++){
-        console.log(i, sections[i])
+      console.log(sections)
+      for(var i = 0; i<sections.length; i++){
+        var midIndex = Math.floor(sections[i].length / 2)
+        var midSection = sections[i][midIndex]
+        finPercents.push(midSection)
       }
     }
     //console.log("generateIcons")
 
     var icons = []
-    for (var i = 0; i < numWanted; i++) {
-      var actuallyDoIt = false;
-      if (!isReturn) {
-        if (route.outArrowPercents && route.outArrowPercents.includes(spacing * i)) {
-          actuallyDoIt = true;
+    
+    for(var i = 0; i< finPercents.length; i++){
+      var str = finPercents[i] + "%"
+      icons.push(
+        {
+          icon: symbolOne,
+          offset: str
         }
-      }
-      else {
-        if (route.returnArrowPercents && route.returnArrowPercents.includes(spacing * i)) {
-          actuallyDoIt = true;
-        }
-      }
-
-      if (actuallyDoIt) {
-        var str = (isReturn ? 100 - spacing * i : spacing * i) + "%"
-        icons.push(
-          {
-            icon: symbolOne,
-            offset: str
-          }
-        )
-      }
+      )
     }
 
-    //var pc = isReturn ? 100: 0
 
-    // if(icons.length > 0){
-    //   icons.push({
-    //   icon:symbolOne,
-    //   offset: 100 + "%"
-    // })
-    // icons.push({
-    //   icon:symbolOne,
-    //   offset: 0 + "%"
-    // })
+    // for (var i = 0; i < numWanted; i++) {
+    //   var actuallyDoIt = false;
+    //   if (!isReturn) {
+    //     if (route.outArrowPercents && route.outArrowPercents.includes(spacing * i)) {
+    //       actuallyDoIt = true;
+    //     }
+    //   }
+    //   else {
+    //     if (route.returnArrowPercents && route.returnArrowPercents.includes(spacing * i)) {
+    //       actuallyDoIt = true;
+    //     }
+    //   }
+
+    //   if (actuallyDoIt) {
+    //     var str = (isReturn ? 100 - spacing * i : spacing * i) + "%"
+    //     icons.push(
+    //       {
+    //         icon: symbolOne,
+    //         offset: str
+    //       }
+    //     )
+    //   }
     // }
-    // else{
-    // pathy = "M -1,0 1,0 0,-1 z"
-    //pathy = "M -1,0 1,0 0,1 z" 
 
     var symbol = {
       path: pathy,
@@ -1355,7 +1351,7 @@ apple green #85B500;
       }
       populateInfoTop(route);
 
-      //getOverlappingSegments(route)
+      getOverlappingSegments(route)
     });
   }
 
