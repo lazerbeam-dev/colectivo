@@ -26,7 +26,7 @@
       <img id="goToLocationButtonImage" src="https://i.ibb.co/BPSDW54/search.png" style="max-width: 8px; max-height: 8px;" alt="search">
     </button>
     <button  class="functionalButton" onclick="showMyLocation()" class="center">
-      <img id="goToLocationButtonImage" src="https://cdn.onlinewebfonts.com/svg/img_430719.png" style="max-width: 8px; max-height: 8px;" alt="show my location">
+      <img id="goToMyLocationButtonImage" src="https://cdn.onlinewebfonts.com/svg/img_430719.png" style="max-width: 8px; max-height: 8px;" alt="show my location">
     </button>
 
     <!-- <button class="functionalButton pad" id="showHideRoutes" onclick="showHideRoutes()">show/hide routes</button> -->
@@ -1435,8 +1435,8 @@ apple green #85B500;
     try {
       const position = await Capacitor.Plugins.Geolocation.getCurrentPosition();
       const pos = {
-        lat: position.coords.latitude +debugIterator,
-        lng: position.coords.longitude + debugIterator,
+        lat: position.coords.latitude,// +debugIterator,
+        lng: position.coords.longitude,// + debugIterator,
       };
       //alert(JSON.stringify(pos))
       // infoWindow.setPosition(pos);
@@ -1447,7 +1447,7 @@ apple green #85B500;
       placeBlueMarker(pos);
       trackingPoints.push(pos);
       localStorage.setItem('trackingPoints', JSON.stringify(trackingPoints));
-      debugIterator+= 0.001;
+     // debugIterator+= 0.001;
       if(currentRouteTrackLine != null){ currentRouteTrackLine.setMap(null)}
       currentRouteTrackLine = drawLineFromPoints(trackingPoints)
     } catch (e) {
