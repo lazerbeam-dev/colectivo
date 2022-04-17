@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "collectivo mapper",
   "bin": "./bin.js",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "android": "npx cap sync android && npx cap open android",
@@ -23,9 +23,9 @@
     "serverless-http": "^2.7.0"
   },
   "devDependencies": {
-    "@capacitor/android": "^3.4.3",
-    "@capacitor/cli": "^3.4.3",
-    "@capacitor/core": "^3.4.3",
+    "@capacitor/cli": "^2.5.0",
+    "@capacitor/core": "^2.5.0",
+    "@capacitor/android": "^2.5.0",
     "serverless-dotenv-plugin": "^3.12.2"
   }
 }

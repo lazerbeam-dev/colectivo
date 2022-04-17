@@ -42,6 +42,11 @@ app.post('/saveRoute', (req, res) => {
   res.send("route saved!")
 })
 
+app.post('/saveTrackingPoints', (req, res) => {
+  saveTrackingPoints(req.body)
+  res.send("tracking saved!")
+})
+
 app.get('/_health', (req, res) => {
   res.send({"status": true})
 })
@@ -149,7 +154,15 @@ saveRoute = async function(newRoute) {
     console.log('new document');
   }
   
-} 
+}
+
+saveTrackingPoints = async function(newRoute){
+  await client.connect()
+  const database = client.db("Collectivivo");
+  const routes = database.collection("trackingPoints"); 
+  const result = await routes.insertOne(newRoute).then(x => {  });
+  console.log('new document');
+}
 
 deleteRouteById = async function(id){
   await client.connect()
