@@ -25,9 +25,12 @@
     <button  class="submitButton" id="goToLocationButton" onclick="goToLocation()" class="center">
       <img id="goToLocationButtonImage" src="https://i.ibb.co/BPSDW54/search.png" style="max-width: 8px; max-height: 8px;" alt="search">
     </button>
+    <button  class="functionalButton" onclick="showMyLocation()" class="center">
+      <img id="goToLocationButtonImage" src="https://cdn.onlinewebfonts.com/svg/img_430719.png" style="max-width: 8px; max-height: 8px;" alt="show my location">
+    </button>
+
     <!-- <button class="functionalButton pad" id="showHideRoutes" onclick="showHideRoutes()">show/hide routes</button> -->
-    <button class="functionalButton pad center" id="showMyLocation" onclick="showMyLocation()" style="display: block">show my location (beta)</button>
-    <span class="pad center" style="float: right;">
+      <span class="pad center" style="float: right;">
       <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg" style="max-width: 14px; max-height: 14px;">
       <select id="languageSelect" onchange="languageChange(this)">
         <option value="0">Español</option>
@@ -41,14 +44,19 @@
       <input id="routeInputPhase" value=0 style="display: none;"></span>
       <span id="userInstructionText">Click the map to select start location</span>
       <button class="submitButton" id="confirmButtonTop" type="button" onclick="confirmButtonPress()">confirm</button>
-      <span style="display: none;" class="pad"> or follow my location! (beta)  <button class="functionalButton pad" id="followMeButton" onclick="startFollowing()">follow</button></span>
-      <button class="redButton pad" id="stopFollowingButton" style="display: none;" onclick="stopFollowing()">stop following</button>
       <button id="goBackButton" type="button" onclick="goBackButtonPress()" value="back"
         style="display: none;">back</button>
       <button id="recalculateButton" class="functionalButton" type="button" onclick="recalculateRoute()" value="recalculate route"
         style="display: none;">recalculate route</button>
         <button id="addAnotherRoute" class="submitButton" type="button" onclick="addAnotherRoute(this)" value="Add another route"
         style="display: none;">Add Another Route</button>
+    </div>
+    <div id="followMeDiv">
+      <span style="display: block;" class="pad" id="followMeInstructions"> or follow my location! (beta)</span>
+        <button class="functionalButton pad" id="followMeButton" onclick="startFollowing()">follow</button>
+        <button class="redButton pad" id="stopFollowingButton" style="display: none;" onclick="stopFollowing()">stop following</button>
+        <button class="submitButton pad" id="saveTrackingButton" style="display: none;" onclick="saveTrackingPoints()">save points as route</button>
+        <button class="redButton pad" id="deleteTrackingButton" style="display: none;" onclick="deleteTrackingPoints()">stop following</button> 
     </div>
     <div id="routeEditDiv" style="display:none;">
       <input id="routeEditPhase" value=0 style="display: none;">
@@ -224,6 +232,7 @@ apple green #85B500;
   var currentHighlightedReturn
   var greenMarker = null
   var redMarker = null
+  var blueMarker = null
   var directionsRendererLocal = ""
   var currentEditId = null;
 
@@ -236,7 +245,7 @@ apple green #85B500;
   var debugIterator = 0;
   //var editingReturn = false;
 
- var myIp = 'https://www.rutascolectivos.info'
+  var myIp = 'https://www.rutascolectivos.info'
  //var myIp = 'http://localhost:5555'
 
   var windowHtml = document.getElementById("infoPanel").cloneNode(true);
@@ -274,12 +283,51 @@ apple green #85B500;
     pushMyLocation();
     locationInterval = setInterval(function(){
       pushMyLocation()
-    }, 5000);
+    }, 2000);
     document.getElementById("stopFollowingButton").style.display = "flex"
+    document.getElementById("followMeInstructions").textContent = document.getElementById("languageSelect").selectedIndex == 0 ? "ahora siguiéndote, presiona dejar de seguir cuando llegues al final de la ruta" : "now following you, press stop following when you reach the end of the route"
+    document.getElementById("followMeButton").style.display = "none"
+    document.getElementById("routeCreateDiv").style.display = "none"
   }
 
   function stopFollowing(save){
+    console.log(trackingPoints)
+    document.getElementById("saveTrackingButton").style.display = "block"
+    document.getElementById("deleteTrackingButton").style.display = "block"
+    document.getElementById("stopFollowingButton").style.display = "none"
+    var len = trackingPoints.length;
+    document.getElementById("followMeInstructions").textContent = document.getElementById("languageSelect").selectedIndex == 0 ? "tienes una ruta de " + len + " puntos, que quieres hacer?" : "you have a " + len + " point route, what do you want to do?"
     clearInterval(locationInterval)
+  }
+
+  function deleteTrackingPoints(){
+    localStorage.setItem("trackingPoints", null)
+    blueMarker.setMap(null)
+    document.getElementById("followMeButton").style.display = "block"
+    currentRouteTrackLine.setMap(null)
+    document.getElementById("saveTrackingButton").style.display = "none"
+    document.getElementById("deleteTrackingButton").style.display = "none"
+  }
+
+  function saveTrackingPoints(){
+    var mostRecent = localStorage.getItem("trackingPoints")
+    try{
+      fetch(myIp + '/saveTrackingPoints', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({points: mostRecent}) //here this is how you send your datas
+    })
+      .then(response => {
+        console.log(response.text)
+        document.getElementById("followMeInstructions").textContent = document.getElementById("languageSelect").selectedIndex == 0 ? "Documento guardado con éxito!" : "Save successful!"
+      }).catch(error =>
+      {
+        console.log(error)
+      document.getElementById("followMeInstructions").textContent = document.getElementById("languageSelect").selectedIndex == 0 ? "Algo salió mal al guardar, asegúrese de estar conectado a Internet" : "Something went wrong with saving, please make sure you are connected to the internet"
+      })
+    } catch(e){
+      
+    }
   }
 
   function searchKeyPress(event) {
@@ -606,6 +654,8 @@ apple green #85B500;
       document.getElementById("routeCreateDiv").style.display = "none"
       document.getElementById("routeEditDiv").style.display = "none"
       document.getElementById("routeViewDiv").style.display = "block"
+      document.getElementById("followMeDiv").style.display = "none"
+
       mode = 0
       currentEditId = null;
       showEditbuttons(false)
@@ -617,6 +667,8 @@ apple green #85B500;
 
       document.getElementById("routeCreateDiv").style.display = "block"
       document.getElementById("routeEditDiv").style.display = "none"
+      document.getElementById("followMeDiv").style.display = "block"
+
       clearAllLines()
       mode = 1
       currentEditId = null;
@@ -638,6 +690,7 @@ apple green #85B500;
       document.getElementById("routeEditDiv").style.display = "block"
       document.getElementById("routeViewDiv").style.display = "none"
       document.getElementById("routeCreateDiv").style.display = "none"
+      document.getElementById("followMeDiv").style.display = "none"
 
       mode = 2
       showEditbuttons(true)
@@ -1140,8 +1193,8 @@ apple green #85B500;
     var routePath = new google.maps.Polyline({
       path: tosend,
       geodesic: false,
-      strokeColor: route?.colour ? route.colour : "#FFFFFF",
-      strokeOpacity: standardRouteOpacity,
+      strokeColor: route?.colour ? route.colour : "#0000FF",
+      strokeOpacity: route ? standardRouteOpacity : 0.8,
       strokeWeight: 5,
       icons: route? generateIcons(route, isReturn): null
     });
@@ -1150,6 +1203,26 @@ apple green #85B500;
     routePath.setMap(mapLocal);
     routePath.id = route ? route._id : null
     return routePath
+  }
+
+  function placeBlueMarker(loc){
+    if(blueMarker == null){
+      var url = "http://maps.google.com/mapfiles/ms/icons/";
+      url += "blue" + "-dot.png";
+      blueMarker =new google.maps.Marker({
+      draggable: false,
+      position: loc,
+      map: mapLocal,
+      title: "Your location",
+      icon: {
+        url: url
+      }
+    });
+    }
+    else{
+      blueMarker.setMap(mapLocal)
+      blueMarker.setPosition(loc)
+    }
   }
 
   function placeNewMarker(loc) {
@@ -1165,6 +1238,8 @@ apple green #85B500;
         url: url
       }
     });
+
+    return blueMarker
   }
 
   function generateIcons(route, isReturn) {
@@ -1360,19 +1435,21 @@ apple green #85B500;
     try {
       const position = await Capacitor.Plugins.Geolocation.getCurrentPosition();
       const pos = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
+        lat: position.coords.latitude +debugIterator,
+        lng: position.coords.longitude + debugIterator,
       };
       //alert(JSON.stringify(pos))
       // infoWindow.setPosition(pos);
       // infoWindow.setContent("Location found.");
       // infoWindow.open(map);
       mapLocal.setCenter(pos);
-      placeNewMarker(pos);
+
+      placeBlueMarker(pos);
       trackingPoints.push(pos);
-      debugIterator++;
+      localStorage.setItem('trackingPoints', JSON.stringify(trackingPoints));
+      debugIterator+= 0.001;
       if(currentRouteTrackLine != null){ currentRouteTrackLine.setMap(null)}
-      drawLineFromPoints(trackingPoints)
+      currentRouteTrackLine = drawLineFromPoints(trackingPoints)
     } catch (e) {
       console.log(e)
     }
@@ -1536,7 +1613,7 @@ apple green #85B500;
       document.getElementById("editInstructionText").textContent = "Haga clic en una ruta para editarla"
       document.getElementById("frequencySelectorLabel").textContent = "Frequencia - Cada ~"
       document.getElementById("goToLocationButtonImage").alt = "Buscar"
-      document.getElementById("showMyLocation").textContent = "Mostrar Mi Ubicación"
+      //ocument.getElementById("showMyLocation").textContent = "Mostrar Mi Ubicación"
       document.getElementById("followMeButton").textContent = "Sígueme"
       document.getElementById("stopFollowingButton").textContent = "Deja de seguirme"
       document.getElementById("goBackButton").textContent = "Regresa"
@@ -1560,6 +1637,8 @@ apple green #85B500;
       document.getElementById("endTimeLabel").textContent = "Termina: "
       document.getElementById("endTimeLabelRet").textContent = "Termina: "
       document.getElementById("confirmButtonTop").textContent = "Confirmar"
+      document.getElementById("saveTrackingButton").textContent = "Entregar"
+      document.getElementById("deleteTrackingButton").textContent = "Eliminar"
 
       var options = Array.from(document.getElementById("modeSelect").options)
       options.forEach(element => {
@@ -1580,7 +1659,7 @@ apple green #85B500;
 
       document.getElementById("frequencySelectorLabel").textContent = "Frequency - Every ~"
       document.getElementById("goToLocationButtonImage").alt = "Search"
-      document.getElementById("showMyLocation").textContent = "Show My Location"
+      //document.getElementById("showMyLocation").textContent = "Show My Location"
       document.getElementById("followMeButton").textContent = "Follow Me"
       document.getElementById("stopFollowingButton").textContent = "Stop Following"
       document.getElementById("goBackButton").textContent = "Go Back"
@@ -1603,7 +1682,8 @@ apple green #85B500;
       document.getElementById("startTimeLabelReturn").textContent = "First: "
       document.getElementById("endTimeLabel").textContent = "Last: "
       document.getElementById("endTimeLabelRet").textContent = "Last: "
-      confirmButtonTop
+      document.getElementById("saveTrackingButton").textContent = "Save"
+      document.getElementById("deleteTrackingButton").textContent = "Delete"
       document.getElementById("confirmButtonTop").textContent = "Confirm"
       
       var options = Array.from(document.getElementById("modeSelect").options)
@@ -1612,10 +1692,10 @@ apple green #85B500;
           element.textContent = "View"
         }
         else if(element.value == 1){
-          element.textContent = "Create"
+          element.textContent = "Add Route"
         }
         else if(element.value == 2){
-          element.textContent = "Edit"
+          element.textContent = "Edit Route"
         }
       });
     }
