@@ -16,19 +16,16 @@
 <body id="body" style="height: 99%; ">
   <article id="floating-panel" style="min-height: 6%;" class="center">
     <img src="https://i.ibb.co/XjwhkdC/3.png" style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
-    <select id="modeSelect" onchange="modeChange(this)" class="center">
+    <!-- <select id="modeSelect" onchange="modeChange(this)" class="center">
       <option value="0">View </option>
       <option value="1">Add route</option>
       <option value="2">Edit route</option>
-    </select>
+    </select> -->
     <input id="goToLocationInput" onkeypress="goToLocation(event)" class="center"/>
-    <button  class="submitButton" id="goToLocationButton" onclick="goToLocation()" class="center">
+    <button  class="submitButton" id="goToLocationButton" onclick="goToLocation()" title="search" class="center">
       <img id="goToLocationButtonImage" src="https://i.ibb.co/BPSDW54/search.png" style="max-width: 8px; max-height: 8px;" alt="search">
     </button>
-    <button  class="functionalButton" onclick="showMyLocation()" class="center">
-      <img id="goToMyLocationButtonImage" src="https://cdn.onlinewebfonts.com/svg/img_430719.png" style="max-width: 8px; max-height: 8px;" alt="show my location">
-    </button>
-
+   
     <!-- <button class="functionalButton pad" id="showHideRoutes" onclick="showHideRoutes()">show/hide routes</button> -->
       <span class="pad center" style="float: right;">
       <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg" style="max-width: 14px; max-height: 14px;">
@@ -51,7 +48,7 @@
         <button id="addAnotherRoute" class="submitButton" type="button" onclick="addAnotherRoute(this)" value="Add another route"
         style="display: none;">Add Another Route</button>
     </div>
-    <div id="followMeDiv">
+    <div id="followMeDiv" style="display: none;">
       <span style="display: block;" class="pad" id="followMeInstructions"> or follow my location! (beta)</span>
         <button class="functionalButton pad" id="followMeButton" onclick="startFollowing()">follow</button>
         <button class="redButton pad" id="stopFollowingButton" style="display: none;" onclick="stopFollowing()">stop following</button>
@@ -169,6 +166,8 @@
     </div>
   </div>
   <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+
+  </div>
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0&callback=initMap&v=weekly"
     async></script>
@@ -245,8 +244,8 @@ apple green #85B500;
   var debugIterator = 0;
   //var editingReturn = false;
 
-  var myIp = 'https://www.rutascolectivos.info'
- //var myIp = 'http://localhost:5555'
+ //var myIp = 'https://www.rutascolectivos.info'
+  var myIp = 'http://localhost:5555'
 
   var windowHtml = document.getElementById("infoPanel").cloneNode(true);
   
@@ -627,134 +626,134 @@ apple green #85B500;
   }
 
   function modeChange(div) {
-    setMapOnAll(null)
-    clearAllLines()
-    document.getElementById("reallyDeleteRouteButtonTop").style.display = "none"
-    document.getElementById("cancelDeleteButton").style.display = "none"
+  //   setMapOnAll(null)
+  //   clearAllLines()
+  //   document.getElementById("reallyDeleteRouteButtonTop").style.display = "none"
+  //   document.getElementById("cancelDeleteButton").style.display = "none"
 
 
-    if (document.getElementById("editRoutePointsButton") == null) {
-      createInfoIfNotExist()
-    }
-    //clearAllLines();
+  //   if (document.getElementById("editRoutePointsButton") == null) {
+  //     createInfoIfNotExist()
+  //   }
+  //   //clearAllLines();
 
-    //view
-    if (div.selectedIndex == 0) {
-      drawRoutes()
+  //   //view
+  //   if (div.selectedIndex == 0) {
+  //     drawRoutes()
 
-      var editButton = document.getElementById("editButton")
-      if (editButton != null) {
-        editButton.style.display = "none"
-      }
+  //     var editButton = document.getElementById("editButton")
+  //     if (editButton != null) {
+  //       editButton.style.display = "none"
+  //     }
 
-      var editPointsButton = document.getElementById("editRoutePointsButton")
-      if (editPointsButton != null) {
-        editPointsButton.style.display = "none"
-      }
-      document.getElementById("routeCreateDiv").style.display = "none"
-      document.getElementById("routeEditDiv").style.display = "none"
-      document.getElementById("routeViewDiv").style.display = "block"
-      document.getElementById("followMeDiv").style.display = "none"
+  //     var editPointsButton = document.getElementById("editRoutePointsButton")
+  //     if (editPointsButton != null) {
+  //       editPointsButton.style.display = "none"
+  //     }
+  //     document.getElementById("routeCreateDiv").style.display = "none"
+  //     document.getElementById("routeEditDiv").style.display = "none"
+  //     document.getElementById("routeViewDiv").style.display = "block"
+  //     document.getElementById("followMeDiv").style.display = "none"
 
-      mode = 0
-      currentEditId = null;
-      showEditbuttons(false)
-    }
-    //add
-    else if (div.selectedIndex == 1) {
-      drawRoutes()
-      document.getElementById("routeViewDiv").style.display = "none"
+  //     mode = 0
+  //     currentEditId = null;
+  //     showEditbuttons(false)
+  //   }
+  //   //add
+  //   else if (div.selectedIndex == 1) {
+  //     drawRoutes()
+  //     document.getElementById("routeViewDiv").style.display = "none"
 
-      document.getElementById("routeCreateDiv").style.display = "block"
-      document.getElementById("routeEditDiv").style.display = "none"
-      document.getElementById("followMeDiv").style.display = "block"
+  //     document.getElementById("routeCreateDiv").style.display = "block"
+  //     document.getElementById("routeEditDiv").style.display = "none"
+  //     document.getElementById("followMeDiv").style.display = "block"
 
-      clearAllLines()
-      mode = 1
-      currentEditId = null;
-      showEditbuttons(false)
-    }
-    //edit
-    else if (div.selectedIndex == 2) {
-      drawRoutes()
+  //     clearAllLines()
+  //     mode = 1
+  //     currentEditId = null;
+  //     showEditbuttons(false)
+  //   }
+  //   //edit
+  //   else if (div.selectedIndex == 2) {
+  //     drawRoutes()
 
-      var editButton = document.getElementById("editButton")
-      if (editButton != null) {
-        editButton.style.display = "block"
-      }
+  //     var editButton = document.getElementById("editButton")
+  //     if (editButton != null) {
+  //       editButton.style.display = "block"
+  //     }
 
-      var editPointsButton = document.getElementById("editRoutePointsButton")
-      if (editPointsButton != null) {
-        editPointsButton.style.display = "block"
-      }
-      document.getElementById("routeEditDiv").style.display = "block"
-      document.getElementById("routeViewDiv").style.display = "none"
-      document.getElementById("routeCreateDiv").style.display = "none"
-      document.getElementById("followMeDiv").style.display = "none"
+  //     var editPointsButton = document.getElementById("editRoutePointsButton")
+  //     if (editPointsButton != null) {
+  //       editPointsButton.style.display = "block"
+  //     }
+  //     document.getElementById("routeEditDiv").style.display = "block"
+  //     document.getElementById("routeViewDiv").style.display = "none"
+  //     document.getElementById("routeCreateDiv").style.display = "none"
+  //     document.getElementById("followMeDiv").style.display = "none"
 
-      mode = 2
-      showEditbuttons(true)
-    }
+  //     mode = 2
+  //     showEditbuttons(true)
+  //   }
 
-  }
+  // }
 
-  function clearAllLines() {
-    if (polylines) {
-      //console.log(polylines)
-      polylines.forEach(x => x.setMap(null))
+  // function clearAllLines() {
+  //   if (polylines) {
+  //     //console.log(polylines)
+  //     polylines.forEach(x => x.setMap(null))
 
-    }
-  }
-
-
-  function enableEditTop() {
-    var startLocationInput = document.getElementById("fromLocationInputTop")
-    var toLocationInput = document.getElementById("toLocationInputTop")
-    var frequencySelectorInput = document.getElementById("frequencySelectorInfoInputTop")
+  //   }
+  // }
 
 
-    if (mode == 2) {
-      startLocationInput.value = document.getElementById("fromLocationInfoTop").textContent
-      toLocationInput.value = document.getElementById("toLocationInfoTop").textContent
-    }
-    startLocationInput.style.display = "block"
-    toLocationInput.style.display = "block"
-    frequencySelectorInput.style.display = "block"
+  // function enableEditTop() {
+  //   var startLocationInput = document.getElementById("fromLocationInputTop")
+  //   var toLocationInput = document.getElementById("toLocationInputTop")
+  //   var frequencySelectorInput = document.getElementById("frequencySelectorInfoInputTop")
 
 
-    if (setSelectedIndex(frequencySelectorInput, document.getElementById("frequencyInfoTop").textContent) == false) {
-      //frequencySelectorInput.selectedIndex = 0
-    }
-    var startTimeInput = document.getElementById("startTimeInputTop")
-    if (document.getElementById("startTimeTop").textContent != null) {
-      startTimeInput.value = document.getElementById("startTimeTop").textContent
-    }
-    else {
-      startTimeInput.value = null
-    }
-    startTimeInput.style.display = "block"
+  //   if (mode == 2) {
+  //     startLocationInput.value = document.getElementById("fromLocationInfoTop").textContent
+  //     toLocationInput.value = document.getElementById("toLocationInfoTop").textContent
+  //   }
+  //   startLocationInput.style.display = "block"
+  //   toLocationInput.style.display = "block"
+  //   frequencySelectorInput.style.display = "block"
 
-    var endTimeInput = document.getElementById("endTimeInputTop")
-    if (document.getElementById("endTimeTop").textContent != null) {
-      endTimeInput.value = document.getElementById("endTimeTop").textContent
-    }
-    else {
-      endTimeInput.value = null
-    }
-    endTimeInput.style.display = "block"
-    console.log(currentHighlightedRoute)
-    if (currentHighlightedRoute && currentHighlightedRoute.route && currentHighlightedRoute.route.returnPoints) {
-      document.getElementById("returnrouteEditDiv").style.display = "block"
-    }
-    else {
-      document.getElementById("returnrouteEditDiv").style.display = "none"
-    }
-    document.getElementById("fromLocationInfoTop").style.display = "none"
-    document.getElementById("toLocationInfoTop").style.display = "none"
-    document.getElementById("frequencyInfoTop").style.display = "none"
-    document.getElementById("startTimeTop").style.display = "none"
-    document.getElementById("endTimeTop").style.display = "none"
-    document.getElementById("routeInformationDiv").style.display = "block"
+
+  //   if (setSelectedIndex(frequencySelectorInput, document.getElementById("frequencyInfoTop").textContent) == false) {
+  //     //frequencySelectorInput.selectedIndex = 0
+  //   }
+  //   var startTimeInput = document.getElementById("startTimeInputTop")
+  //   if (document.getElementById("startTimeTop").textContent != null) {
+  //     startTimeInput.value = document.getElementById("startTimeTop").textContent
+  //   }
+  //   else {
+  //     startTimeInput.value = null
+  //   }
+  //   startTimeInput.style.display = "block"
+
+  //   var endTimeInput = document.getElementById("endTimeInputTop")
+  //   if (document.getElementById("endTimeTop").textContent != null) {
+  //     endTimeInput.value = document.getElementById("endTimeTop").textContent
+  //   }
+  //   else {
+  //     endTimeInput.value = null
+  //   }
+  //   endTimeInput.style.display = "block"
+  //   console.log(currentHighlightedRoute)
+  //   if (currentHighlightedRoute && currentHighlightedRoute.route && currentHighlightedRoute.route.returnPoints) {
+  //     document.getElementById("returnrouteEditDiv").style.display = "block"
+  //   }
+  //   else {
+  //     document.getElementById("returnrouteEditDiv").style.display = "none"
+  //   }
+  //   document.getElementById("fromLocationInfoTop").style.display = "none"
+  //   document.getElementById("toLocationInfoTop").style.display = "none"
+  //   document.getElementById("frequencyInfoTop").style.display = "none"
+  //   document.getElementById("startTimeTop").style.display = "none"
+  //   document.getElementById("endTimeTop").style.display = "none"
+  //   document.getElementById("routeInformationDiv").style.display = "block"
 
   }
 
@@ -1214,6 +1213,7 @@ apple green #85B500;
       position: loc,
       map: mapLocal,
       title: "Your location",
+      label: document.getElementById("languageSelect").selectedIndex == 0 ? "estás aquí": "you are here",
       icon: {
         url: url
       }
@@ -1640,18 +1640,7 @@ apple green #85B500;
       document.getElementById("saveTrackingButton").textContent = "Entregar"
       document.getElementById("deleteTrackingButton").textContent = "Eliminar"
 
-      var options = Array.from(document.getElementById("modeSelect").options)
-      options.forEach(element => {
-        if(element.value == 0){
-          element.textContent = "Ver"
-        }
-        else if(element.value == 1){
-          element.textContent = "Crear"
-        }
-        else if(element.value == 2){
-          element.textContent = "Editar"
-        }
-      });
+      
     }
     else if(languageIndex==1){
       //english
@@ -1686,18 +1675,6 @@ apple green #85B500;
       document.getElementById("deleteTrackingButton").textContent = "Delete"
       document.getElementById("confirmButtonTop").textContent = "Confirm"
       
-      var options = Array.from(document.getElementById("modeSelect").options)
-      options.forEach(element => {
-        if(element.value == 0){
-          element.textContent = "View"
-        }
-        else if(element.value == 1){
-          element.textContent = "Add Route"
-        }
-        else if(element.value == 2){
-          element.textContent = "Edit Route"
-        }
-      });
     }
     else{
       console.log("something went wrong")
@@ -1721,5 +1698,6 @@ apple green #85B500;
 
 
 </script>
+
 
 </html>
