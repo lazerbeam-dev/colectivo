@@ -24,7 +24,6 @@ package:
    - '!.env.example'
    - '!package.json'
 
-	
 custom:
   dotenv:
   # add only whats required
@@ -44,7 +43,7 @@ functions:
           path: /{proxy+}
           method: ANY
           cors: 
-            origins: ["capacitor://localhost", "http://localhost"] # mobile config
+            origins: ["capacitor://localhost", "http://localhost", "http://localhost:5555"] # mobile config
             allowCredentials: false
             headers:
               - Content-Type
