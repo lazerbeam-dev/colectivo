@@ -26,6 +26,7 @@ jobs:
         cat > .env << EOF
         MONGO_URI=${{ secrets.MONGO_URI }}
         API_KEY=${{ secrets.API_KEY }}
+        NODE_ENV=production
         EOF
     - name: Install Serverless Framework
       run: npm install -g serverless
