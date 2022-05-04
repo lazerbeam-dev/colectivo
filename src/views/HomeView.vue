@@ -512,14 +512,16 @@ export default {
       trackingPoints: [],
       debugIterator: 0,
       // editingReturn: false,
-      // myIp: 'https://www.rutascolectivos.info',
-      myIp: 'http://localhost:8000',
+      myIp: 'https://www.rutascolectivos.info',
       windowHtml: null,
       google: null,
       maps: null
     }
   },
   async mounted () {
+    if (process.env.NODE_ENV === 'development') {
+      this.myip = 'http://localhost:8000'
+    }
     this.windowHtml = document.getElementById('infoPanel').cloneNode(true)
     this.google = await loader.load()
     this.initMap()

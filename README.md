@@ -1,6 +1,26 @@
 # App
 
 
+## frontend
+
+1. Install packages
+
+    `npm install`
+
+2. Run frontend
+
+    `npm run serve`
+
+## backoffice
+
+1. Run backoffice only
+
+    `npm run server:run`
+
+2. Run fresh build of frontend + backoffice [testing]
+
+    `npm run server:build`
+
 ## Deploy backoffice
 
 1. Install serverless package
