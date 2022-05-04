@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - master
+      - vue-master
 
 env:
   AWS_DEFAULT_REGION: us-west-1
