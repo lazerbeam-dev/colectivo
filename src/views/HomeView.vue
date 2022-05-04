@@ -474,9 +474,6 @@
 import { Loader } from 'google-maps'
 import { Geolocation } from '@capacitor/geolocation'
 
-const options = {}
-const loader = new Loader('AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0', options)
-
 export default {
   name: 'App',
   data () {
@@ -522,6 +519,10 @@ export default {
     if (process.env.NODE_ENV === 'development') {
       this.myIp = 'http://localhost:8000'
     }
+    const options = {}
+    const loader = new Loader('AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0', {
+    })
+
     this.windowHtml = document.getElementById('infoPanel').cloneNode(true)
     this.google = await loader.load()
     this.initMap()
@@ -1226,7 +1227,7 @@ export default {
         this.SetEndLocation(event.latLng)
         this.recalculateRoute()
       })
-      console.log(this.google)
+      console.log(this.mapLocal)
       this.google.maps.event.addListener(this.mapLocal, 'click', (event) => {
         if (this.mode === 1) {
           var phase = document.getElementById('routeInputPhase').value
@@ -1382,7 +1383,7 @@ export default {
       var url = 'http://maps.google.com/mapfiles/ms/icons/'
       url += 'blue' + '-dot.png'
 
-      var blueMarker = this.maps.Marker({
+      var blueMarker = new this.google.maps.Marker({
         draggable: true,
         position: loc,
         map: this.mapLocal,
