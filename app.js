@@ -27,7 +27,7 @@ app.use('/', express.static('views'))
 
 app.use(bodyParser.json())
 
-var allowOrigins = ["capacitor://localhost", "http://localhost"]
+var allowOrigins = ["capacitor://localhost", "http://localhost" , "http://localhost:5555"]
 if (process.env.NODE_ENV === "development") {
   allowOrigins.push("http://localhost:5555")
 }
