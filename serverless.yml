@@ -34,7 +34,7 @@ custom:
 
 functions:
   app:
-    handler: app.server 
+    handler: server.server 
     events: # events trigger lambda functions
       - http: # this is an API Gateway HTTP event trigger
           path: /

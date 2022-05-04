@@ -214,7 +214,6 @@ getAllRoutes = async function(){
 }
 
 const fs = require('fs');
-const res = require('express/lib/response');
 const beautify = filePath => {
 	let data = fs.readFileSync(filePath).toString();
 	let object = JSON.parse(data);
