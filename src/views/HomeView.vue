@@ -989,7 +989,7 @@ export default {
         }
       )
 
-      const stepDisplay = this.maps.InfoWindow()
+      const stepDisplay = new this.google.maps.InfoWindow()
       this.calculateAndDisplayRoute(
         directionsRenderer,
         directionsService,
@@ -1560,7 +1560,7 @@ export default {
             position: { lat: route.points[0][0], lng: route.points[0][1] }
           }
           // end example code for custom infobox
-          var ib = this.maps.InfoWindow(myOptions)
+          var ib = new this.google.maps.InfoWindow(myOptions)
           this.markers.forEach(marker => {
             marker.setMap(null)
           })
