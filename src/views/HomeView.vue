@@ -520,7 +520,7 @@ export default {
   },
   async mounted () {
     if (process.env.NODE_ENV === 'development') {
-      this.myip = 'http://localhost:8000'
+      this.myIp = 'http://localhost:8000'
     }
     this.windowHtml = document.getElementById('infoPanel').cloneNode(true)
     this.google = await loader.load()
@@ -1517,9 +1517,12 @@ export default {
         strokeWeight: 5,
         icons: icons
       })
+      console.log(this.google)
+      console.log(this.maps)
 
       this.polylines.push(routePath)
-      routePath.setMap(this.mapLocal)
+      console.log(routePath)
+      routePath.setMap(this.mapLocal) 
       routePath.id = route._id
       return routePath
     },
