@@ -32,7 +32,6 @@
     "@capacitor/cli": "^3.5.0",
     "@capacitor/core": "^3.5.0",
     "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-pwa": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-plugin-vuex": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
