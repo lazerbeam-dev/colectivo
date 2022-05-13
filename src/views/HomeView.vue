@@ -11,7 +11,8 @@
       >
       <select
         id="modeSelect"
-        onchange="modeChange(this)"
+        ref="modeSelectElem"
+        @change="modeChange($refs.modeSelectElem)"
         class="center"
       >
         <option value="0">
@@ -26,7 +27,7 @@
       </select>
       <input
         id="goToLocationInput"
-        onkeypress="goToLocation(event)"
+        @keyup.enter="goToLocation"
         class="center"
       >
       <button
@@ -60,7 +61,8 @@
         >
         <select
           id="languageSelect"
-          onchange="languageChange(this)"
+          ref="languageSelectElem"
+          @change="languageChange($refs.languageSelectElem)"
         >
           <option value="0">Español</option>
           <option value="1">English</option>
@@ -471,7 +473,8 @@
 </template>
 
 <script>
-import { Loader } from 'google-maps'
+// import { Loader } from 'google-maps'
+import { Loader } from '@googlemaps/js-api-loader';
 import { Geolocation } from '@capacitor/geolocation'
 
 export default {
@@ -520,8 +523,13 @@ export default {
       this.myIp = 'http://localhost:8000'
     }
     const options = {}
-    const loader = new Loader('AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0', {
-    })
+    // const loader = new Loader('AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0', {
+    // })
+    const loader = new Loader({
+      apiKey: "AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0",
+      version: "weekly",
+      libraries: ["places"]
+    });
 
     this.windowHtml = document.getElementById('infoPanel').cloneNode(true)
     this.google = await loader.load()
@@ -1565,6 +1573,7 @@ export default {
             marker.setMap(null)
           })
           // infoPanelLocal = ImageBitmapRenderingContext
+          console.log(ib)
           ib.open(this.mapLocal, this)
           this.markers.push(ib)
         } else if (this.mode === 2) {
@@ -1780,13 +1789,14 @@ export default {
         document.getElementById('endTimeLabelRet').textContent = 'Termina: '
         document.getElementById('confirmButtonTop').textContent = 'Confirmar'
 
-        var options = Array.from(document.getElementById('modeSelect').options)
+        const options = Array.from(document.getElementById('modeSelect').options)
+        console.log(options)
         options.forEach(element => {
-          if (element.value === 0) {
+          if (element.value == 0) {
             element.textContent = 'Ver'
-          } else if (element.value === 1) {
+          } else if (element.value == 1) {
             element.textContent = 'Crear'
-          } else if (element.value === 2) {
+          } else if (element.value == 2) {
             element.textContent = 'Editar'
           }
         })
@@ -1824,11 +1834,11 @@ export default {
 
         let options = Array.from(document.getElementById('modeSelect').options)
         options.forEach(element => {
-          if (element.value === 0) {
+          if (element.value == 0) {
             element.textContent = 'View'
-          } else if (element.value === 1) {
+          } else if (element.value == 1) {
             element.textContent = 'Create'
-          } else if (element.value === 2) {
+          } else if (element.value == 2) {
             element.textContent = 'Edit'
           }
         })
