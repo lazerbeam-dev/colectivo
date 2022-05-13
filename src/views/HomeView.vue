@@ -963,9 +963,9 @@ export default {
       console.log('findDirections', this.currentHighlightedRoute)
       console.log('currentHightlightedReturn', this.currentHighlightedReturn)
 
-      const directionsRenderer = this.maps.DirectionsRenderer({ map: this.mapLocal, draggable: true, suppressMarkers: true, polylineOptions: { zIndex: 10, strokeColor: '#0000FF', strokeWeight: 10, strokeOpacity: 0.7 } })
+      const directionsRenderer = new this.google.maps.DirectionsRenderer({ map: this.mapLocal, draggable: true, suppressMarkers: true, polylineOptions: { zIndex: 10, strokeColor: '#0000FF', strokeWeight: 10, strokeOpacity: 0.7 } })
 
-      const directionsService = this.maps.DirectionsService()
+      const directionsService = new this.google.maps.DirectionsService()
       this.directionsRendererLocal = directionsRenderer
       // directionsRenderer.setMap()
 
@@ -1573,8 +1573,7 @@ export default {
             marker.setMap(null)
           })
           // infoPanelLocal = ImageBitmapRenderingContext
-          console.log(ib)
-          ib.open(this.mapLocal, this)
+          ib.open(this.mapLocal, this.maps)
           this.markers.push(ib)
         } else if (this.mode === 2) {
           this.setEditInstructionText(1)
@@ -1669,7 +1668,6 @@ export default {
       this.editingDirections = false
       // modeChange()
       // Instantiate a directions service.
-      // const directionsService = this.maps.DirectionsService()
 
       // Create a map and center it on Manhattan.
       this.maps = new this.google.maps.Map(document.getElementById('map'), {
@@ -1790,7 +1788,6 @@ export default {
         document.getElementById('confirmButtonTop').textContent = 'Confirmar'
 
         const options = Array.from(document.getElementById('modeSelect').options)
-        console.log(options)
         options.forEach(element => {
           if (element.value == 0) {
             element.textContent = 'Ver'
