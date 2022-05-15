@@ -492,6 +492,7 @@
 import { Loader } from '@googlemaps/js-api-loader';
 import { Geolocation } from '@capacitor/geolocation'
 import { BackgroundTask } from '@robingenz/capacitor-background-task';
+import { App } from '@capacitor/app';
 
 export default {
   name: 'Home',
@@ -548,18 +549,19 @@ export default {
       libraries: ["places"]
     });
 
-    this.windowHtml = document.getElementById('infoPanel').cloneNode(true)
-    this.google = await loader.load()
-    this.initMap()
-
     App.addListener('appStateChange', async ({ isActive }) => {
       if (isActive) {
+        alert(isActive)
         return
       }
       // now app is not active
       this.startBackgroundTask()
     });
-    alert(this.taskId)
+    alert('Task:' + this.taskId)
+
+    this.windowHtml = document.getElementById('infoPanel').cloneNode(true)
+    this.google = await loader.load()
+    this.initMap()
   },
   methods: {
     async startBackgroundTask() {
