@@ -551,7 +551,6 @@ export default {
 
     App.addListener('appStateChange', async ({ isActive }) => {
       if (isActive) {
-        alert(isActive)
         return
       }
       // now app is not active
