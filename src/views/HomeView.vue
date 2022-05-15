@@ -557,7 +557,6 @@ export default {
       // now app is not active
       this.startBackgroundTask()
     });
-    alert('Task:' + this.taskId)
 
     this.windowHtml = document.getElementById('infoPanel').cloneNode(true)
     this.google = await loader.load()
