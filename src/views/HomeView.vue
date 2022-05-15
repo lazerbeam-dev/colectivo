@@ -51,6 +51,21 @@
       >
         show my location (beta)
       </button>
+      <button
+        class="functionalButton pad center"
+        style="display: block"
+        @click="startBackgroundTask()"
+      >
+        start tracker
+      </button>
+      <button
+        class="functionalButton pad center"
+        style="display: block"
+        @click="stopBackgroundTask()"
+      >
+        stop tracker
+      </button>
+      <div v-if="taskId">Task is running</div>
       <span
         class="pad center"
         style="float: right;"
@@ -476,12 +491,14 @@
 // import { Loader } from 'google-maps'
 import { Loader } from '@googlemaps/js-api-loader';
 import { Geolocation } from '@capacitor/geolocation'
+import { BackgroundTask } from '@robingenz/capacitor-background-task';
 
 export default {
-  name: 'App',
+  name: 'Home',
   data () {
     return {
       routes: [],
+      taskId: null,
       points: [],
       returnPoints: [],
       polyline: [],
@@ -534,8 +551,36 @@ export default {
     this.windowHtml = document.getElementById('infoPanel').cloneNode(true)
     this.google = await loader.load()
     this.initMap()
+
+    App.addListener('appStateChange', async ({ isActive }) => {
+      if (isActive) {
+        return
+      }
+      // now app is not active
+      this.startBackgroundTask()
+    });
+    alert(this.taskId)
   },
   methods: {
+    async startBackgroundTask() {
+      console.log('start background task ->')
+      
+      this.taskId = await BackgroundTask.beforeExit(async () => {
+        // BackgroundTask.finish({ taskId });
+        const position = await Geolocation.getCurrentPosition()
+        const pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        }
+        console.log(pos)
+      });
+      console.log(taskId)
+    },
+    stopBackgroundTask() {
+      console.log('stop background task')
+      BackgroundTask.finish({ taskId: this.taskId });
+      this.taskId = null
+    },
     addAnotherRoute (button) {
       document.getElementById('routeInputPhase').value = 0
       document.getElementById('confirmButtonTop').style.display = 'block'
