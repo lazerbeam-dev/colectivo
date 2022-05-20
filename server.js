@@ -8,6 +8,7 @@ const cors = require("cors");
 const bodyParser = require('body-parser');
 const sls = require('serverless-http');
 const path = require('path')
+const favicon = require('serve-favicon')
 
 const uri = process.env.MONGO_URI;
 const apiKey = process.env.API_KEY;
@@ -28,7 +29,8 @@ app.use('/', express.static('views'))
 app.use('/js', express.static(path.resolve(__dirname, './dist/js')))
 app.use('/img', express.static(path.resolve(__dirname, './dist/img')))
 app.use('/css', express.static(path.resolve(__dirname, './dist/css')))
-app.use('/favicon.ico', express.static(path.resolve(__dirname, './dist/favicon.ico')))
+app.use(favicon(path.resolve(__dirname, './dist/favicon.ico')))
+// app.use('/favicon.ico', express.static(path.resolve(__dirname, './dist/favicon.ico')))
 app.use('/manifest.json', express.static(path.resolve(__dirname, './dist/manifest.json')))
 app.use('/robots.txt', express.static(path.resolve(__dirname, './dist/robots.txt')))
 
