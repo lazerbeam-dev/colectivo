@@ -44,16 +44,16 @@ app.use(cors({
   optionsSuccessStatus: 200
 }))
 
-app.get('/favicon.ico', (req, res) => {
+app.get('/favicon.ico', async (req, res) => {
   var img = null
   if (process.env.NODE_ENV === 'development') {
     img = fs.readFileSync(path.join(__dirname, 'dist' , 'favicon.ico'));
   } else {
-    img = 's'
+    const response = await axios.get('https://rutascolectivos.s3.us-west-1.amazonaws.com/favicon.ico',  { responseType: 'arraybuffer' })
+    img = Buffer.from(response.data, "utf-8")
   }
-  // res.writeHead(200, {'Content-Type': 'image/x-icon' });
-  // res.end(img, 'binary');
-  res.send(path.join(__dirname, 'dist' , 'favicon.ico'))
+  res.writeHead(200, {'Content-Type': 'image/x-icon' });
+  res.end(img, 'binary');
 })
 
 app.post('/saveRoute', (req, res) => {
