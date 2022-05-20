@@ -8,12 +8,14 @@ const cors = require("cors");
 const bodyParser = require('body-parser');
 const sls = require('serverless-http');
 const path = require('path')
-const favicon = require('serve-favicon')
 
 const uri = process.env.MONGO_URI;
 const apiKey = process.env.API_KEY;
 const port = process.env.PORT || 8000;
-console.log(uri)
+
+const aws = require('aws-sdk');
+const s3 = new aws.S3();
+
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 //const client = new MongoClient('mongodb://localhost:27017');
 
@@ -29,8 +31,6 @@ app.use('/', express.static('views'))
 app.use('/js', express.static(path.resolve(__dirname, './dist/js')))
 app.use('/img', express.static(path.resolve(__dirname, './dist/img')))
 app.use('/css', express.static(path.resolve(__dirname, './dist/css')))
-// app.use(favicon(path.resolve(__dirname, './dist/favicon.ico')))
-app.use('/logo.png', express.static(path.join(__dirname, 'public' , 'logo.png')))
 app.use('/manifest.json', express.static(path.resolve(__dirname, './dist/manifest.json')))
 app.use('/robots.txt', express.static(path.resolve(__dirname, './dist/robots.txt')))
 
@@ -45,6 +45,28 @@ app.use(cors({
   origin: allowOrigins,
   optionsSuccessStatus: 200
 }))
+
+if (process.env.NODE_ENV === 'development') {
+  // app.use('/favicon.ico', express.static(path.join(__dirname, 'public' , 'favicon.ico')))
+  // app.use('/favicon.ico', express.static(path.join(__dirname, 'public' , 'favicon.ico')))
+  app.get('/favicon.ico', (req, res) => {
+    var img = fs.readFileSync(path.join(__dirname, 'public' , 'favicon.ico'));
+    res.writeHead(200, {'Content-Type': 'image/x-icon' });
+    res.end(img, 'binary');
+  })
+} else {
+  app.get('/favicon.ico', (req, res) => {
+    s3.getObject({ Bucket: 'rutascolectivos', Key: 'favicon.ico' })
+    .on('httpHeaders', function (statusCode, headers) {
+      res.set('Content-Length', headers['content-length']);
+      res.set('Content-Type', "image/x-icon");
+      this.response.httpResponse.createUnbufferedStream()
+          .pipe(res);
+     })
+     .send();
+  })
+}
+
 
 app.post('/saveRoute', (req, res) => {
   saveRoute(req.body)
