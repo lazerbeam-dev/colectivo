@@ -47,7 +47,7 @@ app.use(cors({
 }))
 
 app.get('/favicon.ico', (req, res) => {
-  var img = fs.readFileSync(path.join(__dirname, 'public' , 'favicon.ico'));
+  var img = fs.readFileSync(path.join(__dirname, 'dist' , 'favicon.ico'));
   res.writeHead(200, {'Content-Type': 'image/x-icon' });
   res.end(img, 'binary');
 })
