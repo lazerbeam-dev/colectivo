@@ -46,27 +46,11 @@ app.use(cors({
   optionsSuccessStatus: 200
 }))
 
-if (process.env.NODE_ENV === 'development') {
-  // app.use('/favicon.ico', express.static(path.join(__dirname, 'public' , 'favicon.ico')))
-  // app.use('/favicon.ico', express.static(path.join(__dirname, 'public' , 'favicon.ico')))
-  app.get('/favicon.ico', (req, res) => {
-    var img = fs.readFileSync(path.join(__dirname, 'public' , 'favicon.ico'));
-    res.writeHead(200, {'Content-Type': 'image/x-icon' });
-    res.end(img, 'binary');
-  })
-} else {
-  app.get('/favicon.ico', (req, res) => {
-    s3.getObject({ Bucket: 'rutascolectivos', Key: 'favicon.ico' })
-    .on('httpHeaders', function (statusCode, headers) {
-      res.set('Content-Length', headers['content-length']);
-      res.set('Content-Type', "image/x-icon");
-      this.response.httpResponse.createUnbufferedStream()
-          .pipe(res);
-     })
-     .send();
-  })
-}
-
+app.get('/favicon.ico', (req, res) => {
+  var img = fs.readFileSync(path.join(__dirname, 'public' , 'favicon.ico'));
+  res.writeHead(200, {'Content-Type': 'image/x-icon' });
+  res.end(img, 'binary');
+})
 
 app.post('/saveRoute', (req, res) => {
   saveRoute(req.body)
