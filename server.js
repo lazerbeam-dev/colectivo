@@ -8,13 +8,11 @@ const cors = require("cors");
 const bodyParser = require('body-parser');
 const sls = require('serverless-http');
 const path = require('path')
+const fs = require('fs');
 
 const uri = process.env.MONGO_URI;
 const apiKey = process.env.API_KEY;
 const port = process.env.PORT || 8000;
-
-const aws = require('aws-sdk');
-const s3 = new aws.S3();
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 //const client = new MongoClient('mongodb://localhost:27017');
@@ -47,9 +45,15 @@ app.use(cors({
 }))
 
 app.get('/favicon.ico', (req, res) => {
-  var img = fs.readFileSync(path.join(__dirname, 'dist' , 'favicon.ico'));
-  res.writeHead(200, {'Content-Type': 'image/x-icon' });
-  res.end(img, 'binary');
+  var img = null
+  if (process.env.NODE_ENV === 'development') {
+    img = fs.readFileSync(path.join(__dirname, 'dist' , 'favicon.ico'));
+  } else {
+    img = 's'
+  }
+  // res.writeHead(200, {'Content-Type': 'image/x-icon' });
+  // res.end(img, 'binary');
+  res.send(path.join(__dirname, 'dist' , 'favicon.ico'))
 })
 
 app.post('/saveRoute', (req, res) => {
@@ -221,7 +225,6 @@ getAllRoutes = async function(){
   // };
 }
 
-const fs = require('fs');
 const beautify = filePath => {
 	let data = fs.readFileSync(filePath).toString();
 	let object = JSON.parse(data);
