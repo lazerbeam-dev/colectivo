@@ -40,7 +40,7 @@ if (process.env.NODE_ENV === "development") {
 }
 app.use(cors({
   // allow for ios and android mobile
-  origin: allowOrigins,
+  origin: '*',
   optionsSuccessStatus: 200
 }))
 
