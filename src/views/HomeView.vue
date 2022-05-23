@@ -1053,10 +1053,9 @@ export default {
     },
 
     drawRoutes () {
-      console.log(this.myIp)
       fetch(this.myIp + '/getRoutes', {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'encoding': 'utf-8' }
+        headers: { 'Content-Type': 'application/json', 'encoding': 'utf-8', }
       }).then(response => response.json()).then(x => {
         this.drawPolylines(x)
       })

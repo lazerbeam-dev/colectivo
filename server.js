@@ -34,7 +34,7 @@ app.use('/robots.txt', express.static(path.resolve(__dirname, './dist/robots.txt
 
 app.use(bodyParser.json())
 
-var allowOrigins = ["capacitor://localhost", "http://localhost"]
+var allowOrigins = ["capacitor://localhost", "http://localhost", "http://localhost:8080"]
 if (process.env.NODE_ENV === "development") {
   allowOrigins.push("http://localhost:8080")
 }

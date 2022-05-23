@@ -44,7 +44,7 @@ functions:
           path: /{proxy+}
           method: ANY
           cors: 
-            origins: '*' # mobile config
+            origins: ["capacitor://localhost", "http://localhost"] # mobile config
             allowCredentials: false
             headers:
               - Content-Type
