@@ -54,4 +54,3 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
               - encoding
-              - Accept
