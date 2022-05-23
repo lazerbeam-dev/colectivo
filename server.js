@@ -85,9 +85,6 @@ app.post('/getRoutesWithFilter', function(req, res) {
 });
 
 app.get('/getRoutes', function (req, res) {
-  res.headers = {
-    'Access-Control-Allow-Origin': allowOrigins,
-  },
   getAllRoutes().then((got) =>{ res.send(JSON.stringify(got)); res.end() })
   //res.end()
 });

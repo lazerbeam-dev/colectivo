@@ -537,9 +537,9 @@ export default {
     }
   },
   async mounted () {
-    if (process.env.NODE_ENV === 'development') {
-      this.myIp = 'http://localhost:8000'
-    }
+    // if (process.env.NODE_ENV === 'development') {
+    //   this.myIp = 'http://localhost:8000'
+    // }
     const options = {}
     // const loader = new Loader('AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0', {
     // })
@@ -1055,7 +1055,7 @@ export default {
     drawRoutes () {
       fetch(this.myIp + '/getRoutes', {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'encoding': 'utf-8', }
+        headers: { 'Content-Type': 'application/json', 'encoding': 'utf-8', 'Access-Control-Allow-Origin': '*'}
       }).then(response => response.json()).then(x => {
         this.drawPolylines(x)
       })
