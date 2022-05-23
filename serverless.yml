@@ -44,14 +44,14 @@ functions:
           path: /{proxy+}
           method: ANY
           cors: true
-          # cors: 
-          #   origins: ["capacitor://localhost", "http://localhost", "http://localhost:8080"] # mobile config
-          #   allowCredentials: false
-          #   headers:
-          #     - Content-Type
-          #     - X-Amz-Date
-          #     - Authorization
-          #     - X-Api-Key
-          #     - X-Amz-Security-Token
-          #     - X-Amz-User-Agent
-          #     - Access-Control-Allow-Headers
+          cors: 
+            origins: ["capacitor://localhost", "http://localhost", "http://localhost:8080"] # mobile config
+            allowCredentials: false
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - Access-Control-Allow-Headers
