@@ -283,10 +283,17 @@ export default {
       pollingForLocation: null
     }
   },
+<<<<<<< HEAD
   async mounted() {
     if (process.env.NODE_ENV === 'development') {
       this.myIp = 'http://localhost:8000'
     }
+=======
+  async mounted () {
+    // if (process.env.NODE_ENV === 'development') {
+    //   this.myIp = 'http://localhost:8000'
+    // }
+>>>>>>> 890d3486ed91477b20a5e8cb1f3349a0d69287de
     const options = {}
     // const loader = new Loader('AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0', {
     // })
@@ -805,11 +812,15 @@ export default {
       )
     },
 
+<<<<<<< HEAD
     drawRoutes() {
       console.log(this.myIp)
+=======
+    drawRoutes () {
+>>>>>>> 890d3486ed91477b20a5e8cb1f3349a0d69287de
       fetch(this.myIp + '/getRoutes', {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'encoding': 'utf-8' }
+        headers: { 'Content-Type': 'application/json', 'encoding': 'utf-8', 'Access-Control-Allow-Origin': '*'}
       }).then(response => response.json()).then(x => {
         this.drawPolylines(x)
       })

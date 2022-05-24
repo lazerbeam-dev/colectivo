@@ -43,8 +43,9 @@ functions:
       - http: # all routes get proxied to the Express router
           path: /{proxy+}
           method: ANY
+          cors: true
           cors: 
-            origins: ["capacitor://localhost", "http://localhost"] # mobile config
+            origins: ["capacitor://localhost", "http://localhost", "http://localhost:8080"] # mobile config
             allowCredentials: false
             headers:
               - Content-Type
@@ -53,5 +54,4 @@ functions:
               - X-Api-Key
               - X-Amz-Security-Token
               - X-Amz-User-Agent
-              - encoding
-              - Accept
+              - Access-Control-Allow-Headers
