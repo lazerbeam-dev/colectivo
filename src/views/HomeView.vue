@@ -1,20 +1,9 @@
 <template>
   <div>
-    <div
-      id="floating-panel"
-      style="min-height: 6%;"
-      class="center"
-    >
-      <img
-        src="https://i.ibb.co/XjwhkdC/3.png"
-        style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;"
-      >
-      <select
-        id="modeSelect"
-        ref="modeSelectElem"
-        @change="modeChange($refs.modeSelectElem)"
-        class="center"
-      >
+    <div id="floating-panel" style="min-height: 6%;" class="center">
+      <img src="https://i.ibb.co/XjwhkdC/3.png"
+        style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
+      <select id="modeSelect" ref="modeSelectElem" @change="modeChange($refs.modeSelectElem)" class="center">
         <option value="0">
           View
         </option>
@@ -25,179 +14,68 @@
           Edit route
         </option>
       </select>
-      <input
-        id="goToLocationInput"
-        @keyup.enter="goToLocation"
-        class="center"
-      >
-      <button
-        id="goToLocationButton"
-        class="submitButton center"
-        @click="goToLocation()"
-      >
-        <img
-          id="goToLocationButtonImage"
-          src="https://i.ibb.co/BPSDW54/search.png"
-          style="max-width: 8px; max-height: 8px;"
-          alt="search"
-        >
+      <input id="goToLocationInput" @keyup.enter="goToLocation" class="center">
+      <button id="goToLocationButton" class="submitButton center" @click="goToLocation()">
+        <img id="goToLocationButtonImage" src="https://i.ibb.co/BPSDW54/search.png"
+          style="max-width: 8px; max-height: 8px;" alt="search">
       </button>
       <!-- <button class="functionalButton pad" id="showHideRoutes" @click="showHideRoutes()">show/hide routes</button> -->
-      <button
-        id="showMyLocation"
-        class="functionalButton pad center"
-        style="display: block"
-        @click="showMyLocation()"
-      >
+      <button id="showMyLocation" class="functionalButton pad center" style="display: block" @click="showMyLocation()">
         show my location (beta)
       </button>
-      <button
-        class="functionalButton pad center"
-        style="display: block"
-        @click="startBackgroundTask()"
-      >
+      <!-- <button class="functionalButton pad center" style="display: block" @click="startBackgroundTask()">
         start tracker
       </button>
-      <button
-        class="functionalButton pad center"
-        style="display: block"
-        @click="stopBackgroundTask()"
-      >
+      <button class="functionalButton pad center" style="display: block" @click="stopBackgroundTask()">
         stop tracker
-      </button>
+      </button> -->
       <div v-if="taskId">Task is running</div>
-      <span
-        class="pad center"
-        style="float: right;"
-      >
-        <img
-          src="https://icon-library.com/images/language-icon/language-icon-14.jpg"
-          style="max-width: 14px; max-height: 14px;"
-        >
-        <select
-          id="languageSelect"
-          ref="languageSelectElem"
-          @change="languageChange($refs.languageSelectElem)"
-        >
+      <span class="pad center" style="float: right;">
+        <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg"
+          style="max-width: 14px; max-height: 14px;">
+        <select id="languageSelect" ref="languageSelectElem" @change="languageChange($refs.languageSelectElem)">
           <option value="0">Español</option>
           <option value="1">English</option>
         </select>
       </span>
-      <div
-        id="routeViewDiv"
-        style="display: none;"
-      />
-      <div
-        id="routeCreateDiv"
-        style="display: none;"
-      >
-        <input
-          id="routeInputPhase"
-          value="0"
-          style="display: none;"
-        >
+      <div id="routeViewDiv" style="display: none;"></div>
+      <div id="routeCreateDiv" style="display: none;">
+        <input id="routeInputPhase" value="0" style="display: none;">
         <span id="userInstructionText">Click the map to select start location</span>
-        <button
-          id="confirmButtonTop"
-          class="submitButton"
-          type="button"
-          @click="confirmButtonPress()"
-        >
+        <button id="confirmButtonTop" class="submitButton" type="button" @click="confirmButtonPress()">
           confirm
         </button>
-        <span
-          style="display: none;"
-          class="pad"
-        > or follow my location! (beta)  <button
-          id="followMeButton"
-          class="functionalButton pad"
-          @click="startFollowing()"
-        >follow</button></span>
-        <button
-          id="stopFollowingButton"
-          class="redButton pad"
-          style="display: none;"
-          @click="stopFollowing()"
-        >
+        <span style="display: none;" class="pad"> or follow my location! (beta) <button id="followMeButton"
+            class="functionalButton pad" @click="startFollowing()">follow</button></span>
+        <button id="stopFollowingButton" class="redButton pad" style="display: none;" @click="stopFollowing()">
           stop following
         </button>
-        <button
-          id="goBackButton"
-          type="button"
-          value="back"
-          style="display: none;"
-          @click="goBackButtonPress()"
-        >
+        <button id="goBackButton" type="button" value="back" style="display: none;" @click="goBackButtonPress()">
           back
         </button>
-        <button
-          id="recalculateButton"
-          class="functionalButton"
-          type="button"
-          value="recalculate route"
-          style="display: none;"
-          @click="recalculateRoute()"
-        >
+        <button id="recalculateButton" class="functionalButton" type="button" value="recalculate route"
+          style="display: none;" @click="recalculateRoute()">
           recalculate route
         </button>
-        <button
-          id="addAnotherRoute"
-          class="submitButton"
-          type="button"
-          value="Add another route"
-          style="display: none;"
-          @click="addAnotherRoute(this)"
-        >
+        <button id="addAnotherRoute" class="submitButton" type="button" value="Add another route" style="display: none;"
+          @click="addAnotherRoute(this)">
           Add Another Route
         </button>
       </div>
-      <div
-        id="routeEditDiv"
-        style="display:none;"
-      >
-        <input
-          id="routeEditPhase"
-          value="0"
-          style="display: none;"
-        >
+      <div id="routeEditDiv" style="display:none;">
+        <input id="routeEditPhase" value="0" style="display: none;">
         <span id="editInstructionText">Click on a route to edit</span>
-        <div
-          id="routeInformationDiv"
-          style="display: none;"
-        >
-          <div
-            style="display:flex"
-            class="pad"
-          >
-            <div
-              id="leftColumn"
-              style="display: flex; flex-flow:row wrap;"
-              class="pad"
-            >
-              <span
-                id="fromLocationLabel"
-                class="pad"
-              >From:</span>
-              <span id="fromLocationInfoTop" /><input
-                id="fromLocationInputTop"
-                type="text"
-              >
+        <div id="routeInformationDiv" style="display: none;">
+          <div style="display:flex" class="pad">
+            <div id="leftColumn" style="display: flex; flex-flow:row wrap;" class="pad">
+              <span id="fromLocationLabel" class="pad">From:</span>
+              <span id="fromLocationInfoTop" /><input id="fromLocationInputTop" type="text">
 
-              <span
-                id="toLocationLabel"
-                class="pad"
-              >To:</span> <span id="toLocationInfoTop" /><input
-                id="toLocationInputTop"
-                type="text"
-              >
-              <span
-                id="frequencySelectorLabel"
-                class="pad"
-              >Frequency - every~</span><span id="frequencyInfoTop" /><select
-                id="frequencySelectorInfoInputTop"
-                name="frequency"
-                style="display: none;"
-              >
+              <span id="toLocationLabel" class="pad">To:</span> <span id="toLocationInfoTop" /><input
+                id="toLocationInputTop" type="text">
+              <span id="frequencySelectorLabel" class="pad">Frequency - every~</span><span
+                id="frequencyInfoTop" /><select id="frequencySelectorInfoInputTop" name="frequency"
+                style="display: none;">
                 <option value="?">
                   ?
                 </option>
@@ -223,178 +101,73 @@
                   2hr
                 </option>
               </select>
-              <span
-                id="startTimeLabelTop"
-                class="pad"
-              >From:</span> <span id="startTimeTop" /><input
-                id="startTimeInputTop"
-                type="time"
-                style="display: none;"
-              >
-              <span
-                id="endTimeLabelTop"
-                class="pad"
-              > To:</span>
-              <span id="endTimeTop" /><input
-                id="endTimeInputTop"
-                class="input"
-                type="time"
-                style="display: none;"
-              >
+              <span id="startTimeLabelTop" class="pad">From:</span> <span id="startTimeTop" /><input
+                id="startTimeInputTop" type="time" style="display: none;">
+              <span id="endTimeLabelTop" class="pad"> To:</span>
+              <span id="endTimeTop" /><input id="endTimeInputTop" class="input" type="time" style="display: none;">
 
               <div class="pad">
-                <input
-                  id="colourPickerTop"
-                  type="color"
-                  style="text-align: end; height: 100%;"
-                >
+                <input id="colourPickerTop" type="color" style="text-align: end; height: 100%;">
               </div>
-              <button
-                id="enableRouteEditsButtonTop"
-                class="pad, functionalButton"
-                @click="editRoutePoints(true)"
-              >
+              <button id="enableRouteEditsButtonTop" class="pad, functionalButton" @click="editRoutePoints(true)">
                 Edit
                 route directions
               </button>
-              <button
-                id="addReturnButtonTop"
-                class="pad, functionalButton"
-                @click="enableAddReturnRoute()"
-              >
+              <button id="addReturnButtonTop" class="pad, functionalButton" @click="enableAddReturnRoute()">
                 Add return
                 route
               </button>
             </div>
           </div>
-          <div
-            id="returnrouteEditDiv"
-            style="display:none;"
-          >
-            <div
-              id="returnrouteInformationDiv"
-              style="display: block;"
-            >
+          <div id="returnrouteEditDiv" style="display:none;">
+            <div id="returnrouteInformationDiv" style="display: block;">
               Return information
-              <div
-                style="display:flex"
-                class="pad"
-              >
-                <div
-                  id="returnleftColumn"
-                  style="display: flex; flex-flow:row wrap;"
-                  class="pad"
-                >
+              <div style="display:flex" class="pad">
+                <div id="returnleftColumn" style="display: flex; flex-flow:row wrap;" class="pad">
                   <span id="returnInfoTop" />
-                  <span
-                    id="startTimeEditLabel"
-                    class="pad"
-                  >From: </span><input
-                    id="startTimeReturnTop"
-                    type="time"
-                    style="display: block;"
-                  >
-                  <span
-                    id="endTimeEditLabel"
-                    class="pad"
-                  > To:</span>
-                  <input
-                    id="endTimeReturnTop"
-                    class="input"
-                    type="time"
-                    style="display: block;"
-                  >
+                  <span id="startTimeEditLabel" class="pad">From: </span><input id="startTimeReturnTop" type="time"
+                    style="display: block;">
+                  <span id="endTimeEditLabel" class="pad"> To:</span>
+                  <input id="endTimeReturnTop" class="input" type="time" style="display: block;">
                 </div>
               </div>
             </div>
           </div>
-          <button
-            id="submitEditsButtonTop"
-            class="pad, submitButton"
-            @click="submitEditsTop(true)"
-          >
+          <button id="submitEditsButtonTop" class="pad, submitButton" @click="submitEditsTop(true)">
             Confirm
             edits
           </button>
-          <button
-            id="deleteRouteButtonTop"
-            class="pad, redButton"
-            @click="deleteHighlightedRoute(false)"
-          >
+          <button id="deleteRouteButtonTop" class="pad, redButton" @click="deleteHighlightedRoute(false)">
             Delete route
           </button>
-          <button
-            id="reallyDeleteRouteButtonTop"
-            class="pad, redButton"
-            style="display: none;"
-            @click="deleteHighlightedRoute(true)"
-          >
+          <button id="reallyDeleteRouteButtonTop" class="pad, redButton" style="display: none;"
+            @click="deleteHighlightedRoute(true)">
             Confirm delete route
           </button>
-          <button
-            id="cancelDeleteButton"
-            class="pad, functionalButton"
-            style="display: none;"
-            @click="cancelDelete()"
-          >
+          <button id="cancelDeleteButton" class="pad, functionalButton" style="display: none;" @click="cancelDelete()">
             Cancel delete
           </button>
         </div>
       </div>
     </div>
-    <div
-      id="routeCreateDivTop"
-      style="display: none;"
-    >
+    <div id="routeCreateDivTop" style="display: none;">
       <b>Start: </b>
-      <input
-        id="start"
-        value="San Cristobal De Las Casas"
-      >
+      <input id="start" value="San Cristobal De Las Casas">
       <!-- <input
         type="button"
         @click="recenterOnStart"
       > -->
-      <input
-        id="fromLat"
-        style="width: 15px;"
-        value="0"
-      ><input
-        id="fromLng"
-        value="0"
-        style="width: 15px; display: none;"
-      >
-      <input
-        id="toLat"
-        style="width: 15px;"
-        value="0"
-      ><input
-        id="toLng"
-        value="0"
-        style="width: 15px; display: none;"
-      >
+      <input id="fromLat" style="width: 15px;" value="0"><input id="fromLng" value="0"
+        style="width: 15px; display: none;">
+      <input id="toLat" style="width: 15px;" value="0"><input id="toLng" value="0" style="width: 15px; display: none;">
       <b>End: </b>
-      <input
-        id="end"
-        value="Tuxla"
-      >
-      <button
-        id="findDirections"
-        type="button"
-        value="Go!"
-        @click="findDirections()"
-      >
+      <input id="end" value="Tuxla">
+      <button id="findDirections" type="button" value="Go!" @click="findDirections()">
         find directions
       </button>
-      <input
-        id="colourPicker"
-        type="color"
-      >
+      <input id="colourPicker" type="color">
       <span> Frequency - goes every</span>
-      <select
-        id="frequencySelectorInput"
-        name="frequency"
-      >
+      <select id="frequencySelectorInput" name="frequency">
         <option value="5m">
           5m
         </option>
@@ -417,46 +190,21 @@
           2hr
         </option>
       </select>
-      <button
-        id="submitRoute"
-        value="Submit route to app"
-        type="button"
-        @click="submitRoute()"
-      >
+      <button id="submitRoute" value="Submit route to app" type="button" @click="submitRoute()">
         submit route
       </button>
-      <button
-        id="drawKnownRoutes"
-        type="button"
-        value="Draw Known Routes"
-        @click="drawRoutes()"
-      >
+      <button id="drawKnownRoutes" type="button" value="Draw Known Routes" @click="drawRoutes()">
         draw known
         routes
       </button>
     </div>
 
-    <div
-      id="map"
-      style="height: 94%; position: inherit !important"
-    />
+    <div id="map" style="height: 94%; position: inherit !important" />
     <div id="warnings-panel" />
-    <div
-      id="infoPanel"
-      style="display:none"
-    >
-      <img
-        src="https://cdn2.iconfinder.com/data/icons/arrows-1-1/512/xxx034-512.png"
-        alt="swap"
-      >
-      <div
-        id="rowDiv"
-        style="display: flex;"
-      >
-        <div
-          id="outboundInfo"
-          style="flex:50%; border-right: solid; padding-right:5px;"
-        >
+    <div id="infoPanel" style="display:none">
+      <img src="https://cdn2.iconfinder.com/data/icons/arrows-1-1/512/xxx034-512.png" alt="swap">
+      <div id="rowDiv" style="display: flex;">
+        <div id="outboundInfo" style="flex:50%; border-right: solid; padding-right:5px;">
           <p style="font-weight: bold;">
             <span id="fromLocationInfo" />
           </p>
@@ -464,12 +212,10 @@
             -> <span id="toLocationInfo" />
           </p>
           <p><span id="everyLabel">Every ~</span><span id="frequencyInfo" /></p>
-          <p><span id="startTimeLabel">First:</span> <span id="startTime" /> <span id="endTimeLabel">Last: </span> <span id="endTime" /> </p>
+          <p><span id="startTimeLabel">First:</span> <span id="startTime" /> <span id="endTimeLabel">Last: </span> <span
+              id="endTime" /> </p>
         </div>
-        <div
-          id="returnInfo"
-          style="flex:50%; border-left: solid; padding-left: 5px;"
-        >
+        <div id="returnInfo" style="flex:50%; border-left: solid; padding-left: 5px;">
           <p style="font-weight: bold;">
             <span id="fromLocationInfoReturn" />
           </p>
@@ -496,7 +242,7 @@ import { App } from '@capacitor/app';
 
 export default {
   name: 'Home',
-  data () {
+  data() {
     return {
       routes: [],
       taskId: null,
@@ -533,10 +279,11 @@ export default {
       myIp: 'https://www.rutascolectivos.info',
       windowHtml: null,
       google: null,
-      maps: null
+      maps: null,
+      pollingForLocation: null
     }
   },
-  async mounted () {
+  async mounted() {
     if (process.env.NODE_ENV === 'development') {
       this.myIp = 'http://localhost:8000'
     }
@@ -564,15 +311,21 @@ export default {
   methods: {
     async startBackgroundTask() {
       console.log('start background task ->')
-      
+
       this.taskId = await BackgroundTask.beforeExit(async () => {
         // BackgroundTask.finish({ taskId });
-        const position = await Geolocation.getCurrentPosition()
-        const pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        }
-        console.log(pos)
+        var toplus = 0
+        this.pollingForLocation = setTimeout(async () => {
+          const position = await Geolocation.getCurrentPosition()
+          const pos = {
+            lat: position.coords.latitude + toplus,
+            lng: position.coords.longitude + toplus
+          }
+          placeNewMarker(pos)
+          toplus++
+          console.log(pos)
+        }, 5000)
+
       });
       console.log(taskId)
     },
@@ -581,7 +334,7 @@ export default {
       BackgroundTask.finish({ taskId: this.taskId });
       this.taskId = null
     },
-    addAnotherRoute (button) {
+    addAnotherRoute(button) {
       document.getElementById('routeInputPhase').value = 0
       document.getElementById('confirmButtonTop').style.display = 'block'
       document.getElementById(button.style.display = 'none')
@@ -590,7 +343,7 @@ export default {
       this.returnPoints = []
     },
     // collectivo = <div><h2 id="routeTitle" value="#title"></h2><p value="#contents"></p></div>
-    showHideRoutes () {
+    showHideRoutes() {
       if (this.showingRoutes) {
         this.polylines.forEach(x => x.setMap(null))
         this.showingRoutes = false
@@ -600,13 +353,13 @@ export default {
       }
     },
 
-    recalculateRoute () {
+    recalculateRoute() {
       if (this.directionsRendererLocal !== '') {
         this.directionsRendererLocal.setMap(null)
       }
       this.findDirections(this.editingDirections === 'return')
     },
-    startFollowing () {
+    startFollowing() {
       this.trackingPoints = []
       this.pushMyLocation()
       this.locationInterval = setInterval(() => {
@@ -614,23 +367,23 @@ export default {
       }, 5000)
       document.getElementById('stopFollowingButton').style.display = 'flex'
     },
-    stopFollowing (save) {
+    stopFollowing(save) {
       clearInterval(this.locationInterval)
     },
 
-    searchKeyPress (event) {
+    searchKeyPress(event) {
       var key = event.keyCode || event.which
       if (key === 13) {
         // search
       }
     },
 
-    cancelDelete () {
+    cancelDelete() {
       document.getElementById('reallyDeleteRouteButtonTop').style.display = 'none'
       document.getElementById('cancelDeleteButton').style.display = 'none'
     },
 
-    deleteHighlightedRoute (really) {
+    deleteHighlightedRoute(really) {
       if (really === false) {
         document.getElementById('reallyDeleteRouteButtonTop').style.display = 'flex'
         document.getElementById('cancelDeleteButton').style.display = 'flex'
@@ -646,7 +399,7 @@ export default {
       }
     },
 
-    editRoutePoints (moveMarkers) {
+    editRoutePoints(moveMarkers) {
       if (this.currentHighlightedRoute) {
         this.currentHighlightedRoute.setOptions({ strokeOpacity: 0.3 })
         if (this.currentHighlightedReturn) {
@@ -670,7 +423,7 @@ export default {
       }
     },
 
-    getLineById (id) {
+    getLineById(id) {
       this.polylines.forEach(element => {
         if (element.id === id) {
           return element
@@ -678,7 +431,7 @@ export default {
       })
     },
 
-    setLocationName (locName, isEnd) {
+    setLocationName(locName, isEnd) {
       var phaseint = document.getElementById('routeInputPhase').value
       console.log(phaseint)
 
@@ -692,7 +445,7 @@ export default {
       }
     },
 
-    findNameOfLocation (loc, isReturn) {
+    findNameOfLocation(loc, isReturn) {
       console.log('finding location ', loc)
 
       var geocoder = this.maps.Geocoder()
@@ -728,7 +481,7 @@ export default {
       })
     },
 
-    validateConfirm (phaseInt) {
+    validateConfirm(phaseInt) {
       console.log(phaseInt)
       switch (phaseInt) {
         case 0:
@@ -740,7 +493,7 @@ export default {
       return true
     },
 
-    confirmButtonPress () {
+    confirmButtonPress() {
       var phaseint = document.getElementById('routeInputPhase').value
       var validate = this.validateConfirm(phaseint)
       if (validate === true) {
@@ -752,14 +505,14 @@ export default {
       }
     },
 
-    goBackButtonPress () {
+    goBackButtonPress() {
       var phaseint = document.getElementById('routeInputPhase').value
       phaseint--
       document.getElementById('routeInputPhase').value = phaseint
       this.setInstructionText(phaseint)
     },
 
-    setInstructionText (number) {
+    setInstructionText(number) {
       var spanish = document.getElementById('languageSelect').selectedIndex === 0
 
       var instructionText = document.getElementById('userInstructionText')
@@ -825,7 +578,7 @@ export default {
       }
     },
 
-    enableAddReturnRoute () {
+    enableAddReturnRoute() {
       this.editingDirections = 'return'
       this.editRoutePoints(false)
       this.greenMarker.setMap(this.mapLocal)
@@ -847,7 +600,7 @@ export default {
       this.setEditInstructionText(0)
     },
 
-    setSelectedIndex (selector, valueToSet) {
+    setSelectedIndex(selector, valueToSet) {
       for (var i = 0; i < selector.options.length; i++) {
         if (selector.options[i].value === valueToSet) {
           selector.options[i].selected = true
@@ -857,7 +610,7 @@ export default {
       return false
     },
 
-    goToLocation (event) {
+    goToLocation(event) {
       if (event) {
         if (event.keyCode === 13) {
           this.search()
@@ -867,7 +620,7 @@ export default {
       }
     },
 
-    showEditbuttons (show) {
+    showEditbuttons(show) {
       var elemns = []
       var ids =
         ['enableRouteEditsButtonTop',
@@ -889,7 +642,7 @@ export default {
       }
     },
 
-    modeChange (div) {
+    modeChange(div) {
       this.setMapOnAll(null)
       this.clearAllLines()
       document.getElementById('reallyDeleteRouteButtonTop').style.display = 'none'
@@ -952,14 +705,14 @@ export default {
       }
     },
 
-    clearAllLines () {
+    clearAllLines() {
       if (this.polylines) {
         // console.log(this.polylines)
         this.polylines.forEach(x => x.setMap(null))
       }
     },
 
-    enableEditTop () {
+    enableEditTop() {
       var startLocationInput = document.getElementById('fromLocationInputTop')
       var toLocationInput = document.getElementById('toLocationInputTop')
       var frequencySelectorInput = document.getElementById('frequencySelectorInfoInputTop')
@@ -1004,7 +757,7 @@ export default {
       document.getElementById('routeInformationDiv').style.display = 'block'
     },
 
-    findDirections (isReturnRoute) {
+    findDirections(isReturnRoute) {
       console.log('findDirections', this.currentHighlightedRoute)
       console.log('currentHightlightedReturn', this.currentHighlightedReturn)
 
@@ -1052,7 +805,7 @@ export default {
       )
     },
 
-    drawRoutes () {
+    drawRoutes() {
       console.log(this.myIp)
       fetch(this.myIp + '/getRoutes', {
         method: 'GET',
@@ -1062,7 +815,7 @@ export default {
       })
     },
 
-    submitEditsTop (refresh, followOnId, submittingReturn) {
+    submitEditsTop(refresh, followOnId, submittingReturn) {
       var startName = document.getElementById('fromLocationInputTop').value
       var endName = document.getElementById('toLocationInputTop').value
       var freq = document.getElementById('frequencySelectorInfoInputTop').value
@@ -1120,7 +873,7 @@ export default {
       return routeJson
     },
 
-    search () {
+    search() {
       fetch(this.myIp + '/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1130,13 +883,13 @@ export default {
       })
     },
 
-    uuidv4 () {
+    uuidv4() {
       return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
       )
     },
 
-    submitRoute () {
+    submitRoute() {
       this.routes.push(this.points)
       var originName = document.getElementById('start').value
       var destinationName = document.getElementById('end').value
@@ -1164,7 +917,7 @@ export default {
         .then(response => console.log(response.text))
     },
 
-    populateInfoTop (route) {
+    populateInfoTop(route) {
       var from = document.getElementById('fromLocationInfoTop')
       var spanish = document.getElementById('languageSelect').selectedIndex === 0
 
@@ -1187,7 +940,7 @@ export default {
       }
     },
 
-    populateInfo (route) {
+    populateInfo(route) {
       var from = document.getElementById('fromLocationInfo')
       if (from) { from.textContent = route.origin }
       document.getElementById('toLocationInfo').textContent = route.destination
@@ -1207,7 +960,7 @@ export default {
       }
     },
 
-    SetEndLocation (loc) {
+    SetEndLocation(loc) {
       document.getElementById('toLat').value = loc.lat()
       document.getElementById('toLng').value = loc.lng()
       this.redMarker.setMap(this.mapLocal)
@@ -1215,7 +968,7 @@ export default {
       this.findNameOfLocation(loc, true)
     },
 
-    SetStartLocation (loc) {
+    SetStartLocation(loc) {
       document.getElementById('fromLat').value = loc.lat()
       document.getElementById('fromLng').value = loc.lng()
       this.greenMarker.setMap(this.mapLocal)
@@ -1225,7 +978,7 @@ export default {
       startLocation.value = this.findNameOfLocation(loc, false)
     },
 
-    initialize () {
+    initialize() {
       var userLang = navigator.language || navigator.userLanguage
       console.log('The language is: ' + userLang)
       if (userLang.includes('en-')) {
@@ -1296,11 +1049,11 @@ export default {
       this.logUserVisit()
     },
 
-    logUserVisit () {
+    logUserVisit() {
 
     },
 
-    removeIsolatedPoints (sequence) {
+    removeIsolatedPoints(sequence) {
       var prev = 10000
       var validSequences = []
 
@@ -1327,7 +1080,7 @@ export default {
       return fin
     },
 
-    getPercentages (outs, returns, isReturn) {
+    getPercentages(outs, returns, isReturn) {
       var i = 0
       var indexes = []
       outs.forEach(element => {
@@ -1353,7 +1106,7 @@ export default {
       return percentages
     },
 
-    getOverlappingSegments (route) {
+    getOverlappingSegments(route) {
       if (route.returnPoints != null) {
         var resolution = 3
 
@@ -1383,7 +1136,7 @@ export default {
       }
     },
 
-    drawPolylines (routes) {
+    drawPolylines(routes) {
       console.log(routes.length, 'routes')
       routes.forEach(route => {
         var line = this.drawLine(route)
@@ -1394,7 +1147,7 @@ export default {
       })
     },
 
-    createInfoIfNotExist () {
+    createInfoIfNotExist() {
       var infoHtml = document.getElementById('infoPanel')
       if (infoHtml == null) {
         infoHtml = this.windowHtml.cloneNode(true)
@@ -1403,7 +1156,7 @@ export default {
       }
     },
 
-    drawLineFromPoints (points, route, isReturn) {
+    drawLineFromPoints(points, route, isReturn) {
       var tosend = []
 
       if (points && points[0].lat != null) {
@@ -1432,7 +1185,7 @@ export default {
       return routePath
     },
 
-    placeNewMarker (loc) {
+    placeNewMarker(loc) {
       var url = 'http://maps.google.com/mapfiles/ms/icons/'
       url += 'blue' + '-dot.png'
 
@@ -1448,7 +1201,7 @@ export default {
       console.log(blueMarker)
     },
 
-    generateIcons (route, isReturn) {
+    generateIcons(route, isReturn) {
       var finPercents = []
 
       // var numWanted = 20
@@ -1551,7 +1304,7 @@ export default {
       return icons
     },
 
-    drawLine (route) {
+    drawLine(route) {
       // out
       var coords = route.points
       var tosend = []
@@ -1576,12 +1329,12 @@ export default {
 
       this.polylines.push(routePath)
       console.log(routePath)
-      routePath.setMap(this.mapLocal) 
+      routePath.setMap(this.mapLocal)
       routePath.id = route._id
       return routePath
     },
 
-    setClickEvent (routePath, route, returnRoutepath) {
+    setClickEvent(routePath, route, returnRoutepath) {
       this.google.maps.event.addListener(routePath, 'click', (click) => {
         var boxText = document.createElement('div')
         this.createInfoIfNotExist()
@@ -1632,7 +1385,7 @@ export default {
       })
     },
 
-    async pushMyLocation () {
+    async pushMyLocation() {
       try {
         const position = await Geolocation.getCurrentPosition()
         const pos = {
@@ -1654,7 +1407,7 @@ export default {
       }
     },
 
-    async showMyLocation () {
+    async showMyLocation() {
       try {
         const position = await Geolocation.getCurrentPosition()
         const pos = {
@@ -1674,7 +1427,7 @@ export default {
       }
     },
 
-    setEditInstructionText (newInt) {
+    setEditInstructionText(newInt) {
       var spanish = document.getElementById('languageSelect').selectedIndex === 0
       var newText = ''
       if (newInt === 0) {
@@ -1685,28 +1438,28 @@ export default {
       document.getElementById('editInstructionText').textContent = newText
     },
     // Sets the map on all markers in the array.
-    setMapOnAll (map) {
+    setMapOnAll(map) {
       for (let i = 0; i < this.markers.length; i++) {
         this.markers[i].setMap(map)
       }
     },
     // Removes the markers from the map, but keeps them in the array.
-    hideMarkers () {
+    hideMarkers() {
       this.setMapOnAll(null)
     },
 
     // Shows any markers currently in the array.
-    showMarkers () {
+    showMarkers() {
       this.setMapOnAll(this.map)
     },
 
     // Deletes all markers in the array by removing references to them.
-    deleteMarkers () {
+    deleteMarkers() {
       this.hideMarkers()
       this.markers = []
     },
 
-    initMap () {
+    initMap() {
       // const markerArray = []
       this.setMapOnAll(null)
 
@@ -1730,7 +1483,7 @@ export default {
       this.initialized = true
     },
 
-    onDirectionsChange (newDirections, isReturnRoute) {
+    onDirectionsChange(newDirections, isReturnRoute) {
       var newPoints = []
       newDirections.routes[0].overview_path.forEach(point => {
         newPoints.push([point.lat(), point.lng()])
@@ -1746,7 +1499,7 @@ export default {
       // this.polylines.push(newDirections.routes[0].overview_polyline)
     },
 
-    calculateAndDisplayRoute (
+    calculateAndDisplayRoute(
       directionsRenderer,
       directionsService,
       markerArray,
@@ -1790,7 +1543,7 @@ export default {
         })
     },
 
-    languageChange (element) {
+    languageChange(element) {
       var languageIndex = element.selectedIndex
       var spanish = languageIndex === 0
       var phaseInt = document.getElementById('routeInputPhase').value
@@ -1889,7 +1642,7 @@ export default {
       }
     },
 
-    showSteps (directionResult, markerArray, stepDisplay, map) {
+    showSteps(directionResult, markerArray, stepDisplay, map) {
       // For each step, place a marker, and add the text to the marker's infowindow.
       // Also attach the marker to an array so we can keep track of it and remove it
       // when calculating new routes.
@@ -1909,7 +1662,7 @@ export default {
 
 <style>
 #map {
-  height:100px;
+  height: 100px;
   position: inherit !important;
 }
 </style>
