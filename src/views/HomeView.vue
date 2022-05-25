@@ -202,7 +202,6 @@
     <div id="map" style="height: 94%; position: inherit !important" />
     <div id="warnings-panel" />
     <div id="infoPanel" style="display:none">
-      <img src="https://cdn2.iconfinder.com/data/icons/arrows-1-1/512/xxx034-512.png" alt="swap">
       <div id="rowDiv" style="display: flex;">
         <div id="outboundInfo" style="flex:50%; border-right: solid; padding-right:5px;">
           <p style="font-weight: bold;">
@@ -284,9 +283,9 @@ export default {
     }
   },
   async mounted () {
-    // if (process.env.NODE_ENV === 'development') {
-    //   this.myIp = 'http://localhost:8000'
-    // }
+    if (process.env.NODE_ENV === 'development') {
+      this.myIp = 'http://localhost:8000'
+    }
     const options = {}
     // const loader = new Loader('AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0', {
     // })
