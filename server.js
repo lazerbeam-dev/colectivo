@@ -61,6 +61,11 @@ app.post('/saveRoute', (req, res) => {
   res.send("route saved!")
 })
 
+app.post('/saveGPS', (req, res) => {
+  saveGPS(req.body)
+  res.send("gps saved!")
+})
+
 app.get('/_health', (req, res) => {
   res.send({"status": true})
 })
@@ -122,6 +127,14 @@ app.listen(port, () => {
   console.log(`Success! Your application is running on port ${port}.`);
 });
 
+saveGPS = async function(newGPS){
+  await client.connect()
+  const database = client.db("Collectivivo");
+  const routes = database.collection("gpsRoutes"); 
+  const result = await routes.insertOne(newGPS).then(x => {  });
+  console.log('new document');
+}
+
 saveRoute = async function(newRoute) {
 
   var findId = newRoute.findId;
@@ -161,6 +174,7 @@ saveRoute = async function(newRoute) {
     console.log('update');
   }
   else if(newRoute.newId != null){
+    // classic add
     await client.connect()
     const database = client.db("Collectivivo");
     const routes = database.collection("routes"); 

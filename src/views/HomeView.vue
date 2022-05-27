@@ -3,7 +3,8 @@
     <div id="floating-panel" style="min-height: 6%;" class="center">
       <img src="https://i.ibb.co/XjwhkdC/3.png"
         style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
-      <select id="modeSelect" ref="modeSelectElem" @change="modeChange($refs.modeSelectElem)" class="center">
+      <select id="modeSelect" ref="modeSelectElem" @change="modeChange($refs.modeSelectElem)" class="center"
+        style="display:none">
         <option value="0">
           View
         </option>
@@ -20,8 +21,11 @@
           style="max-width: 8px; max-height: 8px;" alt="search">
       </button>
       <!-- <button class="functionalButton pad" id="showHideRoutes" @click="showHideRoutes()">show/hide routes</button> -->
-      <button id="showMyLocation" class="functionalButton pad center" style="display: block" @click="showMyLocation()">
-        show my location (beta)
+      <button id="startFollowing" class="functionalButton pad center" v-if="!following" @click="startFollowing()">
+        follow me
+      </button>
+      <button id="stopFollowing" class="functionalButton pad center" v-if="following" @click="stopFollowing()">
+        stop following
       </button>
       <!-- <button class="functionalButton pad center" style="display: block" @click="startBackgroundTask()">
         start tracker
@@ -238,6 +242,7 @@ import { Loader } from '@googlemaps/js-api-loader';
 import { Geolocation } from '@capacitor/geolocation'
 import { BackgroundTask } from '@robingenz/capacitor-background-task';
 import { App } from '@capacitor/app';
+import { response } from 'express';
 
 export default {
   name: 'Home',
@@ -279,10 +284,11 @@ export default {
       windowHtml: null,
       google: null,
       maps: null,
-      pollingForLocation: null
+      pollingForLocation: null,
+      following: false
     }
   },
-  async mounted () {
+  async mounted() {
     if (process.env.NODE_ENV === 'development') {
       this.myIp = 'http://localhost:8000'
     }
@@ -300,7 +306,10 @@ export default {
         return
       }
       // now app is not active
-      this.startBackgroundTask()
+      if (this.following) {
+        console.log(this.following)
+        this.startBackgroundTask()
+      }
     });
 
     this.windowHtml = document.getElementById('infoPanel').cloneNode(true)
@@ -310,7 +319,7 @@ export default {
   methods: {
     async startBackgroundTask() {
       console.log('start background task ->')
-
+      console.log(this.following)
       this.taskId = await BackgroundTask.beforeExit(async () => {
         // BackgroundTask.finish({ taskId });
         var toplus = 0
@@ -332,6 +341,9 @@ export default {
       console.log('stop background task')
       BackgroundTask.finish({ taskId: this.taskId });
       this.taskId = null
+    },
+    createGPSPoints() {
+
     },
     addAnotherRoute(button) {
       document.getElementById('routeInputPhase').value = 0
@@ -359,15 +371,31 @@ export default {
       this.findDirections(this.editingDirections === 'return')
     },
     startFollowing() {
-      this.trackingPoints = []
-      this.pushMyLocation()
-      this.locationInterval = setInterval(() => {
-        this.pushMyLocation()
-      }, 5000)
-      document.getElementById('stopFollowingButton').style.display = 'flex'
+      this.following = true
+      console.log(this.mapLocal)
+      this.google.maps.event.addListener(this.mapLocal, 'click', (event) => {
+        this.placeNewMarker(event.latLng)
+      })
+
+
+      // this.trackingPoints = []
+      // this.pushMyLocation()
+      // this.locationInterval = setInterval(() => {
+      //   this.pushMyLocation()
+      // }, 5000)
     },
     stopFollowing(save) {
-      clearInterval(this.locationInterval)
+      this.following = false;
+
+
+      // clearInterval(this.locationInterval)
+    },
+    saveGPSFollow(){
+      // fetch(this.myIp + '/saveGPS', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(routeJson) // here this is how you send your datas
+      // })
     },
 
     searchKeyPress(event) {
@@ -808,7 +836,7 @@ export default {
       console.log(this.myIp)
       fetch(this.myIp + '/getRoutes', {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'encoding': 'utf-8', 'Access-Control-Allow-Origin': '*'}
+        headers: { 'Content-Type': 'application/json', 'encoding': 'utf-8', 'Access-Control-Allow-Origin': '*' }
       }).then(response => response.json()).then(x => {
         this.drawPolylines(x)
       })
@@ -989,6 +1017,7 @@ export default {
       }
       console.log(this.maps)
       console.log(this.google)
+      console.log("hello yes we got initialised")
       var myLatlng = new this.google.maps.LatLng(16.733911888003078, -92.64308697053372)
 
       let color = 'green'
@@ -1323,8 +1352,8 @@ export default {
         strokeWeight: 5,
         icons: icons
       })
-      console.log(this.google)
-      console.log(this.maps)
+      // console.log(this.google)
+      // console.log(this.maps)
 
       this.polylines.push(routePath)
       console.log(routePath)
@@ -1543,102 +1572,102 @@ export default {
     },
 
     languageChange(element) {
-      var languageIndex = element.selectedIndex
-      var spanish = languageIndex === 0
-      var phaseInt = document.getElementById('routeInputPhase').value
-      this.setInstructionText(phaseInt)
-      if (this.greenMarker) {
-        this.greenMarker.setLabel(spanish ? 'Inicio de Ruta' : 'Route Start')
-      }
-      if (this.redMarker) {
-        this.redMarker.setLabel(spanish ? 'Fin de Ruta' : 'Route End')
-      }
+      // var languageIndex = element.selectedIndex
+      // var spanish = languageIndex === 0
+      // var phaseInt = document.getElementById('routeInputPhase').value
+      // this.setInstructionText(phaseInt)
+      // if (this.greenMarker) {
+      //   this.greenMarker.setLabel(spanish ? 'Inicio de Ruta' : 'Route Start')
+      // }
+      // if (this.redMarker) {
+      //   this.redMarker.setLabel(spanish ? 'Fin de Ruta' : 'Route End')
+      // }
 
-      if (languageIndex === 0) {
-        // spanish
-        document.getElementById('editInstructionText').textContent = 'Haga clic en una ruta para editarla'
-        document.getElementById('frequencySelectorLabel').textContent = 'Frequencia - Cada ~'
-        document.getElementById('goToLocationButtonImage').alt = 'Buscar'
-        document.getElementById('showMyLocation').textContent = 'Mostrar Mi Ubicación'
-        document.getElementById('followMeButton').textContent = 'Sígueme'
-        document.getElementById('stopFollowingButton').textContent = 'Deja de seguirme'
-        document.getElementById('goBackButton').textContent = 'Regresa'
-        document.getElementById('recalculateButton').textContent = 'Recalcular Ruta'
-        document.getElementById('fromLocationLabel').textContent = 'Inicio: '
-        document.getElementById('toLocationLabel').textContent = 'Fin: '
-        document.getElementById('startTimeLabelTop').textContent = 'Comienza: '
-        document.getElementById('endTimeLabelTop').textContent = 'Termina: '
-        document.getElementById('enableRouteEditsButtonTop').textContent = 'Editar Ruta'
-        document.getElementById('addReturnButtonTop').textContent = 'Crear ruta de regreso'
-        document.getElementById('startTimeEditLabel').textContent = 'Comienza: '
-        document.getElementById('endTimeEditLabel').textContent = 'Termina: '
-        document.getElementById('submitEditsButtonTop').textContent = 'Confirmar Cambios'
-        document.getElementById('deleteRouteButtonTop').textContent = 'Borrar Ruta'
-        document.getElementById('reallyDeleteRouteButtonTop').textContent = 'Realmente Borrar Ruta'
-        document.getElementById('cancelDeleteButton').textContent = 'Cancelar Borrar'
-        document.getElementById('everyLabel').textContent = 'Cada: '
-        document.getElementById('everyLabelReturn').textContent = 'Cada: '
-        document.getElementById('startTimeLabel').textContent = 'Comienza: '
-        document.getElementById('startTimeLabelReturn').textContent = 'Comienza: '
-        document.getElementById('endTimeLabel').textContent = 'Termina: '
-        document.getElementById('endTimeLabelRet').textContent = 'Termina: '
-        document.getElementById('confirmButtonTop').textContent = 'Confirmar'
+      // if (languageIndex === 0) {
+      //   // spanish
+      //   document.getElementById('editInstructionText').textContent = 'Haga clic en una ruta para editarla'
+      //   document.getElementById('frequencySelectorLabel').textContent = 'Frequencia - Cada ~'
+      //   document.getElementById('goToLocationButtonImage').alt = 'Buscar'
+      //   document.getElementById('showMyLocation').textContent = 'Mostrar Mi Ubicación'
+      //   document.getElementById('followMeButton').textContent = 'Sígueme'
+      //   document.getElementById('stopFollowingButton').textContent = 'Deja de seguirme'
+      //   document.getElementById('goBackButton').textContent = 'Regresa'
+      //   document.getElementById('recalculateButton').textContent = 'Recalcular Ruta'
+      //   document.getElementById('fromLocationLabel').textContent = 'Inicio: '
+      //   document.getElementById('toLocationLabel').textContent = 'Fin: '
+      //   document.getElementById('startTimeLabelTop').textContent = 'Comienza: '
+      //   document.getElementById('endTimeLabelTop').textContent = 'Termina: '
+      //   document.getElementById('enableRouteEditsButtonTop').textContent = 'Editar Ruta'
+      //   document.getElementById('addReturnButtonTop').textContent = 'Crear ruta de regreso'
+      //   document.getElementById('startTimeEditLabel').textContent = 'Comienza: '
+      //   document.getElementById('endTimeEditLabel').textContent = 'Termina: '
+      //   document.getElementById('submitEditsButtonTop').textContent = 'Confirmar Cambios'
+      //   document.getElementById('deleteRouteButtonTop').textContent = 'Borrar Ruta'
+      //   document.getElementById('reallyDeleteRouteButtonTop').textContent = 'Realmente Borrar Ruta'
+      //   document.getElementById('cancelDeleteButton').textContent = 'Cancelar Borrar'
+      //   document.getElementById('everyLabel').textContent = 'Cada: '
+      //   document.getElementById('everyLabelReturn').textContent = 'Cada: '
+      //   document.getElementById('startTimeLabel').textContent = 'Comienza: '
+      //   document.getElementById('startTimeLabelReturn').textContent = 'Comienza: '
+      //   document.getElementById('endTimeLabel').textContent = 'Termina: '
+      //   document.getElementById('endTimeLabelRet').textContent = 'Termina: '
+      //   document.getElementById('confirmButtonTop').textContent = 'Confirmar'
 
-        const options = Array.from(document.getElementById('modeSelect').options)
-        options.forEach(element => {
-          if (element.value == 0) {
-            element.textContent = 'Ver'
-          } else if (element.value == 1) {
-            element.textContent = 'Crear'
-          } else if (element.value == 2) {
-            element.textContent = 'Editar'
-          }
-        })
-      } else if (languageIndex === 1) {
-        // english
-        document.getElementById('editInstructionText').textContent = 'Click on a route to edit'
+      //   const options = Array.from(document.getElementById('modeSelect').options)
+      //   options.forEach(element => {
+      //     if (element.value == 0) {
+      //       element.textContent = 'Ver'
+      //     } else if (element.value == 1) {
+      //       element.textContent = 'Crear'
+      //     } else if (element.value == 2) {
+      //       element.textContent = 'Editar'
+      //     }
+      //   })
+      // } else if (languageIndex === 1) {
+      //   // english
+      //   document.getElementById('editInstructionText').textContent = 'Click on a route to edit'
 
-        document.getElementById('frequencySelectorLabel').textContent = 'Frequency - Every ~'
-        document.getElementById('goToLocationButtonImage').alt = 'Search'
-        document.getElementById('showMyLocation').textContent = 'Show My Location'
-        document.getElementById('followMeButton').textContent = 'Follow Me'
-        document.getElementById('stopFollowingButton').textContent = 'Stop Following'
-        document.getElementById('goBackButton').textContent = 'Go Back'
-        document.getElementById('recalculateButton').textContent = 'Recalculate Route'
-        document.getElementById('fromLocationLabel').textContent = 'From: '
-        document.getElementById('toLocationLabel').textContent = 'To: '
-        document.getElementById('startTimeLabelTop').textContent = 'First: '
-        document.getElementById('endTimeLabelTop').textContent = 'Last: '
-        document.getElementById('enableRouteEditsButtonTop').textContent = 'Edit Route'
-        document.getElementById('addReturnButtonTop').textContent = 'Add Return Route'
-        document.getElementById('startTimeEditLabel').textContent = 'First: '
-        document.getElementById('endTimeEditLabel').textContent = 'Last: '
-        document.getElementById('submitEditsButtonTop').textContent = 'Submit Edits'
-        document.getElementById('deleteRouteButtonTop').textContent = 'Delete Route'
-        document.getElementById('reallyDeleteRouteButtonTop').textContent = 'Really Delete Route'
-        document.getElementById('cancelDeleteButton').textContent = 'Cancel Delete'
-        document.getElementById('everyLabel').textContent = 'Every: '
-        document.getElementById('everyLabelReturn').textContent = 'Every: '
-        document.getElementById('startTimeLabel').textContent = 'First: '
-        document.getElementById('startTimeLabelReturn').textContent = 'First: '
-        document.getElementById('endTimeLabel').textContent = 'Last: '
-        document.getElementById('endTimeLabelRet').textContent = 'Last: '
-        // confirmButtonTop
-        document.getElementById('confirmButtonTop').textContent = 'Confirm'
+      //   document.getElementById('frequencySelectorLabel').textContent = 'Frequency - Every ~'
+      //   document.getElementById('goToLocationButtonImage').alt = 'Search'
+      //   document.getElementById('showMyLocation').textContent = 'Show My Location'
+      //   document.getElementById('followMeButton').textContent = 'Follow Me'
+      //   document.getElementById('stopFollowingButton').textContent = 'Stop Following'
+      //   document.getElementById('goBackButton').textContent = 'Go Back'
+      //   document.getElementById('recalculateButton').textContent = 'Recalculate Route'
+      //   document.getElementById('fromLocationLabel').textContent = 'From: '
+      //   document.getElementById('toLocationLabel').textContent = 'To: '
+      //   document.getElementById('startTimeLabelTop').textContent = 'First: '
+      //   document.getElementById('endTimeLabelTop').textContent = 'Last: '
+      //   document.getElementById('enableRouteEditsButtonTop').textContent = 'Edit Route'
+      //   document.getElementById('addReturnButtonTop').textContent = 'Add Return Route'
+      //   document.getElementById('startTimeEditLabel').textContent = 'First: '
+      //   document.getElementById('endTimeEditLabel').textContent = 'Last: '
+      //   document.getElementById('submitEditsButtonTop').textContent = 'Submit Edits'
+      //   document.getElementById('deleteRouteButtonTop').textContent = 'Delete Route'
+      //   document.getElementById('reallyDeleteRouteButtonTop').textContent = 'Really Delete Route'
+      //   document.getElementById('cancelDeleteButton').textContent = 'Cancel Delete'
+      //   document.getElementById('everyLabel').textContent = 'Every: '
+      //   document.getElementById('everyLabelReturn').textContent = 'Every: '
+      //   document.getElementById('startTimeLabel').textContent = 'First: '
+      //   document.getElementById('startTimeLabelReturn').textContent = 'First: '
+      //   document.getElementById('endTimeLabel').textContent = 'Last: '
+      //   document.getElementById('endTimeLabelRet').textContent = 'Last: '
+      //   // confirmButtonTop
+      //   document.getElementById('confirmButtonTop').textContent = 'Confirm'
 
-        let options = Array.from(document.getElementById('modeSelect').options)
-        options.forEach(element => {
-          if (element.value == 0) {
-            element.textContent = 'View'
-          } else if (element.value == 1) {
-            element.textContent = 'Create'
-          } else if (element.value == 2) {
-            element.textContent = 'Edit'
-          }
-        })
-      } else {
-        console.log('something went wrong')
-      }
+      //   let options = Array.from(document.getElementById('modeSelect').options)
+      //   options.forEach(element => {
+      //     if (element.value == 0) {
+      //       element.textContent = 'View'
+      //     } else if (element.value == 1) {
+      //       element.textContent = 'Create'
+      //     } else if (element.value == 2) {
+      //       element.textContent = 'Edit'
+      //     }
+      //   })
+      // } else {
+      //   console.log('something went wrong')
+      // }
     },
 
     showSteps(directionResult, markerArray, stepDisplay, map) {
