@@ -242,7 +242,7 @@ import { Loader } from '@googlemaps/js-api-loader';
 import { Geolocation } from '@capacitor/geolocation'
 import { BackgroundTask } from '@robingenz/capacitor-background-task';
 import { App } from '@capacitor/app';
-import { response } from 'express';
+
 
 export default {
   name: 'Home',
