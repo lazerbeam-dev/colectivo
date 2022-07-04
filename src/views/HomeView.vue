@@ -1,4 +1,5 @@
 <template>
+
   <div>
     <div id="floating-panel" style="min-height: 6%;" class="center">
       <img src="https://i.ibb.co/XjwhkdC/3.png"
@@ -20,19 +21,40 @@
         <img id="goToLocationButtonImage" src="https://i.ibb.co/BPSDW54/search.png"
           style="max-width: 8px; max-height: 8px;" alt="search">
       </button>
-      <!-- <button class="functionalButton pad" id="showHideRoutes" @click="showHideRoutes()">show/hide routes</button> -->
-      <button id="startFollowing" class="functionalButton pad center" v-if="!following" @click="startFollowing()">
-        follow me
-      </button>
-      <button id="stopFollowing" class="functionalButton pad center" v-if="following" @click="stopFollowing()">
-        stop following
-      </button>
-      <!-- <button class="functionalButton pad center" style="display: block" @click="startBackgroundTask()">
-        start tracker
-      </button>
-      <button class="functionalButton pad center" style="display: block" @click="stopBackgroundTask()">
-        stop tracker
-      </button> -->
+
+      <div name="menuDropdown" class="dropdown" id="menuDropdown">
+        <button @click="toggleActive()">
+          <img
+            src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn4.iconfinder.com%2Fdata%2Ficons%2Fbasic-ui-elements%2F700%2F06_menu_stack-512.png&f=1&nofb=1"
+            alt="menu" style="max-width: 14px; max-height: 14px;">
+        </button>
+        <div class="dropdownContent">
+          <div class="dropdownItem"> Contact us
+          </div>
+          <div class="dropdownItem"> Add route
+          </div>
+          <div class="dropdownItem"> More information
+          </div>
+          <div class="dropdownItem" @click="showLogin=true">
+            Sign in
+          </div>
+          <div class="dropdownItem">
+            Sign up
+          </div>
+        </div>
+        <div v-if="showLogin">
+          <LoginView @close="showLogin = false">
+          </LoginView>
+        </div>
+      </div>
+
+      <!-- <button id="startFollowing" class="functionalButton pad center" v-if="!following" @click="startFollowing()">
+              follow me
+            </button>
+            <button id="stopFollowing" class="functionalButton pad center" v-if="following" @click="stopFollowing()">
+              stop following
+            </button> -->
+
       <div v-if="taskId">Task is running</div>
       <span class="pad center" style="float: right;">
         <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg"
@@ -205,34 +227,7 @@
 
     <div id="map" style="height: 94%; position: inherit !important" />
     <div id="warnings-panel" />
-    <div id="infoPanel" style="display:none">
-      <div id="rowDiv" style="display: flex;">
-        <div id="outboundInfo" style="flex:50%; border-right: solid; padding-right:5px;">
-          <p style="font-weight: bold;">
-            <span id="fromLocationInfo" />
-          </p>
-          <p style="font-weight: bold;">
-            -> <span id="toLocationInfo" />
-          </p>
-          <p><span id="everyLabel">Every ~</span><span id="frequencyInfo" /></p>
-          <p><span id="startTimeLabel">First:</span> <span id="startTime" /> <span id="endTimeLabel">Last: </span> <span
-              id="endTime" /> </p>
-        </div>
-        <div id="returnInfo" style="flex:50%; border-left: solid; padding-left: 5px;">
-          <p style="font-weight: bold;">
-            <span id="fromLocationInfoReturn" />
-          </p>
-          <p style="font-weight: bold;">
-            -><span id="toLocationInfoReturn" />
-          </p>
-          <p><span id="everyLabelReturn">Every ~</span><span id="frequencyInfoReturn" /></p>
-          <p>
-            <span id="startTimeLabelReturn">First:</span><span id="startTimeReturn" />
-            <span id="endTimeLabelRet">Last: </span><span id="endTimeReturn" />
-          </p>
-        </div>
-      </div>
-    </div>
+    <RouteView ref="routeViewPanel"></RouteView>
   </div>
 </template>
 
@@ -242,10 +237,19 @@ import { Loader } from '@googlemaps/js-api-loader';
 import { Geolocation } from '@capacitor/geolocation'
 import { BackgroundTask } from '@robingenz/capacitor-background-task';
 import { App } from '@capacitor/app';
-
+import store from '@/store';
+import RouteView from './RouteView.vue';
+import router from '@/router';
+import LoginView from './LoginView.vue';
+import RegistrationView from './RegistrationView.vue';
 
 export default {
   name: 'Home',
+  components: {
+    RouteView,
+    LoginView,
+    RegistrationView,
+},
   data() {
     return {
       routes: [],
@@ -277,7 +281,7 @@ export default {
       showingRoutes: true,
       editingDirections: false,
       standardRouteOpacity: 0.5,
-      trackingPoints: [],
+      followPoints: [],
       debugIterator: 0,
       // editingReturn: false,
       myIp: 'https://www.rutascolectivos.info',
@@ -285,7 +289,8 @@ export default {
       google: null,
       maps: null,
       pollingForLocation: null,
-      following: false
+      following: false,
+      showLogin: false
     }
   },
   async mounted() {
@@ -312,7 +317,6 @@ export default {
       }
     });
 
-    this.windowHtml = document.getElementById('infoPanel').cloneNode(true)
     this.google = await loader.load()
     this.initMap()
   },
@@ -336,6 +340,14 @@ export default {
 
       });
       console.log(taskId)
+    },
+    populateInfo(route) {
+      console.log(route)
+      this.$refs.routeViewPanel.populateInfo(route)
+      //RouteView. populateInfo(route)
+      console.log("PI")
+
+
     },
     stopBackgroundTask() {
       console.log('stop background task')
@@ -372,9 +384,12 @@ export default {
     },
     startFollowing() {
       this.following = true
+      console.log(store.state.mapLocal)
       console.log(this.mapLocal)
       this.google.maps.event.addListener(this.mapLocal, 'click', (event) => {
-        this.placeNewMarker(event.latLng)
+        if (this.following) {
+          this.placeNewGPSMarker(event.latLng)
+        }
       })
 
 
@@ -386,16 +401,17 @@ export default {
     },
     stopFollowing(save) {
       this.following = false;
-
+      var gpsPoints = this.followPoints.map(function (x) { return [x.position.lat(), x.position.lng()] })
+      this.saveGPSFollow(gpsPoints)
 
       // clearInterval(this.locationInterval)
     },
-    saveGPSFollow(){
-      // fetch(this.myIp + '/saveGPS', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(routeJson) // here this is how you send your datas
-      // })
+    saveGPSFollow(gpsPoints) {
+      fetch(this.myIp + '/saveGPS', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(gpsPoints)
+      })
     },
 
     searchKeyPress(event) {
@@ -675,11 +691,6 @@ export default {
       document.getElementById('reallyDeleteRouteButtonTop').style.display = 'none'
       document.getElementById('cancelDeleteButton').style.display = 'none'
 
-      if (document.getElementById('editRoutePointsButton') == null) {
-        this.createInfoIfNotExist()
-      }
-      // clearAllLines();
-
       var editButton, editPointsButton
 
       // view
@@ -731,7 +742,10 @@ export default {
         this.showEditbuttons(true)
       }
     },
-
+    toggleActive() {
+      var el = document.getElementById("menuDropdown")
+      el.classList.push("active")
+    },
     clearAllLines() {
       if (this.polylines) {
         // console.log(this.polylines)
@@ -947,7 +961,7 @@ export default {
     populateInfoTop(route) {
       var from = document.getElementById('fromLocationInfoTop')
       var spanish = document.getElementById('languageSelect').selectedIndex === 0
-
+      console.log("PIT")
       if (from) { from.textContent = route.origin }
 
       document.getElementById('toLocationInfoTop').textContent = route.destination
@@ -966,27 +980,6 @@ export default {
         document.getElementById('addReturnButtonTop').textContent = spanish ? 'Crear ruta de regreso' : 'Add return route'
       }
     },
-
-    populateInfo(route) {
-      var from = document.getElementById('fromLocationInfo')
-      if (from) { from.textContent = route.origin }
-      document.getElementById('toLocationInfo').textContent = route.destination
-      document.getElementById('frequencyInfo').textContent = route.frequency
-      document.getElementById('startTime').textContent = route.startTime
-      document.getElementById('endTime').textContent = route.endTime
-      document.getElementById('infoPanel').style.display = 'block'
-      if (route.returnPoints) {
-        document.getElementById('toLocationInfoReturn').textContent = route.origin
-        document.getElementById('fromLocationInfoReturn').textContent = route.destination
-        document.getElementById('startTimeReturn').textContent = route.returnStartTime
-        document.getElementById('endTimeReturn').textContent = route.returnEndTime
-        document.getElementById('frequencyInfoReturn').textContent = route.frequency
-        document.getElementById('returnInfo').style.display = 'block'
-      } else {
-        document.getElementById('returnInfo').style.display = 'none'
-      }
-    },
-
     SetEndLocation(loc) {
       document.getElementById('toLat').value = loc.lat()
       document.getElementById('toLng').value = loc.lng()
@@ -1018,6 +1011,7 @@ export default {
       console.log(this.maps)
       console.log(this.google)
       console.log("hello yes we got initialised")
+      store.dispatch('getRoutesFromServer')
       var myLatlng = new this.google.maps.LatLng(16.733911888003078, -92.64308697053372)
 
       let color = 'green'
@@ -1073,12 +1067,6 @@ export default {
           }
         }
       })
-
-      this.logUserVisit()
-    },
-
-    logUserVisit() {
-
     },
 
     removeIsolatedPoints(sequence) {
@@ -1175,15 +1163,6 @@ export default {
       })
     },
 
-    createInfoIfNotExist() {
-      var infoHtml = document.getElementById('infoPanel')
-      if (infoHtml == null) {
-        infoHtml = this.windowHtml.cloneNode(true)
-        infoHtml.style.display = 'none'
-        this.infoPanelLocal = document.body.appendChild(infoHtml)
-      }
-    },
-
     drawLineFromPoints(points, route, isReturn) {
       var tosend = []
 
@@ -1227,6 +1206,21 @@ export default {
         }
       })
       console.log(blueMarker)
+    },
+    placeNewGPSMarker(loc) {
+      var url = 'http://maps.google.com/mapfiles/ms/icons/'
+      url += 'blue' + '-dot.png'
+
+      var blueMarker = new this.google.maps.Marker({
+        draggable: false,
+        position: loc,
+        map: this.mapLocal,
+        title: 'Your location',
+        icon: {
+          url: url
+        }
+      })
+      this.followPoints.push(blueMarker)
     },
 
     generateIcons(route, isReturn) {
@@ -1365,7 +1359,7 @@ export default {
     setClickEvent(routePath, route, returnRoutepath) {
       this.google.maps.event.addListener(routePath, 'click', (click) => {
         var boxText = document.createElement('div')
-        this.createInfoIfNotExist()
+        //var infoHtml = this.$refs.routeViewPanel
         var infoHtml = document.getElementById('infoPanel')
 
         if (this.currentHighlightedRoute != null) {
@@ -1382,15 +1376,17 @@ export default {
         }
         this.currentHighlightedRoute = routePath
         this.currentHighlightedRoute.route = route
-        document.getElementById('returnInfo').style.borderLeftColor = route.colour
-        document.getElementById('outboundInfo').style.borderRightColor = route.colour
 
         this.currentEditId = routePath.id
         if (this.mode === 0) {
+          console.log("populating")
+          console.log(infoHtml)
           this.populateInfo(route)
-          boxText.appendChild(infoHtml)
+          console.log(this.$refs.routeViewPanel.$el)
+          console.log(boxText)
+          //boxText.appendChild(infoHtml)
           var myOptions = {
-            content: boxText,
+            content: this.$refs.routeViewPanel.$el,
             position: { lat: route.points[0][0], lng: route.points[0][1] }
           }
           // end example code for custom infobox
@@ -1409,7 +1405,7 @@ export default {
         }
         this.populateInfoTop(route)
 
-        this.getOverlappingSegments(route)
+        //this.getOverlappingSegments(route)
       })
     },
 
@@ -1420,10 +1416,7 @@ export default {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         }
-        // alert(JSON.stringify(pos))
-        // infoWindow.setPosition(pos);
-        // infoWindow.setContent("Location found.");
-        // infoWindow.open(map);
+
         this.mapLocal.setCenter(pos)
         this.placeNewMarker(pos)
         this.trackingPoints.push(pos)
@@ -1503,6 +1496,7 @@ export default {
         streetViewControl: false
       })
       this.mapLocal = this.maps
+      store.commit("setMapLocal", this.maps)
 
       this.drawRoutes()
       this.initialize()
@@ -1692,5 +1686,37 @@ export default {
 #map {
   height: 100px;
   position: inherit !important;
+}
+
+.dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.dropdownContent {
+  display: none;
+  position: absolute;
+  min-width: 200px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  padding: 12px 16px;
+  z-index: 1;
+  background-color: white;
+}
+
+.dropdownItem{
+  text-decoration: none;
+
+}
+
+.dropdownItem:hover{
+  text-decoration: none;
+  background: #A179C9;
+  color: black;
+  transition: .7s;
+}
+
+.dropdown:hover .dropdownContent {
+  display: block;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view/>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -34,6 +34,7 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 #floating-panel {

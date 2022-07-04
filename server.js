@@ -62,7 +62,37 @@ app.post('/saveRoute', (req, res) => {
 })
 
 app.post('/saveGPS', (req, res) => {
-  saveGPS(req.body)
+  var latlngArray = req.body
+
+  var qString = ""
+  latlngArray.forEach(element => {
+    qString += element[0]
+    qString += "%2C"
+    qString += element[1]
+    qString += "%7C"
+  });
+
+  qString = qString.slice(0, -3)
+
+  console.log(qString)
+
+  var url = "https://roads.googleapis.com/v1/snapToRoads?path=" + qString + "&interpolate=true&key=" + apiKey
+
+  var config = {
+    method: 'get',
+    url: url,
+    headers: { }
+  };
+  
+  axios(config)
+  .then(function (response) {
+    console.log(JSON.stringify(response.data));
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+  //saveGPS(req.body)
+
   res.send("gps saved!")
 })
 
