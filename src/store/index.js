@@ -1,14 +1,14 @@
-import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 
-Vue.use(Vuex)
-
-export default new Vuex.Store({
+export default Vuex.createStore({
   state: {
     routes: ["yo "],
     userMode: "view",
-    mapLocal: null
+    mapLocal: null,
+    localServer: false,
+    serverUrl: null,
+    signedInUser: null
   },
   getters: {
   },
@@ -18,6 +18,21 @@ export default new Vuex.Store({
     },
     setMapLocal(state, mapLocal){
       this.state.mapLocal = mapLocal
+    },
+    setLocalServer(state, isLocalServer){
+      this.state.localServer = isLocalServer
+      if(isLocalServer){
+        this.state.serverUrl = 'http://localhost:8000'
+      }
+      else{
+        this.state.serverUrl = 'https://www.rutascolectivos.info'
+      }
+    },
+    signInUser(state, username){
+      this.state.signedInUser = username
+    },
+    signOutUser(state){
+      this.state.signedInUser = null
     }
   },
   actions: {
@@ -29,8 +44,14 @@ export default new Vuex.Store({
         console.log(response.data)
         this.commit("setRoutes", response.data)
       })
+    },
+    initialiseStore(){
+      console.log("initializing store")
+      if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === ""){
+        this.commit("setLocalServer", true)
+      }
     }
   },
   modules: {
   }
-})
+});

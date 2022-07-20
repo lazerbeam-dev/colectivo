@@ -1,0 +1,47 @@
+.modal{
+  position:absolute;
+  top: 20%;
+  left:0;
+  right:0;
+
+  margin-left: auto;
+  margin-right: auto;
+
+  position: absolute;
+  width: 25%;
+
+  outline: 1px solid black;
+  background: white;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 7px;
+}
+
+.error{
+  color: red;
+}
+
+.functionalButton{
+  background-color: #9ED6AD;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.functionalButton:hover{
+  background-color: #BBE2C6;
+}
+
+.closeButton{
+  background-color: white;
+  border: none;
+}
+
+input{
+  border-radius: 5px;
+}
+
+.giveMeSpace{
+  margin-top: 15px;
+  margin-bottom: 10px;
+}

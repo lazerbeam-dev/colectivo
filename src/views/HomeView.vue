@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div id="floating-panel" style="min-height: 6%;" class="center">
+    <div id="floating-panel" class="center navbar">
       <img src="https://i.ibb.co/XjwhkdC/3.png"
         style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
       <select id="modeSelect" ref="modeSelectElem" @change="modeChange($refs.modeSelectElem)" class="center"
@@ -16,17 +16,16 @@
           Edit route
         </option>
       </select>
-      <input id="goToLocationInput" @keyup.enter="goToLocation" class="center">
-      <button id="goToLocationButton" class="submitButton center" @click="goToLocation()">
-        <img id="goToLocationButtonImage" src="https://i.ibb.co/BPSDW54/search.png"
-          style="max-width: 8px; max-height: 8px;" alt="search">
+      <input id="goToLocationInput" @keyup.enter="goToLocation" class="center marginRight" placeholder="search routes">
+      <button id="goToLocationButton" class="functionalButton center marginRight" @click="goToLocation()">
+        <img id="goToLocationButtonImage" class="buttonImage" src="https://i.ibb.co/BPSDW54/search.png" alt="search">
       </button>
 
-      <div name="menuDropdown" class="dropdown" id="menuDropdown">
-        <button @click="toggleActive()">
+      <div name="menuDropdown" class="dropdown marginRight" id="menuDropdown">
+        <button @click="toggleActive()" class="functionalButton searchButton">
           <img
-            src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn4.iconfinder.com%2Fdata%2Ficons%2Fbasic-ui-elements%2F700%2F06_menu_stack-512.png&f=1&nofb=1"
-            alt="menu" style="max-width: 14px; max-height: 14px;">
+            src="https://cdn-icons-png.flaticon.com/512/108/108153.png"
+            alt="menu" class="buttonImage">
         </button>
         <div class="dropdownContent">
           <div class="dropdownItem"> Contact us
@@ -35,16 +34,24 @@
           </div>
           <div class="dropdownItem"> More information
           </div>
-          <div class="dropdownItem" @click="showLogin=true">
+          <div class="dropdownItem" @click="showLogin = true; showRegistration = false">
             Sign in
           </div>
-          <div class="dropdownItem">
+          <div class="dropdownItem" @click="showRegistration = true; showLogin = false">
             Sign up
           </div>
         </div>
         <div v-if="showLogin">
-          <LoginView @close="showLogin = false">
-          </LoginView>
+          <Teleport to="body">
+            <LoginView @goToRegistration="showLogin = false; showRegistration = true" @close="showLogin = false" @signInUser="this.signInUser()">
+            </LoginView>
+          </Teleport>
+        </div>
+        <div v-if="showRegistration">
+          <Teleport to="body">
+            <RegistrationView @close="showRegistration = false">
+            </RegistrationView>
+          </Teleport>
         </div>
       </div>
 
@@ -56,14 +63,17 @@
             </button> -->
 
       <div v-if="taskId">Task is running</div>
-      <span class="pad center" style="float: right;">
+        <button class="functionalButton marginRight">
         <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg"
-          style="max-width: 14px; max-height: 14px;">
-        <select id="languageSelect" ref="languageSelectElem" @change="languageChange($refs.languageSelectElem)">
+          class="buttonImage marginRight">
+           <select id="languageSelect" ref="languageSelectElem" @change="languageChange($refs.languageSelectElem)">
           <option value="0">Español</option>
           <option value="1">English</option>
         </select>
-      </span>
+        </button>
+        <button class = "functionalButton">
+          <img id="profileButton" class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="search">
+        </button>
       <div id="routeViewDiv" style="display: none;"></div>
       <div id="routeCreateDiv" style="display: none;">
         <input id="routeInputPhase" value="0" style="display: none;">
@@ -173,6 +183,7 @@
           <button id="cancelDeleteButton" class="pad, functionalButton" style="display: none;" @click="cancelDelete()">
             Cancel delete
           </button>
+         
         </div>
       </div>
     </div>
@@ -227,8 +238,9 @@
 
     <div id="map" style="height: 94%; position: inherit !important" />
     <div id="warnings-panel" />
-    <RouteView ref="routeViewPanel"></RouteView>
+    
   </div>
+  <RouteView ref="routeViewPanel"></RouteView>
 </template>
 
 <script>
@@ -249,7 +261,7 @@ export default {
     RouteView,
     LoginView,
     RegistrationView,
-},
+  },
   data() {
     return {
       routes: [],
@@ -290,10 +302,13 @@ export default {
       maps: null,
       pollingForLocation: null,
       following: false,
-      showLogin: false
+      showLogin: false,
+      showRegistration: false,
+      showRouteDetails: false
     }
   },
   async mounted() {
+    store.dispatch('initialiseStore')
     if (process.env.NODE_ENV === 'development') {
       this.myIp = 'http://localhost:8000'
     }
@@ -1358,6 +1373,7 @@ export default {
 
     setClickEvent(routePath, route, returnRoutepath) {
       this.google.maps.event.addListener(routePath, 'click', (click) => {
+        this.showRouteDetails = true
         var boxText = document.createElement('div')
         //var infoHtml = this.$refs.routeViewPanel
         var infoHtml = document.getElementById('infoPanel')
@@ -1682,7 +1698,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 #map {
   height: 100px;
   position: inherit !important;
@@ -1704,12 +1720,12 @@ export default {
   background-color: white;
 }
 
-.dropdownItem{
+.dropdownItem {
   text-decoration: none;
 
 }
 
-.dropdownItem:hover{
+.dropdownItem:hover {
   text-decoration: none;
   background: #A179C9;
   color: black;
@@ -1718,5 +1734,24 @@ export default {
 
 .dropdown:hover .dropdownContent {
   display: block;
+}
+
+.navbar{
+  background-color: white;
+  border-radius: 10px;
+}
+
+.marginRight{
+  margin-right: 2px;
+}
+
+.marginLeft{
+  margin-left: 120px;
+}
+
+.buttonImage{
+  max-height: 15px;
+  max-width: 15px;
+  margin: 0 auto;
 }
 </style>

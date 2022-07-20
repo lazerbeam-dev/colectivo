@@ -9,10 +9,12 @@ const bodyParser = require('body-parser');
 const sls = require('serverless-http');
 const path = require('path')
 const fs = require('fs');
+const bcrypt = require('bcrypt')
 
 const uri = process.env.MONGO_URI;
 const apiKey = process.env.API_KEY;
 const port = process.env.PORT || 8000;
+const saltRounds = 9;
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 //const client = new MongoClient('mongodb://localhost:27017');
@@ -47,18 +49,35 @@ app.use(cors({
 app.get('/favicon.ico', async (req, res) => {
   var img = null
   if (process.env.NODE_ENV === 'development') {
-    img = fs.readFileSync(path.join(__dirname, 'dist' , 'favicon.ico'));
+    img = fs.readFileSync(path.join(__dirname, 'dist', 'favicon.ico'));
   } else {
-    const response = await axios.get('https://rutascolectivos.s3.us-west-1.amazonaws.com/favicon.ico',  { responseType: 'arraybuffer' })
+    const response = await axios.get('https://rutascolectivos.s3.us-west-1.amazonaws.com/favicon.ico', { responseType: 'arraybuffer' })
     img = Buffer.from(response.data, "utf-8")
   }
-  res.writeHead(200, {'Content-Type': 'image/x-icon' });
+  res.writeHead(200, { 'Content-Type': 'image/x-icon' });
   res.end(img, 'binary');
 })
 
 app.post('/saveRoute', (req, res) => {
   saveRoute(req.body)
   res.send("route saved!")
+})
+
+app.post('/reviewRoute', async (req, res) => {
+  try{
+    var body = req.body
+    var userReporting = await getUser(body.userId)
+    if(userReporting != null){
+      var routeReported = await getRouteById(body.routeId)
+      if(routeReported.reviews == null){
+        routeReported.reviews = []
+      }
+      //routeReported.push
+    }
+  }
+  catch(error){
+    res.send(error)
+  }
 })
 
 app.post('/saveGPS', (req, res) => {
@@ -81,75 +100,146 @@ app.post('/saveGPS', (req, res) => {
   var config = {
     method: 'get',
     url: url,
-    headers: { }
+    headers: {}
   };
-  
+
   axios(config)
-  .then(function (response) {
-    console.log(JSON.stringify(response.data));
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
   //saveGPS(req.body)
 
   res.send("gps saved!")
 })
 
 app.get('/_health', (req, res) => {
-  res.send({"status": true})
+  res.send({ "status": true })
 })
 
 app.get('/', function (req, res) {
-  if(__dirname.includes("bintami")){
+  if (__dirname.includes("bintami")) {
     console.log("running in the cloud")
-  res.sendFile(__dirname + '/colectivo/views/index.html');
+    res.sendFile(__dirname + '/colectivo/views/index.html');
 
   }
-  else{
+  else {
     res.sendFile(__dirname + '/dist/index.html');
   }
 });
 
-app.post('/geocode', function(req, res) {
+app.post('/geocode', function (req, res) {
 
 });
 
-app.post('/getRoutesWithFilter', function(req, res) {
+app.post('/signIn', async function (req, res) {
+  try {
+    console.log('login')
+    console.log(req.body)
+    let loginAttempt = req.body
+    await client.connect()
+    const database = client.db("Collectivivo");
+    const users = database.collection("users");
+
+    const query = { email: loginAttempt.email }
+    var existingUser = await users.find(query).toArray();
+    console.log(existingUser)
+    if (existingUser.length == 1) {
+      bcrypt.compare(loginAttempt.password, existingUser[0].password, function (err, result) {
+        console.log("login attempt")
+        if(result === true){
+          res.status(200).send(existingUser[0]._id)
+        }
+        else{
+          res.status(401).send("wrong password!")
+          //res.sendStatus(500)
+        }
+        console.log(result)
+        console.log(err)
+      });
+    }
+    else{
+      res.status(400).send("no one with that email")
+    }
+  }
+  catch (e) {
+    console.log(e)
+    res.send("something went wrong")
+  }
+});
+
+app.post('/signUp', async function (req, res) {
+  try {
+    console.log("sign up")
+    //console.log(req)
+    console.log(req.body)
+    let newUser = req.body
+    await client.connect()
+    const database = client.db("Collectivivo");
+    const users = database.collection("users");
+
+    const query = { email: newUser.email }
+    const options = {}
+    var existingUser = await users.find(query).toArray();
+    console.log(existingUser)
+    if (existingUser.length > 0) {
+      console.log('new user');
+      res.send("user already exists");
+    }
+    else {
+      const myPlaintextPassword = newUser.password;
+      bcrypt.hash(myPlaintextPassword, saltRounds, function (err, hash) {
+        newUser.password = hash
+        const result = users.insertOne(newUser);
+        console.log('new user');
+        res.send("user added successfully")
+      });
+
+    }
+  }
+  catch (e) {
+    console.log(e)
+    res.send("something went wrong")
+  }
+});
+
+app.post('/getRoutesWithFilter', function (req, res) {
   console.log()
 });
 
 app.get('/getRoutes', function (req, res) {
-  getAllRoutes().then((got) =>{ res.send(JSON.stringify(got)); res.end() })
+  getAllRoutes().then((got) => { res.send(JSON.stringify(got)); res.end() })
   //res.end()
 });
 
-app.post('/deleteRoute', function(req, res) {
+app.post('/deleteRoute', function (req, res) {
   console.log(req.body)
   deleteRouteById(req.body.id)
   res.send("heard you")
   res.end()
 });
 
-app.post('/search', function(req, res){
+app.post('/search', function (req, res) {
   var query = req.body.query
-  
+
 
   var config = {
     method: 'get',
-    url: 'https://maps.googleapis.com/maps/api/place/textsearch/json?query='+query+'&key='+apiKey,
-    headers: { }
+    url: 'https://maps.googleapis.com/maps/api/place/textsearch/json?query=' + query + '&key=' + apiKey,
+    headers: {}
   };
-  
+
   axios(config)
-  .then(function (response) {
-    console.log(JSON.stringify(response.data));
-    res.send(JSON.stringify(response.data));
-    res.end();
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+      res.send(JSON.stringify(response.data));
+      res.end();
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
 });
 
 
@@ -157,83 +247,98 @@ app.listen(port, () => {
   console.log(`Success! Your application is running on port ${port}.`);
 });
 
-saveGPS = async function(newGPS){
+
+saveGPS = async function (newGPS) {
   await client.connect()
   const database = client.db("Collectivivo");
-  const routes = database.collection("gpsRoutes"); 
-  const result = await routes.insertOne(newGPS).then(x => {  });
+  const routes = database.collection("gpsRoutes");
+  const result = await routes.insertOne(newGPS).then(x => { });
   console.log('new document');
 }
 
-saveRoute = async function(newRoute) {
+saveRoute = async function (newRoute) {
 
   var findId = newRoute.findId;
   delete newRoute.findId;
 
-  if(newRoute.points.length > 0){
+  if (newRoute.points.length > 0) {
     newRoute.startLat = newRoute.points[0][0]
     newRoute.startLng = newRoute.points[0][1]
-    newRoute.endLat = newRoute.points[newRoute.points.length -1][0]
-    newRoute.endLng = newRoute.points[newRoute.points.length -1][1]
+    newRoute.endLat = newRoute.points[newRoute.points.length - 1][0]
+    newRoute.endLng = newRoute.points[newRoute.points.length - 1][1]
   }
 
-  if(findId != null){
+  if (findId != null) {
     //looking to find a route we just made
     console.log('update return');
 
     await client.connect()
     const database = client.db("Collectivivo");
     const routes = database.collection("routes");
-    const query = {newId : findId}
+    const query = { newId: findId }
     const options = {}
     var natch = await routes.find(query)
-    
-    if(natch != null){
+
+    if (natch != null) {
       console.log("found a match!")
-      const result = await routes.findOneAndReplace({"newId" : findId}, newRoute).then(x => {  });
+      const result = await routes.findOneAndReplace({ "newId": findId }, newRoute).then(x => { });
 
       console.log(result)
     }
   }
-  else if(newRoute.id != null){
+  else if (newRoute.id != null) {
     // classic update
     await client.connect()
     const database = client.db("Collectivivo");
     const routes = database.collection("routes");
-    const result = await routes.findOneAndReplace({"_id" : ObjectId(newRoute.id)}, newRoute).then(x => {  });
+    const result = await routes.findOneAndReplace({ "_id": ObjectId(newRoute.id) }, newRoute).then(x => { });
     console.log('update');
   }
-  else if(newRoute.newId != null){
+  else if (newRoute.newId != null) {
     // classic add
     await client.connect()
     const database = client.db("Collectivivo");
-    const routes = database.collection("routes"); 
-    const result = await routes.insertOne(newRoute).then(x => {  });
+    const routes = database.collection("routes");
+    const result = await routes.insertOne(newRoute).then(x => { });
     console.log('new document');
   }
-  
-} 
 
-deleteRouteById = async function(id){
+}
+
+deleteRouteById = async function (id) {
   await client.connect()
   const database = client.db("Collectivivo");
   const routes = database.collection("routes");
 
-  const result = await routes.deleteOne({"_id" : ObjectId(id)}).then(x => {  });
+  const result = await routes.deleteOne({ "_id": ObjectId(id) }).then(x => { });
   console.log(result);
   console.log('delete')
 }
 
-getRouteById = async function(id){
+getUser = async function(id){
+  try{
+    await client.connect()
+    const database = client.db("Collectivivo");
+    const routes = database.collection("users");
+    const query = { _id: ObjectId(id) }
+    const options = {}
+    return await routes.find(query).toArray[0]
+  }
+  catch(e){
+    return null
+  }
+}
+
+getRouteById = async function (id) {
   await client.connect()
   const database = client.db("Collectivivo");
   const routes = database.collection("routes");
-  const query = {_id : ObjectId(id)}
+  const query = { _id: ObjectId(id) }
   const options = {}
   return await routes.find(query)
 }
 
-getRoutesWithinArea = async function(topLeft, botRight){
+getRoutesWithinArea = async function (topLeft, botRight) {
   await client.connect()
   const database = client.db("Collectivivo");
   const routes = database.collection("routes");
@@ -242,7 +347,7 @@ getRoutesWithinArea = async function(topLeft, botRight){
   return await routes.find(query).toArray()
 }
 
-getAllRoutes = async function(){
+getAllRoutes = async function () {
   await client.connect()
   console.log('Connected successfully to server');
 
@@ -256,8 +361,8 @@ getAllRoutes = async function(){
   // if ((await cursor.count()) === 0) {
   //   console.log("No documents found!");
   // }
-  
-   
+
+
   // replace console.dir with your callback to access individual elements
   //await cursor.forEach((item) => {routesToReturn.push(item)});
   // const query = { runtime: { $lt: 15 } };
@@ -270,12 +375,12 @@ getAllRoutes = async function(){
 }
 
 const beautify = filePath => {
-	let data = fs.readFileSync(filePath).toString();
-	let object = JSON.parse(data);
-	return JSON.stringify(object, false, 3);
+  let data = fs.readFileSync(filePath).toString();
+  let object = JSON.parse(data);
+  return JSON.stringify(object, false, 3);
 };
 
 module.exports = {
-	beautify,
+  beautify,
   server: sls(app)
 };

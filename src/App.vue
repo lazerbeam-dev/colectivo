@@ -6,7 +6,7 @@
 
 <style lang="scss">
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  //@errorfont-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -42,7 +42,6 @@ body {
   top: 10px;
   left: 25%;
   z-index: 5;
-  background-color: #fff;
   padding: 5px;
   border: 1px solid #999;
   text-align: center;
@@ -55,5 +54,9 @@ body {
   width: 100%;
   height: 10%;
   text-align: center;
+}
+
+body{
+  font-family: "Roboto", "sans-serif";
 }
 </style>
