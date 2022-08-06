@@ -10,14 +10,13 @@ const sls = require('serverless-http');
 const path = require('path')
 const fs = require('fs');
 const bcrypt = require('bcrypt')
+const cookieSession = require("cookie-session");
+const repo = require('./repo')
+const jwt = require('jsonwebtoken');
 
-const uri = process.env.MONGO_URI;
 const apiKey = process.env.API_KEY;
 const port = process.env.PORT || 8000;
 const saltRounds = 9;
-
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-//const client = new MongoClient('mongodb://localhost:27017');
 
 const app = express()
 
@@ -26,6 +25,14 @@ app.use(
     extended: true
   })
 )
+
+// app.use(
+//   cookieSession({
+//     name: "RutasColectivosSession",
+//     secret: process.env.COOKIE_SECRET,
+//     httpOnly: true
+//   })
+// );
 
 app.use('/', express.static('views'))
 app.use('/js', express.static(path.resolve(__dirname, './dist/js')))
@@ -139,18 +146,51 @@ app.post('/signIn', async function (req, res) {
     console.log('login')
     console.log(req.body)
     let loginAttempt = req.body
-    await client.connect()
-    const database = client.db("Collectivivo");
-    const users = database.collection("users");
 
-    const query = { email: loginAttempt.email }
-    var existingUser = await users.find(query).toArray();
+    // check for token
+    if(req.body.token != null){
+      var senttoken = req.body.token
+      senttoken = senttoken.slice(senttoken.indexOf('"')+1, -1);
+      console.log("trying to login with token")
+      var decoded = jwt.decode(senttoken, process.env.JWS_SECRET);
+      console.log(decoded)
+      repo.getById(repo.collections.users, decoded.user_id).then(user =>
+      {
+        console.log(user)
+        if(user.email == decoded.email && user.token == senttoken && user.email == decoded.email){
+          console.log("successful token login")
+          res.status(200).send({username: user.username, token: senttoken, id: user._id});
+        }
+      })
+      return;
+    }
+    // await client.connect()
+    // const users = database.collection("users");
+
+    // const query = { email: loginAttempt.email }
+    // var existingUser = await users.find(query).toArray();
+    var existingUser = await repo.getByValue("users", "email", loginAttempt.email)
     console.log(existingUser)
     if (existingUser.length == 1) {
       bcrypt.compare(loginAttempt.password, existingUser[0].password, function (err, result) {
         console.log("login attempt")
         if(result === true){
-          res.status(200).send(existingUser[0]._id)
+          var userDetails = existingUser[0];
+          const token = jwt.sign(
+            { user_id: userDetails._id, email: userDetails.email },
+            process.env.JWS_SECRET,
+            { expiresIn: '3h' }
+            )
+          
+          userDetails.token = token;
+          userDetails.lastLogin = new Date().toUTCString();
+          repo.updateItem(repo.collections.users, userDetails)
+
+          res.status(200).send({
+            id: existingUser[0]._id,
+            username: existingUser[0].username,
+            token: token
+          })
         }
         else{
           res.status(401).send("wrong password!")
@@ -176,25 +216,35 @@ app.post('/signUp', async function (req, res) {
     //console.log(req)
     console.log(req.body)
     let newUser = req.body
-    await client.connect()
-    const database = client.db("Collectivivo");
-    const users = database.collection("users");
-
-    const query = { email: newUser.email }
-    const options = {}
-    var existingUser = await users.find(query).toArray();
+    var existingUser = await repo.getByValue("users", "email", req.body.email)
     console.log(existingUser)
     if (existingUser.length > 0) {
-      console.log('new user');
-      res.send("user already exists");
+      console.log('user already exists');
+      res.status(401).send("user already exists");
     }
     else {
       const myPlaintextPassword = newUser.password;
       bcrypt.hash(myPlaintextPassword, saltRounds, function (err, hash) {
         newUser.password = hash
-        const result = users.insertOne(newUser);
+        
+        const result = repo.insertToCollection(repo.collections.users, newUser).then(x => 
+        {
+          console.log('x')
+          console.log(x)
+          const token = jwt.sign(
+            { user_id: x._id, email: x.email },
+            process.env.JWS_SECRET,
+            {
+              expiresIn: "2h",
+            }
+          );
+  
+          newUser.token = token;
+          tokeniseduser = repo.updateItem(repo.collections.users, newUser)
+        });
+       
         console.log('new user');
-        res.send("user added successfully")
+        res.status(200).send("user added successfully")
       });
 
     }
@@ -210,13 +260,13 @@ app.post('/getRoutesWithFilter', function (req, res) {
 });
 
 app.get('/getRoutes', function (req, res) {
-  getAllRoutes().then((got) => { res.send(JSON.stringify(got)); res.end() })
+  repo.getAllRoutes().then((got) => { res.send(JSON.stringify(got)); res.end() })
   //res.end()
 });
 
 app.post('/deleteRoute', function (req, res) {
   console.log(req.body)
-  deleteRouteById(req.body.id)
+  repo.deleteRouteById(req.body.id)
   res.send("heard you")
   res.end()
 });
@@ -242,137 +292,12 @@ app.post('/search', function (req, res) {
     });
 });
 
-
 app.listen(port, () => {
   console.log(`Success! Your application is running on port ${port}.`);
 });
 
 
-saveGPS = async function (newGPS) {
-  await client.connect()
-  const database = client.db("Collectivivo");
-  const routes = database.collection("gpsRoutes");
-  const result = await routes.insertOne(newGPS).then(x => { });
-  console.log('new document');
-}
 
-saveRoute = async function (newRoute) {
-
-  var findId = newRoute.findId;
-  delete newRoute.findId;
-
-  if (newRoute.points.length > 0) {
-    newRoute.startLat = newRoute.points[0][0]
-    newRoute.startLng = newRoute.points[0][1]
-    newRoute.endLat = newRoute.points[newRoute.points.length - 1][0]
-    newRoute.endLng = newRoute.points[newRoute.points.length - 1][1]
-  }
-
-  if (findId != null) {
-    //looking to find a route we just made
-    console.log('update return');
-
-    await client.connect()
-    const database = client.db("Collectivivo");
-    const routes = database.collection("routes");
-    const query = { newId: findId }
-    const options = {}
-    var natch = await routes.find(query)
-
-    if (natch != null) {
-      console.log("found a match!")
-      const result = await routes.findOneAndReplace({ "newId": findId }, newRoute).then(x => { });
-
-      console.log(result)
-    }
-  }
-  else if (newRoute.id != null) {
-    // classic update
-    await client.connect()
-    const database = client.db("Collectivivo");
-    const routes = database.collection("routes");
-    const result = await routes.findOneAndReplace({ "_id": ObjectId(newRoute.id) }, newRoute).then(x => { });
-    console.log('update');
-  }
-  else if (newRoute.newId != null) {
-    // classic add
-    await client.connect()
-    const database = client.db("Collectivivo");
-    const routes = database.collection("routes");
-    const result = await routes.insertOne(newRoute).then(x => { });
-    console.log('new document');
-  }
-
-}
-
-deleteRouteById = async function (id) {
-  await client.connect()
-  const database = client.db("Collectivivo");
-  const routes = database.collection("routes");
-
-  const result = await routes.deleteOne({ "_id": ObjectId(id) }).then(x => { });
-  console.log(result);
-  console.log('delete')
-}
-
-getUser = async function(id){
-  try{
-    await client.connect()
-    const database = client.db("Collectivivo");
-    const routes = database.collection("users");
-    const query = { _id: ObjectId(id) }
-    const options = {}
-    return await routes.find(query).toArray[0]
-  }
-  catch(e){
-    return null
-  }
-}
-
-getRouteById = async function (id) {
-  await client.connect()
-  const database = client.db("Collectivivo");
-  const routes = database.collection("routes");
-  const query = { _id: ObjectId(id) }
-  const options = {}
-  return await routes.find(query)
-}
-
-getRoutesWithinArea = async function (topLeft, botRight) {
-  await client.connect()
-  const database = client.db("Collectivivo");
-  const routes = database.collection("routes");
-  //const query = { startLat : {$gt : }}
-  const options = {}
-  return await routes.find(query).toArray()
-}
-
-getAllRoutes = async function () {
-  await client.connect()
-  console.log('Connected successfully to server');
-
-  const database = client.db("Collectivivo");
-  const routes = database.collection("routes");
-  const query = {}
-  const options = {}
-  return await routes.find().toArray()
-  //await client.close()
-
-  // if ((await cursor.count()) === 0) {
-  //   console.log("No documents found!");
-  // }
-
-
-  // replace console.dir with your callback to access individual elements
-  //await cursor.forEach((item) => {routesToReturn.push(item)});
-  // const query = { runtime: { $lt: 15 } };
-  // const options = {
-  //   // sort returned documents in ascending order by title (A->Z)
-  //   sort: { title: 1 },
-  //   // Include only the `title` and `imdb` fields in each returned document
-  //   projection: { _id: 0, title: 1, imdb: 1 },
-  // };
-}
 
 const beautify = filePath => {
   let data = fs.readFileSync(filePath).toString();

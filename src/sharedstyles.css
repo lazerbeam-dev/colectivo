@@ -1,25 +1,22 @@
 .modal{
   position:absolute;
   top: 20%;
-  left:0;
-  right:0;
-
-  margin-left: auto;
-  margin-right: auto;
-
+  left: 50%;
+  transform: translate(-50%, 0);
   position: absolute;
-  width: 25%;
-
+  display: inline-block;
   outline: 1px solid black;
   background: white;
   text-align: center;
   justify-content: center;
   align-items: center;
   border-radius: 7px;
+  padding: 10px;
 }
 
 .error{
   color: red;
+  font-size: small;
 }
 
 .functionalButton{
@@ -33,8 +30,7 @@
 }
 
 .closeButton{
-  background-color: white;
-  border: none;
+  background: none; display: block; border: 0px; margin: 0px; padding: 0px; text-transform: none; appearance: none; position: absolute; cursor: pointer; user-select: none; top: -6px; right: -6px; width: 30px; height: 30px;
 }
 
 input{
@@ -44,4 +40,9 @@ input{
 .giveMeSpace{
   margin-top: 15px;
   margin-bottom: 10px;
+}
+
+.modalLogo{
+  max-width: 40px;
+  max-height: 40px;
 }

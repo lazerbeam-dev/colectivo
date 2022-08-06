@@ -1,39 +1,43 @@
 <template>
     <div class="root">
         <div class="modal">
-            <button @click="$emit('close')" style="float:right">X</button>
+            <button @click="$emit('close')" class="closeButton">X</button>
             <br>
-            <h3>Log In</h3>
+            <img src="https://i.ibb.co/XjwhkdC/3.png" class="modalLogo">
+            <br>
+            <h3>{{ $t('log_in') }}</h3>
 
             <div class="form-group">
-                <label>Email address</label><br>
+                <label>{{ $t('email_address') }}</label><br>
                 <input v-model="email" type="email" class="form-control form-control-lg" />
                 <br><span class="error" v-if="errorEmail">{{ errorEmail }}</span>
             </div>
 
             <div class="form-group">
-                <label>Password</label><br>
-                <input v-model="password" type="password" class="form-control form-control-lg" @keyup.enter="SignIn()"/>
+                <label>{{ $t('password') }}</label><br>
+                <input v-model="password" type="password" class="form-control form-control-lg"
+                    @keyup.enter="this.SignIn()" />
                 <br><span class="error" v-if="error">{{ error }}</span>
             </div>
 
-            <button type="submit" class="functionalButton giveMeSpace" @click="SignIn()">Sign In</button>
+            <button type="submit" class="functionalButton giveMeSpace" @click="this.SignIn()">Sign In</button>
             <br>
-            <span>no account? <a href="#" class="internalLink" @click="$emit('goToRegistration')">sign up</a></span>
+            <span>{{ $t('no_account') }}<a href="#" class="internalLink"
+                    @click="$emit('goToRegistration')">{{ $t('create_one') }}</a></span>
             <!-- <p class="forgot-password text-right mt-2 mb-4">
                 <router-link to="/forgot-password">Forgot password ?</router-link>
             </p> -->
         </div>
     </div>
 </template>
- 
-<script setup>
-import { defineEmit } from 'vue'
-import axios from 'axios'
-const emit = (['close', 'signInUser', 'goToRegistration'])
-</script>
 
 <script>
+import { defineEmits } from 'vue'
+const emit = defineEmits(['close', 'signInUser', 'goToRegistration'])
+import axios from 'axios'
+import i18next from 'i18next'
+import store from '@/store';
+
 export default {
     name: 'LoginView',
     data: function () {
@@ -45,14 +49,14 @@ export default {
         }
     },
     methods: {
-        Validate(){
-             var allow = true
+        Validate() {
+            var allow = true
             if (this.password.length < 7) {
-                this.error = "please use a password 7 characters or longer"
+                this.error = i18next.t('password_length');
                 allow = false
             }
             if (!this.email.includes("@") || this.email.length < 5) {
-                this.errorEmail = "please use a valid email address"
+                this.errorEmail = i18next.t('valid_email');
                 allow = false
             }
             return allow;
@@ -64,21 +68,22 @@ export default {
                 axios.post(serverUrl + "/signIn", { email: this.email, password: this.password }).then(x => {
                     console.log(x)
                     this.error = null
-                    this.$store.commit("signInUser", x.data)
+                    this.$store.commit("setSignedInUser", x.data)
                     console.log(this.$store.state.signedInUser)
                     this.$emit('signInUser')
                     this.$emit('close');
                     //if()
                 }).catch(error => {
+                    console.log(error)
                     var status = error.response.status
                     if (status == 400) {
-                        this.error = "User not found"
+                        this.error = i18next.t('user_not_found')
                     }
                     else if (status == 401) {
-                        this.error = "Wrong password"
+                        this.error = i18next.t('wrong_password')
                     }
                     else {
-                        this.error = "Something unexpected went wrong"
+                        this.error = i18next.t('unknown_error')
                     }
                 })
             }

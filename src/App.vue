@@ -39,15 +39,15 @@ body {
 
 #floating-panel {
   position: absolute;
-  top: 10px;
-  left: 25%;
+  top: 25px;
+  left: 50%;
+  transform: translate(-50%, 0);
   z-index: 5;
   padding: 5px;
   border: 1px solid #999;
   text-align: center;
   font-family: "Roboto", "sans-serif";
   line-height: 30px;
-  padding-left: 10px;
 }
 
 #warnings-panel {

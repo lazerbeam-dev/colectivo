@@ -8,10 +8,12 @@
         <p style="font-weight: bold;">
           -> <span id="toLocationInfo"> {{ endLocation }}</span>
         </p>
-        <p><span id="everyLabel">Every: </span><span style="font-weight: bold;"> {{ frequency }} </span></p>
-        <p><span id="startTimeLabel">First: </span> <span id="startTime" style="font-weight: bold;"> {{ startTime
-        }}</span> <span id="endTimeLabel">Last: </span> <span id="endTime" style="font-weight: bold;"> {{ endTime
-}}</span> </p>
+        <p><span id="everyLabel">{{ $t('every') }}: </span><span style="font-weight: bold;"> {{ frequency }} </span></p>
+        <p><span id="startTimeLabel">{{ $t('from_time') }}: </span> <span id="startTime" style="font-weight: bold;"> {{
+            startTime
+        }}</span> <span id="endTimeLabel">{{ $t('until_time') }}: </span> <span id="endTime"
+            style="font-weight: bold;"> {{ endTime
+            }}</span> </p>
       </div>
       <div ref="returnInfoBox" id="returnInfo" style="flex:50%; border-left: solid; padding-left: 5px;"
         v-show="hasReturn">
@@ -34,15 +36,14 @@
       </div>
     </div>
     <div class="reviewInfo">
-      <button id="likeButton" class="likeButton" @click="likeButtonClicked('active')">
-        <img class="likeImg"
-          src="https://cdn-icons-png.flaticon.com/512/2087/2087973.png"
-          alt="like" />
+      <button id="likeButton" class="likeButton" @click="likeButtonClicked('active')" :title="$t('like')">
+        <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/2087/2087973.png" alt="like" />
       </button>
-      <button id="dislikeButton" class="likeButton dislikeButton" @click="likeButtonClicked('activeDislike')">
-        <img class="likeImg"
-          src="https://cdn-icons-png.flaticon.com/512/2107/2107616.png"
-          alt="dislike" />
+      <button id="dislikeButton" class="likeButton dislikeButton" @click="likeButtonClicked('activeDislike')" :title="$t('dislike')">
+        <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/2107/2107616.png" alt="dislike" />
+      </button>
+      <button class="editButton" @click="editRouteDetails()" :title="$t('suggest_edit')">
+        <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/61/61456.png" alt="edit"/>
       </button>
     </div>
 
@@ -52,6 +53,8 @@
 
 <script>
 import { TypedChainedSet } from 'webpack-chain';
+
+const emit = ['goLogin']
 
 export default {
   name: "RouteView",
@@ -71,17 +74,28 @@ export default {
   },
   //props: ['startLocation', 'endLocation', 'frequency', 'startTime', 'endTime', 'returnStartTime', 'returnEndTime'],
   methods: {
-    likeButtonClicked(which){
+    likeButtonClicked(which) {
+      if(this.$store.state.signedInUser == null){
+        this.$emit('goLogin')
+        return
+      }
       var likeButton = document.getElementById('likeButton')
       var dislikeButton = document.getElementById('dislikeButton')
-      if(which == 'activeDislike'){
+      if (which == 'activeDislike') {
         likeButton.classList.remove('active')
         dislikeButton.classList.toggle('activeDislike')
       }
-      else{
+      else {
         likeButton.classList.toggle('active')
         dislikeButton.classList.remove('activeDislike')
       }
+    },
+    editRouteDetails(){
+      if(this.$store.state.signedInUser == null){
+        this.$emit('goLogin')
+        return
+      }
+      this.$emit('editRoute')
     },
     populateInfo(route) {
       this.endLocation = route.destination;
@@ -121,25 +135,41 @@ export default {
   width: 10px;
 }
 
-.likeButton{
+.likeButton {
   border: none;
   background-color: white;
   border-radius: 4px;
+  float: left
 }
 
-.likeButton:hover{
+.editButton {
+  border: none;
+  background-color: white;
+  border-radius: 4px;
+  float:right;
+}
+
+.reviewInfo{
+  width:100%;
+}
+
+.editButton:hover {
+  background-color: #a39dfb;
+}
+
+.likeButton:hover {
   background-color: #83EA9F;
 }
 
-.dislikeButton:hover{
+.dislikeButton:hover {
   background-color: #EC7272;
 }
 
-.active{
+.active {
   background-color: #83EA9F;
 }
 
-.activeDislike{
+.activeDislike {
   background-color: #EC7272;
 }
 

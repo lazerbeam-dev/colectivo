@@ -1,59 +1,29 @@
 <template>
-
   <div>
     <div id="floating-panel" class="center navbar">
       <img src="https://i.ibb.co/XjwhkdC/3.png"
         style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
-      <select id="modeSelect" ref="modeSelectElem" @change="modeChange($refs.modeSelectElem)" class="center"
-        style="display:none">
-        <option value="0">
-          View
-        </option>
-        <option value="1">
-          Add route
-        </option>
-        <option value="2">
-          Edit route
-        </option>
-      </select>
-      <input id="goToLocationInput" @keyup.enter="goToLocation" class="center marginRight" placeholder="search routes">
-      <button id="goToLocationButton" class="functionalButton center marginRight" @click="goToLocation()">
-        <img id="goToLocationButtonImage" class="buttonImage" src="https://i.ibb.co/BPSDW54/search.png" alt="search">
+      <input id="goToLocationInput" @keyup.enter="goToLocation" class="center" :placeholder="$t('search_routes')">
+      <button id="goToLocationButton" :title="$t('search_routes')" class="functionalButton center marginRight"
+        @click="goToLocation()">
+        <img id="goToLocationButtonImage" class="buttonImage" src="https://i.ibb.co/BPSDW54/search.png" alt="Search"
+          :title="$t('search_routes')">
+      </button>
+      <button @mouseenter="this.showInformationDropdown = true" @mouseleave="this.showInformationDropdown = false"
+        @click="this.showInformationDropdown = !this.showInformationDropdown" class="functionalButton marginRight"
+        :title="$t('information')">
+        <img src="https://cdn-icons-png.flaticon.com/512/108/108153.png" alt="menu" class="buttonImage">
+        <div class="dropdownContent" v-show="this.showInformationDropdown">
+          <div class="dropdownItem">{{ $t('about_colectivos') }}
+          </div>
+          <div class="dropdownItem">{{ $t('contact_info') }}
+          </div>
+          <div class="dropdownItem">{{ $t('about_rc') }}
+          </div>
+        </div>
       </button>
 
-      <div name="menuDropdown" class="dropdown marginRight" id="menuDropdown">
-        <button @click="toggleActive()" class="functionalButton searchButton">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/108/108153.png"
-            alt="menu" class="buttonImage">
-        </button>
-        <div class="dropdownContent">
-          <div class="dropdownItem"> Contact us
-          </div>
-          <div class="dropdownItem"> Add route
-          </div>
-          <div class="dropdownItem"> More information
-          </div>
-          <div class="dropdownItem" @click="showLogin = true; showRegistration = false">
-            Sign in
-          </div>
-          <div class="dropdownItem" @click="showRegistration = true; showLogin = false">
-            Sign up
-          </div>
-        </div>
-        <div v-if="showLogin">
-          <Teleport to="body">
-            <LoginView @goToRegistration="showLogin = false; showRegistration = true" @close="showLogin = false" @signInUser="this.signInUser()">
-            </LoginView>
-          </Teleport>
-        </div>
-        <div v-if="showRegistration">
-          <Teleport to="body">
-            <RegistrationView @close="showRegistration = false">
-            </RegistrationView>
-          </Teleport>
-        </div>
-      </div>
+
 
       <!-- <button id="startFollowing" class="functionalButton pad center" v-if="!following" @click="startFollowing()">
               follow me
@@ -61,186 +31,61 @@
             <button id="stopFollowing" class="functionalButton pad center" v-if="following" @click="stopFollowing()">
               stop following
             </button> -->
-
-      <div v-if="taskId">Task is running</div>
-        <button class="functionalButton marginRight">
-        <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg"
-          class="buttonImage marginRight">
-           <select id="languageSelect" ref="languageSelectElem" @change="languageChange($refs.languageSelectElem)">
-          <option value="0">Español</option>
-          <option value="1">English</option>
-        </select>
-        </button>
-        <button class = "functionalButton">
-          <img id="profileButton" class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="search">
-        </button>
-      <div id="routeViewDiv" style="display: none;"></div>
-      <div id="routeCreateDiv" style="display: none;">
-        <input id="routeInputPhase" value="0" style="display: none;">
-        <span id="userInstructionText">Click the map to select start location</span>
-        <button id="confirmButtonTop" class="submitButton" type="button" @click="confirmButtonPress()">
-          confirm
-        </button>
-        <span style="display: none;" class="pad"> or follow my location! (beta) <button id="followMeButton"
-            class="functionalButton pad" @click="startFollowing()">follow</button></span>
-        <button id="stopFollowingButton" class="redButton pad" style="display: none;" @click="stopFollowing()">
-          stop following
-        </button>
-        <button id="goBackButton" type="button" value="back" style="display: none;" @click="goBackButtonPress()">
-          back
-        </button>
-        <button id="recalculateButton" class="functionalButton" type="button" value="recalculate route"
-          style="display: none;" @click="recalculateRoute()">
-          recalculate route
-        </button>
-        <button id="addAnotherRoute" class="submitButton" type="button" value="Add another route" style="display: none;"
-          @click="addAnotherRoute(this)">
-          Add Another Route
-        </button>
-      </div>
-      <div id="routeEditDiv" style="display:none;">
-        <input id="routeEditPhase" value="0" style="display: none;">
-        <span id="editInstructionText">Click on a route to edit</span>
-        <div id="routeInformationDiv" style="display: none;">
-          <div style="display:flex" class="pad">
-            <div id="leftColumn" style="display: flex; flex-flow:row wrap;" class="pad">
-              <span id="fromLocationLabel" class="pad">From:</span>
-              <span id="fromLocationInfoTop" /><input id="fromLocationInputTop" type="text">
-
-              <span id="toLocationLabel" class="pad">To:</span> <span id="toLocationInfoTop" /><input
-                id="toLocationInputTop" type="text">
-              <span id="frequencySelectorLabel" class="pad">Frequency - every~</span><span
-                id="frequencyInfoTop" /><select id="frequencySelectorInfoInputTop" name="frequency"
-                style="display: none;">
-                <option value="?">
-                  ?
-                </option>
-                <option value="5m">
-                  5m
-                </option>
-                <option value="10m">
-                  10m
-                </option>
-                <option value="15m">
-                  15m
-                </option>
-                <option value="20m">
-                  20m
-                </option>
-                <option value="30m">
-                  30m
-                </option>
-                <option value="1hr">
-                  1hr
-                </option>
-                <option value="2hr">
-                  2hr
-                </option>
-              </select>
-              <span id="startTimeLabelTop" class="pad">From:</span> <span id="startTimeTop" /><input
-                id="startTimeInputTop" type="time" style="display: none;">
-              <span id="endTimeLabelTop" class="pad"> To:</span>
-              <span id="endTimeTop" /><input id="endTimeInputTop" class="input" type="time" style="display: none;">
-
-              <div class="pad">
-                <input id="colourPickerTop" type="color" style="text-align: end; height: 100%;">
-              </div>
-              <button id="enableRouteEditsButtonTop" class="pad, functionalButton" @click="editRoutePoints(true)">
-                Edit
-                route directions
-              </button>
-              <button id="addReturnButtonTop" class="pad, functionalButton" @click="enableAddReturnRoute()">
-                Add return
-                route
-              </button>
-            </div>
+      <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
+        @mouseleave="this.showProfileDropdown = false" title="Profile"
+        @click="this.showProfileDropdown = !this.showProfileDropdown">
+        <img id="profileButton" class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+          alt="profile" :title="$t('profile')">
+        <span v-show="this.signedInUsername != null">{{ this.signedInUsername }} </span>
+        <div v-show="showProfileDropdown" class="dropdownContent">
+          <div class="dropdownItem" v-show="this.signedInUsername == null"
+            @click="showLogin = true; showRegistration = false">
+            {{ $t('log_in') }}
           </div>
-          <div id="returnrouteEditDiv" style="display:none;">
-            <div id="returnrouteInformationDiv" style="display: block;">
-              Return information
-              <div style="display:flex" class="pad">
-                <div id="returnleftColumn" style="display: flex; flex-flow:row wrap;" class="pad">
-                  <span id="returnInfoTop" />
-                  <span id="startTimeEditLabel" class="pad">From: </span><input id="startTimeReturnTop" type="time"
-                    style="display: block;">
-                  <span id="endTimeEditLabel" class="pad"> To:</span>
-                  <input id="endTimeReturnTop" class="input" type="time" style="display: block;">
-                </div>
-              </div>
-            </div>
+          <div class="dropdownItem" v-show="this.signedInUsername == null"
+            @click="showRegistration = true; showLogin = false">
+            {{ $t('create_account') }}
           </div>
-          <button id="submitEditsButtonTop" class="pad, submitButton" @click="submitEditsTop(true)">
-            Confirm
-            edits
-          </button>
-          <button id="deleteRouteButtonTop" class="pad, redButton" @click="deleteHighlightedRoute(false)">
-            Delete route
-          </button>
-          <button id="reallyDeleteRouteButtonTop" class="pad, redButton" style="display: none;"
-            @click="deleteHighlightedRoute(true)">
-            Confirm delete route
-          </button>
-          <button id="cancelDeleteButton" class="pad, functionalButton" style="display: none;" @click="cancelDelete()">
-            Cancel delete
-          </button>
-         
+          <div class="dropdownItem" v-show="this.signedInUsername != null" @click="this.signOutUser()">
+            {{ $t('log_out') }}
+          </div>
         </div>
-      </div>
-    </div>
-    <div id="routeCreateDivTop" style="display: none;">
-      <b>Start: </b>
-      <input id="start" value="San Cristobal De Las Casas">
-      <!-- <input
-        type="button"
-        @click="recenterOnStart"
-      > -->
-      <input id="fromLat" style="width: 15px;" value="0"><input id="fromLng" value="0"
-        style="width: 15px; display: none;">
-      <input id="toLat" style="width: 15px;" value="0"><input id="toLng" value="0" style="width: 15px; display: none;">
-      <b>End: </b>
-      <input id="end" value="Tuxla">
-      <button id="findDirections" type="button" value="Go!" @click="findDirections()">
-        find directions
       </button>
-      <input id="colourPicker" type="color">
-      <span> Frequency - goes every</span>
-      <select id="frequencySelectorInput" name="frequency">
-        <option value="5m">
-          5m
-        </option>
-        <option value="10m">
-          10m
-        </option>
-        <option value="15m">
-          15m
-        </option>
-        <option value="20m">
-          20m
-        </option>
-        <option value="30m">
-          30m
-        </option>
-        <option value="1hr">
-          1hr
-        </option>
-        <option value="2hr">
-          2hr
-        </option>
-      </select>
-      <button id="submitRoute" value="Submit route to app" type="button" @click="submitRoute()">
-        submit route
-      </button>
-      <button id="drawKnownRoutes" type="button" value="Draw Known Routes" @click="drawRoutes()">
-        draw known
-        routes
-      </button>
-    </div>
 
+      <button class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
+        <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1828/1828921.png" alt="Add Route">
+      </button>
+
+      <button class="functionalButton marginRight" :title="$t('select_language')">
+        <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg" class="buttonImage marginRight">
+        <select id="languageSelect" ref="languageSelectElem" @change="this.languageChange($refs.languageSelectElem)">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+        </select>
+      </button>
+
+      <div v-if="showLogin">
+        <Teleport to="body">
+          <LoginView @goToRegistration="showLogin = false; showRegistration = true" @close="showLogin = false"
+            @signInUser="this.signInUser()">
+          </LoginView>
+        </Teleport>
+      </div>
+      <div v-if="showRegistration">
+        <Teleport to="body">
+          <RegistrationView @signInUser="this.signInUser()"
+            @goLogin="this.showRegistration = false; this.showLogin = true" @close="showRegistration = false">
+          </RegistrationView>
+        </Teleport>
+      </div>
+      <div id="routeViewDiv" style="display: none;"></div>
+    </div>
     <div id="map" style="height: 94%; position: inherit !important" />
     <div id="warnings-panel" />
-    
+
   </div>
-  <RouteView ref="routeViewPanel"></RouteView>
+  <RouteView @editRoute="this.editRoute()" @goLogin="this.showLogin = true" ref="routeViewPanel"></RouteView>
+  <RouteEditView v-if="showRouteEdit" ref="routeEditPanel"></RouteEditView>
 </template>
 
 <script>
@@ -251,16 +96,19 @@ import { BackgroundTask } from '@robingenz/capacitor-background-task';
 import { App } from '@capacitor/app';
 import store from '@/store';
 import RouteView from './RouteView.vue';
+import RouteEditView from './RouteEditView.vue'
 import router from '@/router';
 import LoginView from './LoginView.vue';
 import RegistrationView from './RegistrationView.vue';
-
+import i18next from 'i18next'
+import axios from 'axios'
 export default {
   name: 'Home',
   components: {
     RouteView,
     LoginView,
     RegistrationView,
+    RouteEditView
   },
   data() {
     return {
@@ -292,7 +140,7 @@ export default {
       initialized: false,
       showingRoutes: true,
       editingDirections: false,
-      standardRouteOpacity: 0.5,
+      standardRouteOpacity: 1,
       followPoints: [],
       debugIterator: 0,
       // editingReturn: false,
@@ -304,7 +152,11 @@ export default {
       following: false,
       showLogin: false,
       showRegistration: false,
-      showRouteDetails: false
+      showRouteDetails: false,
+      showProfileDropdown: false,
+      showInformationDropdown: false,
+      showRouteEdit: false,
+      signedInUsername: null
     }
   },
   async mounted() {
@@ -313,6 +165,8 @@ export default {
       this.myIp = 'http://localhost:8000'
     }
     const options = {}
+    this.tokenLogin()
+
     // const loader = new Loader('AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0', {
     // })
     const loader = new Loader({
@@ -355,6 +209,50 @@ export default {
 
       });
       console.log(taskId)
+    },
+    editRoute() {
+      console.log('editing')
+      this.showRouteEdit = true;
+    },
+    tokenLogin() {
+      console.log('attempting token login');
+      var serverUrl = this.$store.state.serverUrl;
+      console.log(serverUrl)
+      var tokey = localStorage.getItem("loginToken");
+      if (tokey != null && tokey != undefined) { 
+        console.log(tokey)
+      }
+      else{
+        console.log("no token")
+        return
+      }
+      axios.post(serverUrl + "/signIn", {
+        email: this.email, password: this.password, token: tokey,
+      }).then(x => {
+        console.log(x)
+        this.error = null
+        this.$store.commit("setSignedInUser", x.data)
+        console.log(this.$store.state.signedInUser)
+        this.signInUser()
+        //if()
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    signInUser() {
+      console.log('woo')
+      this.signedInUsername = this.$store.state.signedInUser.username
+    },
+    signOutUser() {
+      console.log('bye')
+      this.$store.commit("signOutUser")
+      this.signedInUsername = null
+      console.log(this.$store.state.signedInUser)
+    },
+    showAddRoute() {
+      if (this.actionRequiresLogin() == true) {
+        console.log("showing add route")
+      }
     },
     populateInfo(route) {
       console.log(route)
@@ -699,64 +597,6 @@ export default {
         }
       }
     },
-
-    modeChange(div) {
-      this.setMapOnAll(null)
-      this.clearAllLines()
-      document.getElementById('reallyDeleteRouteButtonTop').style.display = 'none'
-      document.getElementById('cancelDeleteButton').style.display = 'none'
-
-      var editButton, editPointsButton
-
-      // view
-      if (div.selectedIndex === 0) {
-        this.drawRoutes()
-
-        editButton = document.getElementById('editButton')
-        if (editButton != null) {
-          editButton.style.display = 'none'
-        }
-
-        editPointsButton = document.getElementById('editRoutePointsButton')
-        if (editPointsButton != null) {
-          editPointsButton.style.display = 'none'
-        }
-        document.getElementById('routeCreateDiv').style.display = 'none'
-        document.getElementById('routeEditDiv').style.display = 'none'
-        document.getElementById('routeViewDiv').style.display = 'block'
-        this.mode = 0
-        this.currentEditId = null
-        this.showEditbuttons(false)
-      } else if (div.selectedIndex === 1) {
-        this.drawRoutes()
-        document.getElementById('routeViewDiv').style.display = 'none'
-
-        document.getElementById('routeCreateDiv').style.display = 'block'
-        document.getElementById('routeEditDiv').style.display = 'none'
-        this.clearAllLines()
-        this.mode = 1
-        this.currentEditId = null
-        this.showEditbuttons(false)
-      } else if (div.selectedIndex === 2) {
-        this.drawRoutes()
-
-        editButton = document.getElementById('editButton')
-        if (editButton != null) {
-          editButton.style.display = 'block'
-        }
-
-        editPointsButton = document.getElementById('editRoutePointsButton')
-        if (editPointsButton != null) {
-          editPointsButton.style.display = 'block'
-        }
-        document.getElementById('routeEditDiv').style.display = 'block'
-        document.getElementById('routeViewDiv').style.display = 'none'
-        document.getElementById('routeCreateDiv').style.display = 'none'
-
-        this.mode = 2
-        this.showEditbuttons(true)
-      }
-    },
     toggleActive() {
       var el = document.getElementById("menuDropdown")
       el.classList.push("active")
@@ -974,27 +814,9 @@ export default {
     },
 
     populateInfoTop(route) {
-      var from = document.getElementById('fromLocationInfoTop')
-      var spanish = document.getElementById('languageSelect').selectedIndex === 0
-      console.log("PIT")
-      if (from) { from.textContent = route.origin }
-
-      document.getElementById('toLocationInfoTop').textContent = route.destination
-      document.getElementById('frequencyInfoTop').textContent = route.frequency
-      document.getElementById('startTimeTop').textContent = route.startTime
-      document.getElementById('endTimeTop').textContent = route.endTime
-      document.getElementById('colourPickerTop').value = route.colour
-      if (route.returnPoints) {
-        document.getElementById('returnInfoTop').style.display = 'block'
-        document.getElementById('startTimeReturnTop').value = route.returnStartTime
-        document.getElementById('endTimeReturnTop').value = route.returnEndTime
-        document.getElementById('addReturnButtonTop').textContent = spanish ? 'Editar ruta de regreso' : 'Edit return route'
-      } else {
-        document.getElementById('startTimeReturnTop').value = null
-        document.getElementById('endTimeReturnTop').value = null
-        document.getElementById('addReturnButtonTop').textContent = spanish ? 'Crear ruta de regreso' : 'Add return route'
-      }
+      //if (from) { from.textContent = route.origin }
     },
+
     SetEndLocation(loc) {
       document.getElementById('toLat').value = loc.lat()
       document.getElementById('toLng').value = loc.lng()
@@ -1016,12 +838,12 @@ export default {
     initialize() {
       var userLang = navigator.language || navigator.userLanguage
       console.log('The language is: ' + userLang)
-      if (userLang.includes('en-')) {
+      if (userLang.includes('en')) {
         document.getElementById('languageSelect').selectedIndex = 1
-        this.languageChange({ selectedIndex: 1 })
+        this.languageChange(-1)
       } else {
         document.getElementById('languageSelect').selectedIndex = 0
-        this.languageChange({ selectedIndex: 0 })
+        this.languageChange(-1)
       }
       console.log(this.maps)
       console.log(this.google)
@@ -1205,6 +1027,16 @@ export default {
       routePath.setMap(this.mapLocal)
       routePath.id = route ? route._id : null
       return routePath
+    },
+
+    actionRequiresLogin() {
+      if (this.$store.state.signedInUser == null) {
+        this.showLogin = true;
+        return false
+      }
+      else {
+        return true
+      }
     },
 
     placeNewMarker(loc) {
@@ -1501,7 +1333,6 @@ export default {
       this.setMapOnAll(null)
 
       this.editingDirections = false
-      // modeChange()
       // Instantiate a directions service.
 
       // Create a map and center it on Manhattan.
@@ -1516,8 +1347,6 @@ export default {
 
       this.drawRoutes()
       this.initialize()
-
-      this.modeChange(document.getElementById('modeSelect'))
       this.initialized = true
     },
 
@@ -1582,6 +1411,11 @@ export default {
     },
 
     languageChange(element) {
+      if (element == -1) {
+        element = document.getElementById("languageSelect")
+      }
+      var newLang = element.value
+      i18next.changeLanguage(newLang)
       // var languageIndex = element.selectedIndex
       // var spanish = languageIndex === 0
       // var phaseInt = document.getElementById('routeInputPhase').value
@@ -1710,24 +1544,24 @@ export default {
 }
 
 .dropdownContent {
-  display: none;
   position: absolute;
   min-width: 200px;
   overflow: auto;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   padding: 12px 16px;
+  border-radius: 10px;
   z-index: 1;
   background-color: white;
 }
 
 .dropdownItem {
   text-decoration: none;
-
+  border-radius: 10px;
 }
 
 .dropdownItem:hover {
   text-decoration: none;
-  background: #A179C9;
+  background: #9ED6AD;
   color: black;
   transition: .7s;
 }
@@ -1736,20 +1570,20 @@ export default {
   display: block;
 }
 
-.navbar{
+.navbar {
   background-color: white;
   border-radius: 10px;
 }
 
-.marginRight{
+.marginRight {
   margin-right: 2px;
 }
 
-.marginLeft{
+.marginLeft {
   margin-left: 120px;
 }
 
-.buttonImage{
+.buttonImage {
   max-height: 15px;
   max-width: 15px;
   margin: 0 auto;

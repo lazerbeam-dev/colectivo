@@ -1,7 +1,7 @@
 import Vuex from 'vuex'
 import axios from 'axios'
 
-export default Vuex.createStore({
+export default new Vuex.Store({
   state: {
     routes: ["yo "],
     userMode: "view",
@@ -28,11 +28,15 @@ export default Vuex.createStore({
         this.state.serverUrl = 'https://www.rutascolectivos.info'
       }
     },
-    signInUser(state, username){
-      this.state.signedInUser = username
+    setSignedInUser(state, user){
+      this.state.signedInUser = user
+      if(user.token != null){
+        localStorage.setItem("loginToken", JSON.stringify(user.token));
+      }
     },
     signOutUser(state){
       this.state.signedInUser = null
+      localStorage.setItem("loginToken", null)
     }
   },
   actions: {
@@ -50,7 +54,8 @@ export default Vuex.createStore({
       if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === ""){
         this.commit("setLocalServer", true)
       }
-    }
+    },
+    
   },
   modules: {
   }
