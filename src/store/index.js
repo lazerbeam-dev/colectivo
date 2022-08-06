@@ -54,9 +54,9 @@ export default new Vuex.Store({
       if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === ""){
         this.commit("setLocalServer", true)
       }
-      else{
-        this.commit("setLocalServer", false)
-      }
+      // else{
+      //   this.commit("setLocalServer", false)
+      // }
     },
     
   },
