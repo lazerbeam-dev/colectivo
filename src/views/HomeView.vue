@@ -226,7 +226,11 @@ export default {
         console.log("no token")
         return
       }
-      axios.post(serverUrl + "/signIn", {
+      //temporary debug line
+      var fullUrl = serverUrl + '/signIn';
+      console.log(fullUrl)
+      
+      axios.post(fullUrl, {
         email: this.email, password: this.password, token: tokey,
       }).then(x => {
         console.log(x)
