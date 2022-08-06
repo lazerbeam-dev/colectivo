@@ -219,6 +219,8 @@ export default {
       var serverUrl = this.$store.state.serverUrl;
       console.log(serverUrl)
       var tokey = localStorage.getItem("loginToken");
+      var fullUrl = serverUrl + '/signIn';
+      console.log(fullUrl)
       if (tokey != null && tokey != undefined) { 
         console.log(tokey)
       }
@@ -227,8 +229,7 @@ export default {
         return
       }
       //temporary debug line
-      var fullUrl = serverUrl + '/signIn';
-      console.log(fullUrl)
+      
       
       axios.post(fullUrl, {
         email: this.email, password: this.password, token: tokey,
