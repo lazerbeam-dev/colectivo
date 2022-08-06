@@ -220,7 +220,8 @@ export default {
       console.log(serverUrl)
       var tokey = localStorage.getItem("loginToken");
       var fullUrl = serverUrl + '/signIn';
-      console.log(fullUrl)
+      console.log(fullUrl);
+      console.log("I'm doing a small change so that the thing chilss out");
       if (tokey != null && tokey != undefined) { 
         console.log(tokey)
       }
