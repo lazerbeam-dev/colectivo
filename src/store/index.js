@@ -41,7 +41,7 @@ export default new Vuex.Store({
   },
   actions: {
     getRoutesFromServer(){
-      axios('http://localhost:8000/getRoutes', {
+      axios(this.state.serverUrl, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'encoding': 'utf-8', 'Access-Control-Allow-Origin': '*' }
       }).then(response => {
@@ -54,9 +54,9 @@ export default new Vuex.Store({
       if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === ""){
         this.commit("setLocalServer", true)
       }
-      // else{
-      //   this.commit("setLocalServer", false)
-      // }
+      else{
+        this.commit("setLocalServer", false)
+      }
     },
     
   },
