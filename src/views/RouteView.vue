@@ -36,14 +36,15 @@
       </div>
     </div>
     <div class="reviewInfo">
-      <button id="likeButton" class="likeButton" @click="likeButtonClicked('active')" :title="$t('like')">
+      <button id="likeButton" class="likeButton" ref="likeButton" @click="likeButtonClicked('active')" :title="$t('like')">
         <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/2087/2087973.png" alt="like" />
       </button>
-      <button id="dislikeButton" class="likeButton dislikeButton" @click="likeButtonClicked('activeDislike')" :title="$t('dislike')">
+      <button id="dislikeButton" class="likeButton dislikeButton" ref="dislikeButton" @click="likeButtonClicked('activeDislike')"
+        :title="$t('dislike')">
         <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/2107/2107616.png" alt="dislike" />
       </button>
       <button class="editButton" @click="editRouteDetails()" :title="$t('suggest_edit')">
-        <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/61/61456.png" alt="edit"/>
+        <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/61/61456.png" alt="edit" />
       </button>
     </div>
 
@@ -53,8 +54,8 @@
 
 <script>
 import { TypedChainedSet } from 'webpack-chain';
-
-const emit = ['goLogin']
+import axios from 'axios'
+const emit = ['goLogin', 'updateRoute']
 
 export default {
   name: "RouteView",
@@ -67,6 +68,9 @@ export default {
       endTime: "",
       returnStartTime: "",
       returnEndTime: "",
+      likes: [],
+      dislikes: [],
+      id: null,
       hasReturn: false,
       colour: "#FFFFFF",
       show: false
@@ -75,29 +79,42 @@ export default {
   //props: ['startLocation', 'endLocation', 'frequency', 'startTime', 'endTime', 'returnStartTime', 'returnEndTime'],
   methods: {
     likeButtonClicked(which) {
-      if(this.$store.state.signedInUser == null){
+      if (this.$store.state.signedInUser == null) {
         this.$emit('goLogin')
         return
       }
-      var likeButton = document.getElementById('likeButton')
-      var dislikeButton = document.getElementById('dislikeButton')
+      
       if (which == 'activeDislike') {
-        likeButton.classList.remove('active')
-        dislikeButton.classList.toggle('activeDislike')
+        this.$refs.likeButton.classList.remove('active')
+        this.$refs.dislikeButton.classList.toggle('activeDislike')
       }
       else {
-        likeButton.classList.toggle('active')
-        dislikeButton.classList.remove('activeDislike')
+        this.$refs.likeButton.classList.toggle('active')
+        this.$refs.dislikeButton.classList.remove('activeDislike')
       }
+      var serverUrl = this.$store.state.serverUrl;
+      this.$emit("updateRoute", {userId: this.$store.state.signedInUser.id, like: this.$refs.likeButton.classList.contains("active"), dislike: this.$refs.dislikeButton.classList.contains("activeDislike"), routeId: this.id})
+      axios.post(serverUrl + "/likeRoute", {
+        routeId: this.id,
+        userId: this.$store.state.signedInUser.id,
+        like: this.$refs.likeButton.classList.contains("active"),
+        dislike: this.$refs.dislikeButton.classList.contains("activeDislike")
+      })
+        .then(x => {
+          console.log(x)
+        }).catch(err => {
+          console.log(err)
+        })
     },
-    editRouteDetails(){
-      if(this.$store.state.signedInUser == null){
+    editRouteDetails() {
+      if (this.$store.state.signedInUser == null) {
         this.$emit('goLogin')
         return
       }
       this.$emit('editRoute')
     },
     populateInfo(route) {
+      this.id = route._id
       this.endLocation = route.destination;
       this.startLocation = route.origin;
       this.frequency = route.frequency,
@@ -110,6 +127,24 @@ export default {
       this.$refs.outboundInfoBox.style.borderRightColor = route.colour
       this.$refs.returnInfoBox.style.borderLeftColor = route.colour
       this.show = true
+      this.likes = route.likes ?? []
+      this.dislikes = route.dislikes ?? []
+      console.log(this.likes)
+      if (this.likes.includes(this.$store.state.signedInUser.id)) {
+        this.$refs.likeButton.classList.add("active")
+      }
+      else{
+        this.$refs.likeButton.classList.remove("active")
+      }
+      if (this.dislikes.includes(this.$store.state.signedInUser.id)) {
+        this.$refs.dislikeButton.classList.add("activeDislike")
+      }
+      else{
+        this.$refs.dislikeButton.classList.remove("activeDislike")
+      }
+
+
+
       // //document.getElementById('toLocationInfo').textContent = route.destination
       // document.getElementById('frequencyInfo').textContent = route.frequency
       // document.getElementById('startTime').textContent = route.startTime
@@ -146,11 +181,11 @@ export default {
   border: none;
   background-color: white;
   border-radius: 4px;
-  float:right;
+  float: right;
 }
 
-.reviewInfo{
-  width:100%;
+.reviewInfo {
+  width: 100%;
 }
 
 .editButton:hover {

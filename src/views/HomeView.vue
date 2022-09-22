@@ -1,69 +1,61 @@
 <template>
-  <div>
+  <div id="container">
     <div id="floating-panel" class="center navbar">
-      <img src="https://i.ibb.co/XjwhkdC/3.png"
+      <img src="https://i.ibb.co/XjwhkdC/3.png" class="noPointers"
         style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
-      <input id="goToLocationInput" @keyup.enter="goToLocation" class="center" :placeholder="$t('search_routes')">
-      <button id="goToLocationButton" :title="$t('search_routes')" class="functionalButton center marginRight"
-        @click="goToLocation()">
-        <img id="goToLocationButtonImage" class="buttonImage" src="https://i.ibb.co/BPSDW54/search.png" alt="Search"
-          :title="$t('search_routes')">
+      <span id="minimizableContent">
+      
+        <input id="goToLocationInput" @keyup.enter="goToLocation" class="center" :placeholder="$t('search_routes')">
+        <button id="goToLocationButton" :title="$t('search_routes')" class="functionalButton center marginRight"
+          @click="goToLocation()">
+          <img id="goToLocationButtonImage" class="buttonImage" src="https://i.ibb.co/BPSDW54/search.png" alt="Search"
+            :title="$t('search_routes')">
+        </button>
+        <button
+          @click="this.showInformation = !this.showInformation" class="functionalButton marginRight"
+          :title="$t('information')">
+          <img src="https://cdn-icons-png.flaticon.com/512/108/108153.png" alt="menu" class="buttonImage">
+        </button>
+        <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
+          @mouseleave="this.showProfileDropdown = false" title="Profile"
+          @click="this.showProfileDropdown = !this.showProfileDropdown">
+          <img id="profileButton" class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+            alt="profile" :title="$t('profile')">
+          <span v-show="this.signedInUsername != null">{{ this.signedInUsername }} </span>
+          <div v-show="showProfileDropdown" class="dropdownContent">
+            <div class="dropdownItem" v-show="this.signedInUsername == null"
+              @click="showLogin = true; showRegistration = false">
+              {{ $t('log_in') }}
+            </div>
+            <div class="dropdownItem" v-show="this.signedInUsername == null"
+              @click="showRegistration = true; showLogin = false">
+              {{ $t('create_account') }}
+            </div>
+            <div class="dropdownItem" v-show="this.signedInUsername != null" @click="this.signOutUser()">
+              {{ $t('log_out') }}
+            </div>
+          </div>
+        </button>
+
+        <button class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
+          <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1828/1828921.png" alt="Add Route">
+        </button>
+
+        <button class="functionalButton marginRight" :title="$t('select_language')">
+          <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg" class="buttonImage marginRight">
+          <select id="languageSelect" ref="languageSelectElem" @change="this.languageChange($refs.languageSelectElem)">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+          </select>
+        </button>
+      </span>
+      <button class="functionalButton minimize" :title="$t('minimize')" v-show="this.minimized == false" @click="this.toggleMinimize()">
+        <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/7891/7891448.png">
       </button>
-      <button @mouseenter="this.showInformationDropdown = true" @mouseleave="this.showInformationDropdown = false"
-        @click="this.showInformationDropdown = !this.showInformationDropdown" class="functionalButton marginRight"
-        :title="$t('information')">
-        <img src="https://cdn-icons-png.flaticon.com/512/108/108153.png" alt="menu" class="buttonImage">
-        <div class="dropdownContent" v-show="this.showInformationDropdown">
-          <div class="dropdownItem">{{ $t('about_colectivos') }}
-          </div>
-          <div class="dropdownItem">{{ $t('contact_info') }}
-          </div>
-          <div class="dropdownItem">{{ $t('about_rc') }}
-          </div>
-        </div>
-      </button>
-
-
-
-      <!-- <button id="startFollowing" class="functionalButton pad center" v-if="!following" @click="startFollowing()">
-              follow me
-            </button>
-            <button id="stopFollowing" class="functionalButton pad center" v-if="following" @click="stopFollowing()">
-              stop following
-            </button> -->
-      <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
-        @mouseleave="this.showProfileDropdown = false" title="Profile"
-        @click="this.showProfileDropdown = !this.showProfileDropdown">
-        <img id="profileButton" class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
-          alt="profile" :title="$t('profile')">
-        <span v-show="this.signedInUsername != null">{{ this.signedInUsername }} </span>
-        <div v-show="showProfileDropdown" class="dropdownContent">
-          <div class="dropdownItem" v-show="this.signedInUsername == null"
-            @click="showLogin = true; showRegistration = false">
-            {{ $t('log_in') }}
-          </div>
-          <div class="dropdownItem" v-show="this.signedInUsername == null"
-            @click="showRegistration = true; showLogin = false">
-            {{ $t('create_account') }}
-          </div>
-          <div class="dropdownItem" v-show="this.signedInUsername != null" @click="this.signOutUser()">
-            {{ $t('log_out') }}
-          </div>
-        </div>
-      </button>
-
-      <button class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
-        <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1828/1828921.png" alt="Add Route">
-      </button>
-
-      <button class="functionalButton marginRight" :title="$t('select_language')">
-        <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg" class="buttonImage marginRight">
-        <select id="languageSelect" ref="languageSelectElem" @change="this.languageChange($refs.languageSelectElem)">
-          <option value="es">Español</option>
-          <option value="en">English</option>
-        </select>
-      </button>
-
+      <button class="functionalButton minimize" :title="$t('maximize')" v-show="this.minimized == true" @click="this.toggleMinimize()">
+        <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/7891/7891457.png">
+      </button>                                                                 
+      
       <div v-if="showLogin">
         <Teleport to="body">
           <LoginView @goToRegistration="showLogin = false; showRegistration = true" @close="showLogin = false"
@@ -78,13 +70,18 @@
           </RegistrationView>
         </Teleport>
       </div>
+      <div v-if="showInformation">
+        <Teleport to="body">
+          <InformationView @signInUser="this.signInUser()" @close="showInformation = false">
+          </InformationView>
+        </Teleport>
+      </div>
       <div id="routeViewDiv" style="display: none;"></div>
     </div>
     <div id="map" style="height: 94%; position: inherit !important" />
     <div id="warnings-panel" />
-
   </div>
-  <RouteView @editRoute="this.editRoute()" @goLogin="this.showLogin = true" ref="routeViewPanel"></RouteView>
+  <RouteView @updateRoute="(info) => this.updateRoute(info)" @editRoute="this.editRoute()" @goLogin="this.showLogin = true" ref="routeViewPanel"></RouteView>
   <RouteEditView v-if="showRouteEdit" ref="routeEditPanel"></RouteEditView>
 </template>
 
@@ -102,14 +99,16 @@ import LoginView from './LoginView.vue';
 import RegistrationView from './RegistrationView.vue';
 import i18next from 'i18next'
 import axios from 'axios'
+import InformationView from './InformationView.vue';
 export default {
   name: 'Home',
   components: {
     RouteView,
     LoginView,
     RegistrationView,
-    RouteEditView
-  },
+    RouteEditView,
+    InformationView
+},
   data() {
     return {
       routes: [],
@@ -154,9 +153,19 @@ export default {
       showRegistration: false,
       showRouteDetails: false,
       showProfileDropdown: false,
-      showInformationDropdown: false,
+      showInformation: false,
       showRouteEdit: false,
-      signedInUsername: null
+      signedInUsername: null,
+      active: false,
+      currentX: null,
+      currentY: null,
+      initialX: null,
+      initialY: null,
+      xOffset: 0,
+      yOffset: 0,
+      dragItem: null,
+      dragContainer: null,
+      minimized: false
     }
   },
   async mounted() {
@@ -186,6 +195,17 @@ export default {
       }
     });
 
+    this.dragItem = document.querySelector("#floating-panel");
+    this.container = document.querySelector("#container");
+
+    this.container.addEventListener("touchstart", this.dragStart, false);
+    this.container.addEventListener("touchend", this.dragEnd, false);
+    this.container.addEventListener("touchmove", this.drag, false);
+
+    this.container.addEventListener("mousedown", this.dragStart, false);
+    this.container.addEventListener("mouseup", this.dragEnd, false);
+    this.container.addEventListener("mousemove", this.drag, false);
+
     this.google = await loader.load()
     this.initMap()
   },
@@ -210,6 +230,56 @@ export default {
       });
       console.log(taskId)
     },
+    toggleMinimize(){
+      var mini = document.getElementById("minimizableContent");
+      mini.classList.toggle("mini")
+      this.minimized = !this.minimized
+    },
+    dragStart(e) {
+      if (e.target === this.dragItem) {
+        this.active = true;
+      }
+      else{
+        return
+      }
+      if (e.type === "touchstart") {
+        this.initialX = e.touches[0].clientX - this.xOffset;
+        this.initialY = e.touches[0].clientY - this.yOffset;
+      } else {
+        this.initialX = e.clientX - this.xOffset;
+        this.initialY = e.clientY - this.yOffset;
+      }
+    },
+
+    dragEnd(e) {
+      this.initialX = this.currentX;
+      this.initialY = this.currentY;
+
+      this.active = false;
+    },
+
+    drag(e) {
+      if (this.active) {
+
+        e.preventDefault();
+
+        if (e.type === "touchmove") {
+          this.currentX = e.touches[0].clientX - this.initialX;
+          this.currentY = e.touches[0].clientY - this.initialY;
+        } else {
+          this.currentX = e.clientX - this.initialX;
+          this.currentY = e.clientY - this.initialY;
+        }
+
+        this.xOffset = this.currentX;
+        this.yOffset = this.currentY;
+
+        this.setTranslate(this.currentX, this.currentY, this.dragItem);
+      }
+    },
+    setTranslate(xPos, yPos, el) {
+      el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
+    },
     editRoute() {
       console.log('editing')
       this.showRouteEdit = true;
@@ -222,16 +292,16 @@ export default {
       var fullUrl = serverUrl + '/signIn';
       console.log(fullUrl);
       console.log("I'm doing a small change so that the thing chilss out");
-      if (tokey != null && tokey != undefined) { 
+      if (tokey != null && tokey != undefined) {
         console.log(tokey)
       }
-      else{
+      else {
         console.log("no token")
         return
       }
       //temporary debug line
-      
-      
+
+
       axios.post(fullUrl, {
         email: this.email, password: this.password, token: tokey,
       }).then(x => {
@@ -244,6 +314,10 @@ export default {
       }).catch(error => {
         console.log(error)
       })
+    },
+    dragged(e) {
+      console.log("on drag")
+      console.log(e)
     },
     signInUser() {
       console.log('woo')
@@ -283,6 +357,11 @@ export default {
       this.setInstructionText(0)
       this.points = []
       this.returnPoints = []
+    },
+    updateRoute(info){
+      console.log(info)
+      var route = this.routes.find(x => x._id == info.routeId)
+      console.log(route)
     },
     // collectivo = <div><h2 id="routeTitle" value="#title"></h2><p value="#contents"></p></div>
     showHideRoutes() {
@@ -997,6 +1076,7 @@ export default {
 
     drawPolylines(routes) {
       console.log(routes.length, 'routes')
+      this.routes = routes
       routes.forEach(route => {
         var line = this.drawLine(route)
         var returnLine = this.drawLineFromPoints(route.returnPoints, route, true)
@@ -1415,7 +1495,6 @@ export default {
           window.alert('Directions request failed due to ' + e)
         })
     },
-
     languageChange(element) {
       if (element == -1) {
         element = document.getElementById("languageSelect")
@@ -1558,6 +1637,8 @@ export default {
   border-radius: 10px;
   z-index: 1;
   background-color: white;
+  transform: translate(-50%, 0);
+
 }
 
 .dropdownItem {
@@ -1587,6 +1668,10 @@ export default {
 
 .marginLeft {
   margin-left: 120px;
+}
+
+.mini{
+  display:none;
 }
 
 .buttonImage {

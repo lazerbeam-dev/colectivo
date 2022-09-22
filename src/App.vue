@@ -40,14 +40,14 @@ body {
 #floating-panel {
   position: absolute;
   top: 25px;
-  left: 50%;
-  transform: translate(-50%, 0);
+  left: 200px;
   z-index: 5;
   padding: 5px;
   border: 1px solid #999;
   text-align: center;
   font-family: "Roboto", "sans-serif";
   line-height: 30px;
+  cursor: move;
 }
 
 #warnings-panel {

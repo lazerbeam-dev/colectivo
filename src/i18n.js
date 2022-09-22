@@ -43,7 +43,9 @@ i18next
               username_length: 'please use a username 5 characters or longer',
               already_account: 'Already have an account?',
               log_out: 'Log Out',
-              user_exists: 'A user with that email already exists'
+              user_exists: 'A user with that email already exists',
+              minimize: 'Minimize',
+              maximize: 'Show toolbar'
             }
           },
           es: {
@@ -77,7 +79,9 @@ i18next
               username_length: 'utilice un nombre de usuario de 5 caracteres o más',
               already_account: '¿Ya tienes una cuenta?',
               log_out: 'Cerrar Sesíon',
-              user_exists: 'Un usuario con ese email ya existe'
+              user_exists: 'Un usuario con ese email ya existe',
+              minimize: 'Minimizar',
+              maximize: 'Mostrar la barra de herramientas'
           }
         }
     }

@@ -2,16 +2,17 @@
   position:absolute;
   top: 20%;
   left: 50%;
-  transform: translate(-50%, 0);
   position: absolute;
   display: inline-block;
   outline: 1px solid black;
+  transform: translate(-50%, 0);
   background: white;
   text-align: center;
   justify-content: center;
   align-items: center;
   border-radius: 7px;
   padding: 10px;
+  z-index: 5;
 }
 
 .error{
@@ -40,6 +41,14 @@ input{
 .giveMeSpace{
   margin-top: 15px;
   margin-bottom: 10px;
+}
+
+.noPointers{
+  pointer-events: none;
+}
+
+.minimize{
+  display: inline;
 }
 
 .modalLogo{

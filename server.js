@@ -70,20 +70,65 @@ app.post('/saveRoute', (req, res) => {
   res.send("route saved!")
 })
 
-app.post('/reviewRoute', async (req, res) => {
+app.post('/likeRoute', async (req, res) => {
   try{
+    console.log('got here')
     var body = req.body
-    var userReporting = await getUser(body.userId)
-    if(userReporting != null){
-      var routeReported = await getRouteById(body.routeId)
-      if(routeReported.reviews == null){
-        routeReported.reviews = []
+
+    var userReporting = await repo.getById(repo.collections.users, body.userId)
+    var routeReporting = await repo.getById(repo.collections.routes, body.routeId)
+    
+    //gonna user userId a lot so
+    var userId = body.userId;
+
+    if(userReporting != null && routeReporting != null){
+      // work out if we are adding like, removing like, adding dislike, removing dislike
+      if(routeReporting.likes == null){
+        routeReporting.likes = []
       }
-      //routeReported.push
+      if(routeReporting.dislikes == null){
+        routeReporting.dislikes = []
+      }
+
+      // if body like, we are liking, removing dislikes by same user
+      if(body.like == true){
+        console.log("like")
+        if(!routeReporting.likes.includes(userId)){
+          routeReporting.likes.push(userId)
+        }
+        if(routeReporting.dislikes.includes(userId)){
+          routeReporting.dislikes.splice(routeReporting.dislikes.indexOf(userId), 1)
+        }
+      }
+      // if body dislike, we are disliking, removing likes by same user
+      else if(body.dislike == true){
+        console.log("dislike")
+
+        if(!routeReporting.dislikes.includes(userId)){
+          routeReporting.dislikes.push(userId)
+        }
+        if(routeReporting.likes.includes(userId)){
+          routeReporting.likes.splice(routeReporting.likes.indexOf(userId), 1)
+        }
+      }
+      else if(body.dislike == false && body.like == false){
+        console.log("neither")
+        // we removing all likey feedback by user on this route
+        if(routeReporting.likes.includes(userId)){
+          routeReporting.likes.splice(routeReporting.likes.indexOf(userId), 1)
+        }
+        if(routeReporting.dislikes.includes(userId)){
+          routeReporting.dislikes.splice(routeReporting.dislikes.indexOf(userId), 1)
+        }
+      }
+      repo.updateItem(repo.collections.routes, routeReporting).then(x => {
+        res.status(200).send(x)
+      })
     }
   }
   catch(error){
-    res.send(error)
+    console.log(error)
+    res.status(500).send(error)
   }
 })
 
@@ -148,7 +193,7 @@ app.post('/signIn', async function (req, res) {
     let loginAttempt = req.body
 
     // check for token
-    if(req.body.token != null){
+    if(req.body.token != null && req.body.token != "null"){
       var senttoken = req.body.token
       senttoken = senttoken.slice(senttoken.indexOf('"')+1, -1);
       console.log("trying to login with token")
@@ -169,6 +214,11 @@ app.post('/signIn', async function (req, res) {
 
     // const query = { email: loginAttempt.email }
     // var existingUser = await users.find(query).toArray();
+    if(loginAttempt.email == null){
+      console.log('invalid login attempt')
+      res.status(400).send("no email no token")
+      return;
+    }
     var existingUser = await repo.getByValue("users", "email", loginAttempt.email)
     console.log(existingUser)
     if (existingUser.length == 1) {
@@ -241,10 +291,9 @@ app.post('/signUp', async function (req, res) {
   
           newUser.token = token;
           tokeniseduser = repo.updateItem(repo.collections.users, newUser)
+          console.log('new user');
+          res.status(200).send({ username: newUser.username, id: newUser._id })
         });
-       
-        console.log('new user');
-        res.status(200).send("user added successfully")
       });
 
     }
