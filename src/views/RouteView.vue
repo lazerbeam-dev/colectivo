@@ -129,14 +129,14 @@ export default {
       this.show = true
       this.likes = route.likes ?? []
       this.dislikes = route.dislikes ?? []
-      console.log(this.likes)
-      if (signedInUser!= null && this.likes.includes(this.$store.state.signedInUser.id)) {
+      let signedInUser = this.$store.state.signedInUser;
+      if (signedInUser!= null && this.likes.includes(signedInUser.id)) {
         this.$refs.likeButton.classList.add("active")
       }
       else{
         this.$refs.likeButton.classList.remove("active")
       }
-      if (signedInUser!= null && this.dislikes.includes(this.$store.state.signedInUser.id)) {
+      if (signedInUser!= null && this.dislikes.includes(signedInUser.id)) {
         this.$refs.dislikeButton.classList.add("activeDislike")
       }
       else{
