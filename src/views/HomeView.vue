@@ -281,26 +281,13 @@ export default {
       el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
     },
     editRoute() {
-      console.log('editing')
       this.showRouteEdit = true;
     },
     tokenLogin() {
-      console.log('attempting token login');
       var serverUrl = this.$store.state.serverUrl;
       console.log(serverUrl)
       var tokey = localStorage.getItem("loginToken");
       var fullUrl = serverUrl + '/signIn';
-      console.log(fullUrl);
-      console.log("I'm doing a small change so that the thing chilss out");
-      if (tokey != null && tokey != undefined) {
-        console.log(tokey)
-      }
-      else {
-        console.log("no token")
-        return
-      }
-      //temporary debug line
-
 
       axios.post(fullUrl, {
         email: this.email, password: this.password, token: tokey,
@@ -316,22 +303,17 @@ export default {
       })
     },
     dragged(e) {
-      console.log("on drag")
-      console.log(e)
     },
     signInUser() {
-      console.log('woo')
       this.signedInUsername = this.$store.state.signedInUser.username
     },
     signOutUser() {
-      console.log('bye')
       this.$store.commit("signOutUser")
       this.signedInUsername = null
       console.log(this.$store.state.signedInUser)
     },
     showAddRoute() {
       if (this.actionRequiresLogin() == true) {
-        console.log("showing add route")
       }
     },
     populateInfo(route) {

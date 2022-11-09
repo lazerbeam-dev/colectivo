@@ -118,25 +118,25 @@ export default {
       this.endLocation = route.destination;
       this.startLocation = route.origin;
       this.frequency = route.frequency,
-        this.startTime = route.startTime,
-        this.endTime = route.endTime,
-        this.returnStartTime = route.returnStartTime,
-        this.returnEndTime = route.returnEndTime,
-        this.hasReturn = route.returnPoints != null,
-        this.colour = route.colour
+      this.startTime = route.startTime,
+      this.endTime = route.endTime,
+      this.returnStartTime = route.returnStartTime,
+      this.returnEndTime = route.returnEndTime,
+      this.hasReturn = route.returnPoints != null,
+      this.colour = route.colour
       this.$refs.outboundInfoBox.style.borderRightColor = route.colour
       this.$refs.returnInfoBox.style.borderLeftColor = route.colour
       this.show = true
       this.likes = route.likes ?? []
       this.dislikes = route.dislikes ?? []
       console.log(this.likes)
-      if (this.likes.includes(this.$store.state.signedInUser.id)) {
+      if (signedInUser!= null && this.likes.includes(this.$store.state.signedInUser.id)) {
         this.$refs.likeButton.classList.add("active")
       }
       else{
         this.$refs.likeButton.classList.remove("active")
       }
-      if (this.dislikes.includes(this.$store.state.signedInUser.id)) {
+      if (signedInUser!= null && this.dislikes.includes(this.$store.state.signedInUser.id)) {
         this.$refs.dislikeButton.classList.add("activeDislike")
       }
       else{

@@ -8,7 +8,7 @@
     "cap:android": "npm run build && npx cap sync android && npx cap open android",
     "cap:ios": "npm run build && npx cap sync ios && npx cap open ios",
     "server:build": "npm run build && node server.js",
-    "server:run": "node server.js"
+    "server": "node server.js"
   },
   "dependencies": {
     "@capacitor/app": "^1.1.1",
