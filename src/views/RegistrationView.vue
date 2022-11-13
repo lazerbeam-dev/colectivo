@@ -1,6 +1,6 @@
 <template>
     <div class="modal">
-        <button class="closeButton" @click="$emit('close')" style="float:right">X</button>
+        <img src="../assets/x.svg" @click="$emit('close')" class="closeButton">
         <br>
         <img src="https://i.ibb.co/XjwhkdC/3.png" class="modalLogo">
 

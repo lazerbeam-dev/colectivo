@@ -1,15 +1,14 @@
 <template>
   <div id="container">
     <div id="floating-panel" class="center navbar">
-      <img src="https://i.ibb.co/XjwhkdC/3.png" class="noPointers"
+      <img src="https://i.ibb.co/XjwhkdC/3.png" class="noPointers" id="logo"
         style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
       <span id="minimizableContent">
       
         <input id="goToLocationInput" @keyup.enter="goToLocation" class="center" :placeholder="$t('search_routes')">
         <button id="goToLocationButton" :title="$t('search_routes')" class="functionalButton center marginRight"
           @click="goToLocation()">
-          <img id="goToLocationButtonImage" class="buttonImage" src="https://i.ibb.co/BPSDW54/search.png" alt="Search"
-            :title="$t('search_routes')">
+          <img class="buttonImage" src="../assets/magnifying-glass.svg">
         </button>
         <button
           @click="this.showInformation = !this.showInformation" class="functionalButton marginRight"
@@ -42,18 +41,17 @@
         </button>
 
         <button class="functionalButton marginRight" :title="$t('select_language')">
-          <img src="https://icon-library.com/images/language-icon/language-icon-14.jpg" class="buttonImage marginRight">
           <select id="languageSelect" ref="languageSelectElem" @change="this.languageChange($refs.languageSelectElem)">
-            <option value="es">Español</option>
-            <option value="en">English</option>
+            <option value="es">ES</option>
+            <option value="en">EN</option>
           </select>
         </button>
       </span>
       <button class="functionalButton minimize" :title="$t('minimize')" v-show="this.minimized == false" @click="this.toggleMinimize()">
-        <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/7891/7891448.png">
+        <img class="buttonImage" src="../assets/arrow-line-left.svg">
       </button>
       <button class="functionalButton minimize" :title="$t('maximize')" v-show="this.minimized == true" @click="this.toggleMinimize()">
-        <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/7891/7891457.png">
+        <img class="buttonImage" src="../assets/arrow-line-right.svg">
       </button>                                                                 
       
       <div v-if="showLogin">

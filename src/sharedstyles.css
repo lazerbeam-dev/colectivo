@@ -1,38 +1,63 @@
+
+
 .modal{
-  position:absolute;
-  top: 20%;
+  display: flex;
+  flex-direction: column;
+  top: 5%;
   left: 50%;
   position: absolute;
-  display: inline-block;
-  outline: 1px solid black;
+  /* outline: 1px solid black; */
+  filter: drop-shadow(2px 2px 4px #d0d0d2);
   transform: translate(-50%, 0);
   background: white;
-  text-align: center;
+  text-align: left;
   justify-content: center;
   align-items: center;
   border-radius: 7px;
   padding: 10px;
   z-index: 5;
+  min-width: 300px;
+  max-width: 350px;
 }
 
-.error{
+.error {
   color: red;
   font-size: small;
 }
 
 .functionalButton{
-  background-color: #9ED6AD;
+  background-color: #f5f5f5;
+  color: #606060;
   border-radius: 5px;
   text-align: center;
+  height: 40px;
+  min-width: 40px;
+  border: none;
+  padding: 5px;
+  margin: 10px;
 }
 
 .functionalButton:hover{
-  background-color: #BBE2C6;
+  background-color: #E9E9E9;
+  color: #606060;
 }
 
-.closeButton{
-  background: none; display: block; border: 0px; margin: 0px; padding: 0px; text-transform: none; appearance: none; position: absolute; cursor: pointer; user-select: none; top: -6px; right: -6px; width: 30px; height: 30px;
+.closeButton {
+  position: absolute; 
+  cursor: pointer; 
+  user-select: none; 
+  right: 7px; 
+  top: 7px;
+  width: 30px; 
+  height: 30px;
+  line-height: 0px;
 }
+
+/* .buttonImage-gl {
+  background-color: red;
+  -webkit-mask: url(assets/globe.svg) no-repeat center;
+  mask: url(assets/globe.svg) no-repeat center;
+} */
 
 input{
   border-radius: 5px;
@@ -41,6 +66,16 @@ input{
 .giveMeSpace{
   margin-top: 15px;
   margin-bottom: 10px;
+  padding: 20px;
+  line-height: 0px;
+  background-color: #158C8C;
+  color: #ffffff;
+  /* text-transform: uppercase; */
+  /* letter-spacing: 1px; */
+}
+.giveMeSpace:hover {
+  background-color: #0E6B6B;
+  color: #ffffff;
 }
 
 .noPointers{
@@ -48,10 +83,143 @@ input{
 }
 
 .minimize{
-  display: inline;
+  /* display: inline; */
 }
 
 .modalLogo{
   max-width: 40px;
   max-height: 40px;
+}
+
+#logo {
+  padding-top: 10px;
+}
+
+#app {
+  /* //@errorfont-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; */
+  text-align: center;
+  color: #2c3e50;
+}
+
+nav {
+  padding: 30px;
+  
+}
+
+.router-link-exact-active a {
+  color: #158C8C;
+}
+
+nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* Optional: Makes the sample page fill the window. */
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#floating-panel {
+  position: absolute;
+  top: 25px;
+  left: 200px;
+  z-index: 5;
+  padding: 10px;
+  border: none;
+  text-align: left;
+  font-family: "Roboto", "sans-serif";
+  line-height: 30px;
+  cursor: move;
+}
+
+#goToLocationInput {
+  height: 40px;
+  background-color: #f5f5f5;
+  border: none;
+  padding-left: 10px;
+  min-width: 300px;
+  color: #606060;
+}
+
+.form-control {
+  height: 40px;
+  background-color: #f5f5f5;
+  border: none;
+  padding-left: 10px;
+  min-width: 250px;
+}
+
+#warnings-panel {
+  width: 100%;
+  height: 10%;
+  text-align: center;
+}
+
+#languageSelect {
+  border: none;
+  background-color: #f5f5f5;
+}
+
+.internalLink {
+  color: #158C8C;
+}
+
+
+label {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-align: left;
+  color: #BAB9B9;
+}
+
+.info {
+  max-width: 80%;
+}
+
+#goToLocationButton {
+  /* line-height: 0px; */
+  background-color: #158C8C;
+  color: #ffffff;
+}
+
+#goToLocationButton:hover {
+  background-color: #0E6B6B;
+  color: #ffffff;
+}
+
+
+.dropdownItem {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdownItem:hover {
+  background-color: #E6E6E6!important;
+}
+
+
+
+body{
+  font-family: "Roboto", "sans-serif";
+  color: #606060;
+}
+
+p {
+  font-size: 12px;
+}
+
+
+@media only screen and (max-width: 480px) {
+
 }
