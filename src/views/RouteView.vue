@@ -43,9 +43,9 @@
         :title="$t('dislike')">
         <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/2107/2107616.png" alt="dislike" />
       </button>
-      <button class="editButton" @click="editRouteDetails()" :title="$t('suggest_edit')">
+      <!-- <button class="editButton" @click="editRouteDetails()" :title="$t('suggest_edit')">
         <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/61/61456.png" alt="edit" />
-      </button>
+      </button> -->
     </div>
 
   </div>

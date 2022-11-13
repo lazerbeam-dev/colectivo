@@ -220,6 +220,20 @@ p {
 }
 
 
+#infoPanel {
+  text-align: left;
+  padding: 10px;
+}
+
+#fromLocationInfo {
+  font-size: 24px;
+  /* text-align: left; */
+}
+
+#toLocationInfo {
+
+}
+
 @media only screen and (max-width: 480px) {
 
 }
