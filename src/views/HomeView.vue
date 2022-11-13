@@ -11,11 +11,6 @@
           <img id="goToLocationButtonImage" class="buttonImage" src="https://i.ibb.co/BPSDW54/search.png" alt="Search"
             :title="$t('search_routes')">
         </button>
-        <button
-          @click="this.showInformation = !this.showInformation" class="functionalButton marginRight"
-          :title="$t('information')">
-          <img src="https://cdn-icons-png.flaticon.com/512/108/108153.png" alt="menu" class="buttonImage">
-        </button>
         <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
           @mouseleave="this.showProfileDropdown = false" title="Profile"
           @click="this.showProfileDropdown = !this.showProfileDropdown">
@@ -33,6 +28,9 @@
             </div>
             <div class="dropdownItem" v-show="this.signedInUsername != null" @click="this.signOutUser()">
               {{ $t('log_out') }}
+            </div>
+            <div class="dropdownItem" @click="this.showInformation = !this.showInformation">
+              {{ $t('information') }}
             </div>
           </div>
         </button>

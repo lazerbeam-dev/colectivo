@@ -1,24 +1,25 @@
 <template>
-  <div id="routeCreateDiv" class>
+  <div id="routeCreateDiv" v-show="this.showDetails">
       <b>{{ $t('start_location') }}</b>
-      <input id="start" v-model="startLocation" >
+      <input id="start" v-model="startLocation" ><br/>
       <b>{{ $t('end_location') }}</b>
       <input id="end" v-model="endLocation"><br/>
-      <span> {{ $t('colour')}}</span>
-      <input id="colourPicker" type="color"><br/>
-      <span>{{ $t('every')}}</span>
-      <input id="frequencySelectorInput" name="frequency">m
-      <button id="submitRoute" value="Submit route to app" type="button" @click="submitRoute()">
-        submit route
-      </button>
-      <button id="drawKnownRoutes" type="button" value="Draw Known Routes" @click="drawRoutes()">
-        draw known
-        routes
-      </button>
-      <button id="findDirections" type="button" class="functionalButton" value="Go!" @click="findDirections()">
+      <b> {{ $t('colour')}}</b>
+      <input id="colourPicker" type="color" v-model="color"><br/>
+      <b>{{ $t('every')}}</b>
+      <input id="frequencySelectorInput" name="frequency" v-model="frequency"> m <br/>
+      <b>{{ $t('price')}}</b>
+      <input v-model="price"> pesos <br/>
+      <input type="time" v-model="startTime"> {{ $t('start_time') }} <br/>
+      <input type="time" v-model="endTime">  {{ $t('end_time') }} <br/>
+      <button id="submitRoute" @click="submitRoute()" class="functionalButton" >  {{ $t('save') }}</button>
+      
+  </div>
+  <div>
+    <button id="findDirections" type="button" value="Go!" class="functionalButton" @click="findDirections()">
         find directions
       </button>
-    </div>
+  </div>
 </template>
 
 <script>
@@ -27,6 +28,7 @@ export default {
     name: "InformationView",
     data: function () {
         return {
+            showDetails: true,
             startTime: null,
             endTime: null,
             startLocation: null,
@@ -35,6 +37,11 @@ export default {
 
         }
     },
+    methods: {
+      submitRoute(){
+        console.log("submitting route")
+      }
+    }
 }
 </script>
 

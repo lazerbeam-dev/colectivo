@@ -49,7 +49,7 @@ i18next
               start_location: 'From',
               end_location: 'To',
               price: 'Price',
-              colour: 'color'
+              colour: 'Color'
             }
           },
           es: {

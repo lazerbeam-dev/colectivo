@@ -73,13 +73,13 @@ app.post('/saveRoute', (req, res) => {
 app.post('/likeRoute', async (req, res) => {
   try{
     console.log('got here')
-    var body = req.body
+    const body = req.body
 
-    var userReporting = await repo.getById(repo.collections.users, body.userId)
-    var routeReporting = await repo.getById(repo.collections.routes, body.routeId)
+    const userReporting = await repo.getById(repo.collections.users, body.userId)
+    const routeReporting = await repo.getById(repo.collections.routes, body.routeId)
     
-    //gonna user userId a lot so
-    var userId = body.userId;
+    //gonna use userId a lot so
+    const userId = body.userId;
 
     if(userReporting != null && routeReporting != null){
       // work out if we are adding like, removing like, adding dislike, removing dislike
