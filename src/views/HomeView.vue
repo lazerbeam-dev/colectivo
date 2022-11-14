@@ -198,9 +198,11 @@ export default {
     this.dragItem = document.querySelector("#floating-panel");
     this.container = document.querySelector("#container");
 
-    this.container.addEventListener("touchstart", this.dragStart, false);
-    this.container.addEventListener("touchend", this.dragEnd, false);
-    this.container.addEventListener("touchmove", this.drag, false);
+    if (window.innerWidth >= 480) {
+      this.container.addEventListener("touchstart", this.dragStart, false);
+      this.container.addEventListener("touchend", this.dragEnd, false);
+      this.container.addEventListener("touchmove", this.drag, false);
+    }
 
     this.container.addEventListener("mousedown", this.dragStart, false);
     this.container.addEventListener("mouseup", this.dragEnd, false);
@@ -235,6 +237,7 @@ export default {
       mini.classList.toggle("mini")
       this.minimized = !this.minimized
     },
+
     dragStart(e) {
       if (e.target === this.dragItem) {
         this.active = true;
@@ -242,9 +245,10 @@ export default {
       else{
         return
       }
+    
       if (e.type === "touchstart") {
         this.initialX = e.touches[0].clientX - this.xOffset;
-        this.initialY = e.touches[0].clientY - this.yOffset;
+      this.initialY = e.touches[0].clientY - this.yOffset;
       } else {
         this.initialX = e.clientX - this.xOffset;
         this.initialY = e.clientY - this.yOffset;

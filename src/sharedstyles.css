@@ -203,7 +203,7 @@ body {
   cursor: move;
   display: flex;
   align-items: flex-start;
-  justify-content: space-between
+  justify-content: space-between;
 }
 
 #goToLocationInput {
@@ -317,5 +317,20 @@ p {
 
 
 @media only screen and (max-width: 480px) {
-
+  #floating-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    width: 100%;
+    height: 200px;
+    padding: 10px;
+    border: none;
+    text-align: left;
+    font-family: "Roboto", "sans-serif";
+    line-height: 30px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
 }
