@@ -10,11 +10,6 @@
           @click="goToLocation()">
           <img class="buttonImage" src="../assets/magnifying-glass.svg">
         </button>
-        <button
-          @click="this.showInformation = !this.showInformation" class="functionalButton marginRight"
-          :title="$t('information')">
-          <img src="https://cdn-icons-png.flaticon.com/512/108/108153.png" alt="menu" class="buttonImage">
-        </button>
         <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
           @mouseleave="this.showProfileDropdown = false" title="Profile"
           @click="this.showProfileDropdown = !this.showProfileDropdown">
@@ -33,10 +28,12 @@
             <div class="dropdownItem" v-show="this.signedInUsername != null" @click="this.signOutUser()">
               {{ $t('log_out') }}
             </div>
+            <div class="dropdownItem" @click="this.showInformation = !this.showInformation">
+              {{ $t('information') }}
+            </div>
           </div>
         </button>
-
-        <button class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
+        <button v-if="signedInUsername != null" class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
           <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1828/1828921.png" alt="Add Route">
         </button>
 
@@ -46,6 +43,7 @@
             <option value="en">EN</option>
           </select>
         </button>
+        <AddRouteView v-if="addRoute"></AddRouteView>
       </span>
       <button class="functionalButton minimize" :title="$t('minimize')" v-show="this.minimized == false" @click="this.toggleMinimize()">
         <img class="buttonImage" src="../assets/arrow-line-left.svg">
@@ -98,6 +96,7 @@ import RegistrationView from './RegistrationView.vue';
 import i18next from 'i18next'
 import axios from 'axios'
 import InformationView from './InformationView.vue';
+import AddRouteView from './AddRouteView.vue';
 export default {
   name: 'Home',
   components: {
@@ -105,7 +104,8 @@ export default {
     LoginView,
     RegistrationView,
     RouteEditView,
-    InformationView
+    InformationView,
+    AddRouteView
 },
   data() {
     return {
@@ -163,7 +163,8 @@ export default {
       yOffset: 0,
       dragItem: null,
       dragContainer: null,
-      minimized: false
+      minimized: false,
+      addRoute: false
     }
   },
   async mounted() {
@@ -312,6 +313,8 @@ export default {
     },
     showAddRoute() {
       if (this.actionRequiresLogin() == true) {
+        this.addRoute = !this.addRoute
+        console.log("adding route")
       }
     },
     populateInfo(route) {

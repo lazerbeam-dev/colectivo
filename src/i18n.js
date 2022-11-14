@@ -45,7 +45,11 @@ i18next
               log_out: 'Log Out',
               user_exists: 'A user with that email already exists',
               minimize: 'Minimize',
-              maximize: 'Show toolbar'
+              maximize: 'Show toolbar',
+              start_location: 'From',
+              end_location: 'To',
+              price: 'Price',
+              colour: 'Color'
             }
           },
           es: {
@@ -81,7 +85,11 @@ i18next
               log_out: 'Cerrar Sesíon',
               user_exists: 'Un usuario con ese email ya existe',
               minimize: 'Minimizar',
-              maximize: 'Mostrar la barra de herramientas'
+              maximize: 'Mostrar la barra de herramientas',
+              start_location: 'De',
+              end_location: 'A',
+              price: 'Cuesta',
+              colour: 'Color'
           }
         }
     }
