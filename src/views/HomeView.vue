@@ -2,7 +2,7 @@
   <div id="container">
     <div id="floating-panel" class="center navbar">
       <img src="https://i.ibb.co/XjwhkdC/3.png" class="noPointers" id="logo"
-        style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
+        style="float: left; padding-right: 10px;">
       <span id="minimizableContent">
       
         <input id="goToLocationInput" @keyup.enter="goToLocation" class="center" :placeholder="$t('search_routes')">
@@ -13,7 +13,8 @@
         <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
           @mouseleave="this.showProfileDropdown = false" title="Profile"
           @click="this.showProfileDropdown = !this.showProfileDropdown">
-          <img id="profileButton" class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+          <!-- <img class="buttonImage" src="../assets/magnifying-glass.svg"> -->
+          <img id="threeDotsButton" class="buttonImage" src="../assets/dots-three-vertical.svg"
             alt="profile" :title="$t('profile')">
           <span v-show="this.signedInUsername != null">{{ this.signedInUsername }} </span>
           <div v-show="showProfileDropdown" class="dropdownContent">
@@ -1601,65 +1602,4 @@ export default {
 </script>
 
 <style scoped>
-#map {
-  height: 100px;
-  position: inherit !important;
-}
-
-.dropdown {
-  display: inline-block;
-  position: relative;
-}
-
-.dropdownContent {
-  position: absolute;
-  min-width: 200px;
-  overflow: auto;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  padding: 12px 16px;
-  border-radius: 10px;
-  z-index: 1;
-  background-color: white;
-  transform: translate(-50%, 0);
-
-}
-
-.dropdownItem {
-  text-decoration: none;
-  border-radius: 10px;
-}
-
-.dropdownItem:hover {
-  text-decoration: none;
-  background: #9ED6AD;
-  color: black;
-  transition: .7s;
-}
-
-.dropdown:hover .dropdownContent {
-  display: block;
-}
-
-.navbar {
-  background-color: white;
-  border-radius: 10px;
-}
-
-.marginRight {
-  margin-right: 2px;
-}
-
-.marginLeft {
-  margin-left: 120px;
-}
-
-.mini{
-  display:none;
-}
-
-.buttonImage {
-  max-height: 15px;
-  max-width: 15px;
-  margin: 0 auto;
-}
 </style>

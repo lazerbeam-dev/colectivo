@@ -1,7 +1,7 @@
 <template>
   <div id="infoPanel" v-show="show">
-    <div id="rowDiv" style="display: flex;">
-      <div ref="outboundInfoBox" id="outboundInfo" style="flex:50%; border-right: solid; padding-right:5px;">
+    <div id="rowDiv">
+      <div ref="outboundInfoBox" id="outboundInfo">
         <p>
           <span id="fromLocationInfo"> {{ startLocation }}</span>
         </p>

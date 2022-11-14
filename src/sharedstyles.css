@@ -1,4 +1,69 @@
+#map {
+  height: 100px;
+  position: inherit !important;
+}
 
+.dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.dropdownContent {
+  position: absolute;
+  min-width: 200px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  padding: 12px 16px;
+  border-radius: 10px;
+  z-index: 1;
+  background-color: white;
+  transform: translate(-50%, 0);
+
+}
+
+.dropdownItem {
+  text-decoration: none;
+  border-radius: 10px;
+}
+
+.dropdownItem:hover {
+  text-decoration: none;
+  background: #9ED6AD;
+  color: black;
+  transition: .7s;
+}
+
+.dropdown:hover .dropdownContent {
+  display: block;
+}
+
+.navbar {
+  background-color: white;
+  border-radius: 10px;
+}
+
+#minimizableContent {
+
+  display: flex;
+}
+
+/* .marginRight {
+  margin-right: 2px;
+} */
+
+.marginLeft {
+  margin-left: 120px;
+}
+
+.mini{
+  display:none;
+}
+
+.buttonImage {
+  /* height: 40px; */
+  width: 22px;
+  margin: 0 auto;
+}
 
 .modal{
   display: flex;
@@ -34,7 +99,7 @@
   min-width: 40px;
   border: none;
   padding: 5px;
-  margin: 10px;
+  margin-right: 10px;
 }
 
 .functionalButton:hover{
@@ -53,11 +118,9 @@
   line-height: 0px;
 }
 
-/* .buttonImage-gl {
-  background-color: red;
-  -webkit-mask: url(assets/globe.svg) no-repeat center;
-  mask: url(assets/globe.svg) no-repeat center;
-} */
+#rowDiv {
+  /* display: flex; */
+}
 
 input{
   border-radius: 5px;
@@ -92,7 +155,7 @@ input{
 }
 
 #logo {
-  padding-top: 10px;
+  width: 45px;
 }
 
 #app {
@@ -138,6 +201,9 @@ body {
   font-family: "Roboto", "sans-serif";
   line-height: 30px;
   cursor: move;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between
 }
 
 #goToLocationInput {
@@ -147,6 +213,7 @@ body {
   padding-left: 10px;
   min-width: 300px;
   color: #606060;
+  margin-right: 10px;
 }
 
 .form-control {
@@ -196,6 +263,9 @@ label {
   color: #ffffff;
 }
 
+#threeDotsButton {
+
+}
 
 .dropdownItem {
   height: 50px;
@@ -233,6 +303,18 @@ p {
 #toLocationInfo {
 
 }
+
+
+
+
+#outboundInfo {
+  flex: 50%; 
+  border-right: solid; 
+  padding-right: 5px;
+}
+
+
+
 
 @media only screen and (max-width: 480px) {
 
