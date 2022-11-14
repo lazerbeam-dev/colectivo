@@ -1,10 +1,8 @@
 <template>
     <div class="root">
         <div class="modal">
-            <button @click="$emit('close')" class="closeButton">X</button>
-            <br>
-            <img src="https://i.ibb.co/XjwhkdC/3.png" class="modalLogo">
-            <br>
+            <img src="../assets/x.svg" @click="$emit('close')" class="closeButton">
+
             <h3>{{ $t('log_in') }}</h3>
 
             <div class="form-group">
@@ -25,7 +23,7 @@
             <span>{{ $t('no_account') }}<a href="#" class="internalLink"
                     @click="$emit('goToRegistration')">{{ $t('create_one') }}</a></span>
             <!-- <p class="forgot-password text-right mt-2 mb-4">
-                <router-link to="/forgot-password">Forgot password ?</router-link>
+                <router-link to="/forgot-password">Forgot password?</router-link>
             </p> -->
         </div>
     </div>
