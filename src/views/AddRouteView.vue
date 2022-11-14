@@ -1,5 +1,5 @@
 <template>
-  <div id="routeCreateDiv" v-show="this.showDetails">
+  <div id="routeCreateInfo" v-show="this.showDetails">
       <b>{{ $t('start_location') }}</b>
       <input id="start" v-model="startLocation" ><br/>
       <b>{{ $t('end_location') }}</b>
@@ -12,14 +12,14 @@
       <input v-model="price"> pesos <br/>
       <input type="time" v-model="startTime"> {{ $t('start_time') }} <br/>
       <input type="time" v-model="endTime">  {{ $t('end_time') }} <br/>
-      <button id="submitRoute" @click="submitRoute()" class="functionalButton" >  {{ $t('save') }}</button>
-      
   </div>
+  <button id="submitRoute" @click="this.showDetails = !this.showDetails" class="functionalButton" > ^ </button>
   <div>
     <button id="findDirections" type="button" value="Go!" class="functionalButton" @click="findDirections()">
         find directions
       </button>
   </div>
+  <button id="submitRoute" @click="submitRoute()" class="functionalButton" >  {{ $t('save') }}</button>
 </template>
 
 <script>
@@ -33,7 +33,7 @@ export default {
             endTime: null,
             startLocation: null,
             endLocation: null,
-            waypoints: [],
+            waypoints: []
 
         }
     },
