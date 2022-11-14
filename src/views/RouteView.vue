@@ -2,35 +2,35 @@
   <div id="infoPanel" v-show="show">
     <div id="rowDiv" style="display: flex;">
       <div ref="outboundInfoBox" id="outboundInfo" style="flex:50%; border-right: solid; padding-right:5px;">
-        <p style="font-weight: bold;">
+        <p>
           <span id="fromLocationInfo"> {{ startLocation }}</span>
         </p>
-        <p style="font-weight: bold;">
-          -> <span id="toLocationInfo"> {{ endLocation }}</span>
+        <p>
+        <span id="toLocationInfo"> {{ endLocation }}</span>
         </p>
-        <p><span id="everyLabel">{{ $t('every') }}: </span><span style="font-weight: bold;"> {{ frequency }} </span></p>
+        <p><span id="everyLabel">{{ $t('every') }}: </span><span> {{ frequency }} </span></p>
         <p><span id="startTimeLabel">{{ $t('from_time') }}: </span> <span id="startTime" style="font-weight: bold;"> {{
             startTime
         }}</span> <span id="endTimeLabel">{{ $t('until_time') }}: </span> <span id="endTime"
-            style="font-weight: bold;"> {{ endTime
+           > {{ endTime
             }}</span> </p>
       </div>
       <div ref="returnInfoBox" id="returnInfo" style="flex:50%; border-left: solid; padding-left: 5px;"
         v-show="hasReturn">
-        <p style="font-weight: bold;">
+        <p>
           <span id="fromLocationInfoReturn"> {{ endLocation }}</span>
         </p>
-        <p style="font-weight: bold;">
-          -><span id="toLocationInfoReturn"> {{ startLocation }}</span>
+        <p>
+          <span id="toLocationInfoReturn"> {{ startLocation }}</span>
         </p>
-        <p><span id="everyLabelReturn">Every: </span><span id="frequencyInfoReturn" style="font-weight: bold;">{{
+        <p><span id="everyLabelReturn">Every: </span><span id="frequencyInfoReturn">{{
             frequency
         }} </span></p>
         <p>
-          <span id="startTimeLabelReturn">First:</span><span id="startTimeReturn" style="font-weight: bold;"> {{
+          <span id="startTimeLabelReturn">First:</span><span id="startTimeReturn"> {{
               returnStartTime
           }}</span>
-          <span id="endTimeLabelRet"> Last: </span><span id="endTimeReturn" style="font-weight: bold;"> {{ returnEndTime
+          <span id="endTimeLabelRet"> Last: </span><span id="endTimeReturn"> {{ returnEndTime
           }}</span>
         </p>
       </div>
