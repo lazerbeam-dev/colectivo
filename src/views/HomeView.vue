@@ -16,9 +16,12 @@
               @click="this.showProfileDropdown = !this.showProfileDropdown">
               <!-- <img class="buttonImage" src="../assets/magnifying-glass.svg"> -->
               <div id="profileButton">
-                <img id="threeDotsButton" class="buttonImage" src="../assets/dots-three-vertical.svg"
-                  alt="profile" :title="$t('profile')">
-                <span v-show="this.signedInUsername != null">{{ this.signedInUsername }} </span>
+                <div>
+
+                  <img id="threeDotsButton" class="buttonImage" src="../assets/dots-three-vertical.svg"
+                    alt="profile" :title="$t('profile')">
+                </div>
+                <div id="userName" v-show="this.signedInUsername != null">{{ this.signedInUsername }} </div>
               </div>
               <div v-show="showProfileDropdown" class="dropdownContent">
                 <div class="dropdownItem" v-show="this.signedInUsername == null"
@@ -38,7 +41,8 @@
               </div>
             </button>
             <button v-if="signedInUsername != null" class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
-              <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1828/1828921.png" alt="Add Route">
+              <img id="plusButton" class="buttonImage" src="../assets/plus.svg"
+                    alt="add route" :title="$t('profile')">
             </button>
             <button class="functionalButton marginRight" :title="$t('select_language')">
               <select id="languageSelect" ref="languageSelectElem" @change="this.languageChange($refs.languageSelectElem)">
