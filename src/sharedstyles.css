@@ -100,6 +100,8 @@
   border: none;
   padding: 5px;
   margin-right: 10px;
+  text-transform: uppercase;
+  font-size: 10px;
 }
 
 .functionalButton:hover{
@@ -153,7 +155,7 @@ input{
 }
 
 .minimize{
-  /* display: inline; */
+  display: inline;
 }
 
 .modalLogo{
@@ -220,6 +222,16 @@ body {
   border: none;
   padding-left: 10px;
   min-width: 300px;
+  color: #606060;
+  margin-right: 10px;
+}
+
+.inputBox {
+  height: 40px;
+  background-color: #f5f5f5;
+  border: none;
+  padding-left: 10px;
+  /* min-width: 300px; */
   color: #606060;
   margin-right: 10px;
 }
