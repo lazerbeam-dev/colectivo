@@ -9,13 +9,13 @@
         <span id="toLocationInfo"> {{ endLocation }}</span>
         </p>
         <p><span id="everyLabel">{{ $t('every') }}: </span><span> {{ frequency }} </span></p>
-        <p><span id="startTimeLabel">{{ $t('from_time') }}: </span> <span id="startTime" style="font-weight: bold;"> {{
+        <p><span id="startTimeLabel">{{ $t('from_time') }}: </span> <span id="startTime"> {{
             startTime
         }}</span> <span id="endTimeLabel">{{ $t('until_time') }}: </span> <span id="endTime"
            > {{ endTime
             }}</span> </p>
       </div>
-      <div ref="returnInfoBox" id="returnInfo" style="flex:50%; border-left: solid; padding-left: 5px;"
+      <div ref="returnInfoBox" id="returnInfo"
         v-show="hasReturn">
         <p>
           <span id="fromLocationInfoReturn"> {{ endLocation }}</span>
