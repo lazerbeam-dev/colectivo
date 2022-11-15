@@ -43,8 +43,11 @@
 }
 
 #minimizableContent {
+}
 
+#dashboardContent {
   display: flex;
+
 }
 
 /* .marginRight {
@@ -154,7 +157,7 @@ input{
   pointer-events: none;
 }
 
-.minimize{
+.minimize {
   display: inline;
 }
 
@@ -268,6 +271,16 @@ label {
   color: #BAB9B9;
 }
 
+.miniLabel {
+  text-transform: uppercase;
+  font-size: 9px;
+  letter-spacing: 1px;
+  line-height: 0px;
+  text-align: left;
+  color: #a1a0a0;
+
+}
+
 .info {
   max-width: 80%;
 }
@@ -312,11 +325,11 @@ p {
 
 #infoPanel {
   text-align: left;
-  padding: 10px;
+  padding: 15px;
 }
 
 #fromLocationInfo {
-  font-size: 24px;
+  /* font-size: 24px; */
   /* text-align: left; */
 }
 
@@ -325,15 +338,91 @@ p {
 }
 
 
+.likeImg {
+  height: 10px;
+  width: 10px;
+}
+
+.likeButton {
+  border: none;
+  background-color: white;
+  border-radius: 4px;
+  padding: 10px;
+  float: left
+}
+
+.editButton {
+  border: none;
+  background-color: white;
+  border-radius: 4px;
+  float: right;
+}
+
+.reviewInfo {
+  width: 100%;
+}
+
+.editButton:hover {
+  background-color: #a39dfb;
+}
+
+.likeButton:hover {
+  background-color: #158C8C;
+}
+
+.dislikeButton:hover {
+  background-color: #F05D20;
+}
+
+.active {
+  background-color: #a39dfb;
+}
+
+.activeDislike {
+  background-color: #F05D20;
+}
+
+.reviewInfo {
+  float: left;
+}
+
+h2 {
+  line-height: 0px;
+  font-weight: 300;
+}
+
+.timeDisplay {
+  display: flex;
+  flex-direction: column;
+  margin-right: 15px;
+}
 
 
 #outboundInfo {
   flex: 50%; 
-  border-right: solid; 
-  padding-right: 5px;
+  /* border-bottom: solid;  */
+  margin-bottom: 25px;
 }
 
+#returnInfo {
+  margin-bottom: 15px;
+}
 
+.popUpInfo {
+  display: flex;
+  background-color: #F5F5F5;
+  padding: 10px;
+}
+
+.timetableItem {
+  margin-right: 10px;
+  font-size: 22px;
+}
+
+.gm-ui-hover-effect {
+  width: 40px!important;
+  height: 40px!important;
+}
 
 
 @media only screen and (max-width: 480px) {
@@ -356,8 +445,13 @@ p {
     border-radius: 0;
   }
 
-  #minimizableContent {
+  #dashboardContent {
     flex-direction: column;
+  }
+
+  #profileButton {
+    display: flex!important;
+    align-items: center;
   }
   
   .functionalButton {

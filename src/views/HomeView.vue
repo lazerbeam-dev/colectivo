@@ -3,49 +3,54 @@
     <div id="floating-panel" class="center navbar">
       <img src="https://i.ibb.co/XjwhkdC/3.png" class="noPointers" id="logo">
       <span id="minimizableContent">
-      
-        <input id="goToLocationInput" @keyup.enter="goToLocation" class="center" :placeholder="$t('search_routes')">
-        <button id="goToLocationButton" :title="$t('search_routes')" class="functionalButton center marginRight"
-          @click="goToLocation()">
-          <img class="buttonImage" src="../assets/magnifying-glass.svg">
-        </button>
-        <div class="buttonCluster">
-          <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
-            @mouseleave="this.showProfileDropdown = false" title="Profile"
-            @click="this.showProfileDropdown = !this.showProfileDropdown">
-            <!-- <img class="buttonImage" src="../assets/magnifying-glass.svg"> -->
-            <img id="threeDotsButton" class="buttonImage" src="../assets/dots-three-vertical.svg"
-              alt="profile" :title="$t('profile')">
-            <span v-show="this.signedInUsername != null">{{ this.signedInUsername }} </span>
-            <div v-show="showProfileDropdown" class="dropdownContent">
-              <div class="dropdownItem" v-show="this.signedInUsername == null"
-                @click="showLogin = true; showRegistration = false">
-                {{ $t('log_in') }}
-              </div>
-              <div class="dropdownItem" v-show="this.signedInUsername == null"
-                @click="showRegistration = true; showLogin = false">
-                {{ $t('create_account') }}
-              </div>
-              <div class="dropdownItem" v-show="this.signedInUsername != null" @click="this.signOutUser()">
-                {{ $t('log_out') }}
-              </div>
-              <div class="dropdownItem" @click="this.showInformation = !this.showInformation">
-                {{ $t('information') }}
-              </div>
-            </div>
+        <div id="dashboardContent">
+          
+          <input id="goToLocationInput" @keyup.enter="goToLocation" class="center" :placeholder="$t('search_routes')">
+          <button id="goToLocationButton" :title="$t('search_routes')" class="functionalButton center marginRight"
+            @click="goToLocation()">
+            <img class="buttonImage" src="../assets/magnifying-glass.svg">
           </button>
-          <button v-if="signedInUsername != null" class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
-            <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1828/1828921.png" alt="Add Route">
-          </button>
-          <button class="functionalButton marginRight" :title="$t('select_language')">
-            <select id="languageSelect" ref="languageSelectElem" @change="this.languageChange($refs.languageSelectElem)">
-              <option value="es">ES</option>
-              <option value="en">EN</option>
-            </select>
-          </button>
+          <div class="buttonCluster">
+            <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
+              @mouseleave="this.showProfileDropdown = false" title="Profile"
+              @click="this.showProfileDropdown = !this.showProfileDropdown">
+              <!-- <img class="buttonImage" src="../assets/magnifying-glass.svg"> -->
+              <div id="profileButton">
+                <img id="threeDotsButton" class="buttonImage" src="../assets/dots-three-vertical.svg"
+                  alt="profile" :title="$t('profile')">
+                <span v-show="this.signedInUsername != null">{{ this.signedInUsername }} </span>
+              </div>
+              <div v-show="showProfileDropdown" class="dropdownContent">
+                <div class="dropdownItem" v-show="this.signedInUsername == null"
+                  @click="showLogin = true; showRegistration = false">
+                  {{ $t('log_in') }}
+                </div>
+                <div class="dropdownItem" v-show="this.signedInUsername == null"
+                  @click="showRegistration = true; showLogin = false">
+                  {{ $t('create_account') }}
+                </div>
+                <div class="dropdownItem" v-show="this.signedInUsername != null" @click="this.signOutUser()">
+                  {{ $t('log_out') }}
+                </div>
+                <div class="dropdownItem" @click="this.showInformation = !this.showInformation">
+                  {{ $t('information') }}
+                </div>
+              </div>
+            </button>
+            <button v-if="signedInUsername != null" class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
+              <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1828/1828921.png" alt="Add Route">
+            </button>
+            <button class="functionalButton marginRight" :title="$t('select_language')">
+              <select id="languageSelect" ref="languageSelectElem" @change="this.languageChange($refs.languageSelectElem)">
+                <option value="es">ES</option>
+                <option value="en">EN</option>
+              </select>
+            </button>
+          </div>
+  
+          <AddRouteView v-if="addRoute"></AddRouteView>
         </div>
-
-        <AddRouteView v-if="addRoute"></AddRouteView>
+      
       </span>
       <button class="functionalButton minimize" :title="$t('minimize')" v-show="this.minimized == false" @click="this.toggleMinimize()">
         <img class="buttonImage" src="../assets/arrow-line-left.svg">
@@ -233,6 +238,7 @@ export default {
       });
       console.log(taskId)
     },
+
     toggleMinimize(){
       var mini = document.getElementById("minimizableContent");
       mini.classList.toggle("mini")

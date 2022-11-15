@@ -2,37 +2,81 @@
   <div id="infoPanel" v-show="show">
     <div id="rowDiv">
       <div ref="outboundInfoBox" id="outboundInfo">
-        <p>
-          <span id="fromLocationInfo"> {{ startLocation }}</span>
-        </p>
-        <p>
-        <span id="toLocationInfo"> {{ endLocation }}</span>
-        </p>
-        <p><span id="everyLabel">{{ $t('every') }}: </span><span> {{ frequency }} </span></p>
-        <p><span id="startTimeLabel">{{ $t('from_time') }}: </span> <span id="startTime"> {{
-            startTime
-        }}</span> <span id="endTimeLabel">{{ $t('until_time') }}: </span> <span id="endTime"
-           > {{ endTime
-            }}</span> </p>
+        <label> {{ $t('start_location') }}  </label>
+
+        <div id="fromLocationInfo"> 
+          <h2>
+            {{ startLocation }}
+          </h2>
+        </div>
+
+        <label>{{ $t('end_location') }}</label>
+        <div id="toLocationInfo"> 
+            <h2>
+              {{ endLocation }}
+            </h2>
+          </div>
+        
+        <div class="popUpInfo">
+          <div class="timeDisplay">
+            <div id="everyLabel" > <p class="miniLabel"> {{ $t('every') }} </p></div><div class="timetableItem"> {{ frequency }} </div>
+          </div>
+
+          <div class="timeDisplay">
+            <div class="miniLabel" id="startTimeLabel"> <p class="miniLabel">{{ $t('from_time') }} </p></div> <div class="timetableItem" id="startTime"> {{
+                startTime
+            }}</div> 
+          </div>
+          <div class="timeDisplay">
+
+            <div  class="miniLabel" id="endTimeLabel"> <p class="miniLabel">{{ $t('until_time') }} </p> </div> <div class="timetableItem" id="endTime"
+              > {{ endTime
+                }}</div> 
+          </div>
+        </div>
+        
+          
       </div>
+
       <div ref="returnInfoBox" id="returnInfo"
         v-show="hasReturn">
-        <p>
-          <span id="fromLocationInfoReturn"> {{ endLocation }}</span>
-        </p>
-        <p>
-          <span id="toLocationInfoReturn"> {{ startLocation }}</span>
-        </p>
-        <p><span id="everyLabelReturn">Every: </span><span id="frequencyInfoReturn">{{
-            frequency
-        }} </span></p>
-        <p>
-          <span id="startTimeLabelReturn">First:</span><span id="startTimeReturn"> {{
-              returnStartTime
-          }}</span>
-          <span id="endTimeLabelRet"> Last: </span><span id="endTimeReturn"> {{ returnEndTime
-          }}</span>
-        </p>
+        <label>{{ $t('start_location') }}</label>
+        <div id="fromLocationInfoReturn"> 
+          <h2>
+            {{ endLocation }}
+          </h2>
+        </div>
+
+        <label>{{ $t('end_location') }}</label>
+        <div id="toLocationInfoReturn"> 
+          <h2>
+            {{ startLocation }}
+          </h2>
+        </div>
+        
+        <div class="popUpInfo">
+          <div class="timeDisplay">
+            <div id="everyLabelReturn"> <p class="miniLabel">{{ $t('every') }}</p></div>
+            <div class="timetableItem" id="frequencyInfoReturn">{{
+                frequency
+            }} </div>
+          </div>
+
+          <div class="timeDisplay">
+            <div id="startTimeLabelReturn"> <p class="miniLabel">{{ $t('from_time') }} </p></div><div class="timetableItem" id="startTimeReturn"> {{
+                returnStartTime
+            }}</div>
+          </div>
+
+          <div>
+
+          <div class="timeDisplay" id="endTimeLabelRet"> <p class="miniLabel">{{ $t('until_time') }}</p></div>
+            <div class="timetableItem" id="endTimeReturn"> {{ returnEndTime
+            }}</div>
+          </div>
+
+        </div>
+
       </div>
     </div>
     <div class="reviewInfo">
@@ -164,51 +208,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-.likeImg {
-  height: 10px;
-  width: 10px;
-}
-
-.likeButton {
-  border: none;
-  background-color: white;
-  border-radius: 4px;
-  float: left
-}
-
-.editButton {
-  border: none;
-  background-color: white;
-  border-radius: 4px;
-  float: right;
-}
-
-.reviewInfo {
-  width: 100%;
-}
-
-.editButton:hover {
-  background-color: #a39dfb;
-}
-
-.likeButton:hover {
-  background-color: #83EA9F;
-}
-
-.dislikeButton:hover {
-  background-color: #EC7272;
-}
-
-.active {
-  background-color: #83EA9F;
-}
-
-.activeDislike {
-  background-color: #EC7272;
-}
-
-.reviewInfo {
-  float: left;
-}
-</style>
