@@ -329,13 +329,23 @@ p {
 }
 
 #fromLocationInfo {
+  margin-bottom: 10px;
   /* font-size: 24px; */
   /* text-align: left; */
 }
 
 #toLocationInfo {
-
+  margin-bottom: 10px;
 }
+
+#fromLocationInfoReturn {
+  margin-bottom: 10px;
+}
+
+#toLocationInfoReturn {
+  margin-bottom: 10px;
+}
+
 
 
 .likeImg {
@@ -387,8 +397,10 @@ p {
 }
 
 h2 {
-  line-height: 0px;
+  /* font-size: 24px; */
+  /* line-height: 24px; */
   font-weight: 300;
+  margin: 0;
 }
 
 .timeDisplay {
