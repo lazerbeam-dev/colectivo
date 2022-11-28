@@ -232,7 +232,7 @@ export default {
       //   }, 5000)
 
       // });
-      console.log(taskId)
+      //console.log(taskId)
     },
     initDirections(dir){
       console.log(dir)
