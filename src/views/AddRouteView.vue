@@ -1,5 +1,6 @@
 <template>
-  <span>{{ $t(mode) }}</span>
+  <div ref="contents" class="normalCursor">
+    <span>{{ $t(mode) }}</span>
   <button type="button" v-show="this.mode == 'editRoute'" class="functionalButton"
     @click="cancel()">
     {{ $t('cancel') }}
@@ -77,6 +78,8 @@
   <button @click="this.showDeleteRoute = false" v-show="this.showDeleteRoute" class="functionalButton">{{ $t('cancel') }}</button>
 
   </div>
+  </div>
+  
   
 </template>
 
