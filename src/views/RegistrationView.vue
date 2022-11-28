@@ -36,10 +36,10 @@
 </template>
  
 <script>
-import { defineEmits } from 'vue'
+// import { defineEmits } from 'vue'
 import axios from "axios"
 import i18next from 'i18next';   
-const emit = defineEmits(['close', 'signInUser', 'goToRegistration'])
+// const emit = defineEmits(['close', 'signInUser', 'goToRegistration'])
 export default {
     name: 'RegistrationView',
     data: function () {

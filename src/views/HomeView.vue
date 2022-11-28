@@ -43,15 +43,18 @@
             <option value="en">EN</option>
           </select>
         </button>
-        <AddRouteView v-if="addRoute"></AddRouteView>
       </span>
       <button class="functionalButton minimize" :title="$t('minimize')" v-show="this.minimized == false" @click="this.toggleMinimize()">
         <img class="buttonImage" src="../assets/arrow-line-left.svg">
       </button>
       <button class="functionalButton minimize" :title="$t('maximize')" v-show="this.minimized == true" @click="this.toggleMinimize()">
         <img class="buttonImage" src="../assets/arrow-line-right.svg">
-      </button>                                                                 
-      
+      </button>   
+      <br/>
+    <div v-show="this.addRoute">
+      <AddRouteView @initDirections="x => this.initDirections(x)" @removeWaypointAtIndex="" @goToLocation="x => this.goToPoint(x)" @directions="this.findDirections()" @clickmode="x => this.clickmode = x" ref="addRoute">
+      </AddRouteView>
+    </div>                                                       
       <div v-if="showLogin">
         <Teleport to="body">
           <LoginView @goToRegistration="showLogin = false; showRegistration = true" @close="showLogin = false"
@@ -78,7 +81,6 @@
     <div id="warnings-panel" />
   </div>
   <RouteView @updateRoute="(info) => this.updateRoute(info)" @editRoute="this.editRoute()" @goLogin="this.showLogin = true" ref="routeViewPanel"></RouteView>
-  <RouteEditView v-if="showRouteEdit" ref="routeEditPanel"></RouteEditView>
 </template>
 
 <script>
@@ -97,6 +99,7 @@ import i18next from 'i18next'
 import axios from 'axios'
 import InformationView from './InformationView.vue';
 import AddRouteView from './AddRouteView.vue';
+import { toRaw } from 'vue';
 export default {
   name: 'Home',
   components: {
@@ -125,7 +128,7 @@ export default {
       currentHighlightedReturn: null,
       greenMarker: null,
       redMarker: null,
-      directionsRendererLocal: '',
+      directionsRendererLocal: null,
       currentEditId: null,
       confirmedStartLocation: null,
       confirmedEndLocation: null,
@@ -164,7 +167,13 @@ export default {
       dragItem: null,
       dragContainer: null,
       minimized: false,
-      addRoute: false
+      addRoute: false,
+      clickmode: "normal",
+      startLocation: null,
+      endLocation: null,
+      waypoints: [],
+      directions: null,
+      routeEditing: null
     }
   },
   async mounted() {
@@ -172,27 +181,23 @@ export default {
     if (process.env.NODE_ENV === 'development') {
       this.myIp = 'http://localhost:8000'
     }
-    const options = {}
     this.tokenLogin()
-
-    // const loader = new Loader('AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0', {
-    // })
     const loader = new Loader({
       apiKey: "AIzaSyBexCyJAH6Wnlu35vWiN3d1DtB9_RNBlC0",
       version: "weekly",
       libraries: ["places"]
     });
 
-    App.addListener('appStateChange', async ({ isActive }) => {
-      if (isActive) {
-        return
-      }
-      // now app is not active
-      if (this.following) {
-        console.log(this.following)
-        this.startBackgroundTask()
-      }
-    });
+    // App.addListener('appStateChange', async ({ isActive }) => {
+    //   if (isActive) {
+    //     return
+    //   }
+    //   //now app is not active
+    //   if (this.following) {
+    //     console.log(this.following)
+    //     this.startBackgroundTask()
+    //   }
+    // });
 
     this.dragItem = document.querySelector("#floating-panel");
     this.container = document.querySelector("#container");
@@ -210,29 +215,44 @@ export default {
   },
   methods: {
     async startBackgroundTask() {
-      console.log('start background task ->')
-      console.log(this.following)
-      this.taskId = await BackgroundTask.beforeExit(async () => {
-        // BackgroundTask.finish({ taskId });
-        var toplus = 0
-        this.pollingForLocation = setTimeout(async () => {
-          const position = await Geolocation.getCurrentPosition()
-          const pos = {
-            lat: position.coords.latitude + toplus,
-            lng: position.coords.longitude + toplus
-          }
-          placeNewMarker(pos)
-          toplus++
-          console.log(pos)
-        }, 5000)
+      // console.log('start background task ->')
+      // console.log(this.following)
+      // this.taskId = await BackgroundTask.beforeExit(async () => {
+      //   // BackgroundTask.finish({ taskId });
+      //   var toplus = 0
+      //   this.pollingForLocation = setTimeout(async () => {
+      //     const position = await Geolocation.getCurrentPosition()
+      //     const pos = {
+      //       lat: position.coords.latitude + toplus,
+      //       lng: position.coords.longitude + toplus
+      //     }
+      //     placeNewMarker(pos)
+      //     toplus++
+      //     console.log(pos)
+      //   }, 5000)
 
-      });
+      // });
       console.log(taskId)
+    },
+    initDirections(dir){
+      console.log(dir)
     },
     toggleMinimize(){
       var mini = document.getElementById("minimizableContent");
       mini.classList.toggle("mini")
       this.minimized = !this.minimized
+    },
+    generateBoundsFromMarkers(){
+      let bounds  = new google.maps.LatLngBounds();
+      let boundsMarkers = [];
+      boundsMarkers.push(this.startLocation);
+      boundsMarkers.push(this.endLocation);
+      for (let i = 0; i < boundsMarkers.length; i++) {
+        const marker = boundsMarkers[i];
+        console.log(i)
+        bounds.extend(new google.maps.LatLng(marker.position.lat(), marker.position.lng()));
+      }
+      return bounds;
     },
     dragStart(e) {
       if (e.target === this.dragItem) {
@@ -280,7 +300,11 @@ export default {
       el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
     },
     editRoute() {
-      this.showRouteEdit = true;
+
+      console.log("editing")
+      console.log(this.$refs)
+      this.$refs.addRoute.populateInfo(this.routeEditing)
+      this.addRoute = true
     },
     tokenLogin() {
       var serverUrl = this.$store.state.serverUrl;
@@ -291,10 +315,8 @@ export default {
       axios.post(fullUrl, {
         email: this.email, password: this.password, token: tokey,
       }).then(x => {
-        console.log(x)
         this.error = null
         this.$store.commit("setSignedInUser", x.data)
-        console.log(this.$store.state.signedInUser)
         this.signInUser()
         //if()
       }).catch(error => {
@@ -311,14 +333,67 @@ export default {
       this.signedInUsername = null
       console.log(this.$store.state.signedInUser)
     },
+    setStartLocation(newLoc){
+      if(this.startLocation == null){
+                this.startLocation = this.placeNewMarker(newLoc, "green")
+                this.google.maps.event.addListener(this.startLocation, 'dragend', (event) => {
+                  this.$store.commit('setStartLocation', event.latLng)
+                })
+              }
+              else{
+                this.startLocation.setPosition(clickEvent.latLng)
+              }
+              this.$store.commit("setStartLocation", this.startLocation.position)
+    },
+    setEndLocation(newLoc){
+      if(this.endLocation == null){
+                this.endLocation = this.placeNewMarker(newLoc, "red")
+                this.google.maps.event.addListener(this.endLocation, 'dragend', (event) => {
+                    this.$store.commit('setEndLocation', event.latLng)
+                })
+              }
+              else{
+                this.endLocation.setPosition(clickEvent.latLng)
+              }
+              this.$store.commit("setEndLocation", this.endLocation.position)
+    },
     showAddRoute() {
       if (this.actionRequiresLogin() == true) {
         this.addRoute = !this.addRoute
+        console.log(this.addRoute)
+        this.google.maps.event.clearListeners(this.mapLocal, 'click');
+        this.google.maps.event.addListener(this.mapLocal, 'click', (clickEvent) => {
+        console.log(this.clickmode)
+          switch(this.clickmode){
+            case "normal":
+              break;
+            case "addStart":
+              this.setStartLocation(clickEvent.latLng)
+              break;
+            case "addEnd":
+              this.setEndLocation(clickEvent.latLng)
+              break;
+            case "addWaypoint":
+              let mark = this.placeNewMarker(clickEvent.latLng, "blue")
+              let waypointIndex = this.waypoints.length;
+              this.google.maps.event.addListener(mark, 'dragend', (event) => {
+                console.log(event.latLng.lat(), event.latLng.lng())
+                console.log(toRaw(event.latLng))
+                let ltlng = {lat:event.latLng.lat(), lng: event.latLng.lng()}
+                  this.$store.commit('setWaypointLocation', { waypointIndex, ltlng } )
+              })
+              this.waypoints.push(mark);
+              this.$store.commit("addWaypointLocation", mark)
+              break;
+          }
+        
+      })
         console.log("adding route")
       }
     },
     populateInfo(route) {
       console.log(route)
+      this.routeEditing = route
       this.$refs.routeViewPanel.populateInfo(route)
       //RouteView. populateInfo(route)
       console.log("PI")
@@ -340,11 +415,6 @@ export default {
       this.setInstructionText(0)
       this.points = []
       this.returnPoints = []
-    },
-    updateRoute(info){
-      console.log(info)
-      var route = this.routes.find(x => x._id == info.routeId)
-      console.log(route)
     },
     // collectivo = <div><h2 id="routeTitle" value="#title"></h2><p value="#contents"></p></div>
     showHideRoutes() {
@@ -369,7 +439,7 @@ export default {
       console.log(this.mapLocal)
       this.google.maps.event.addListener(this.mapLocal, 'click', (event) => {
         if (this.following) {
-          this.placeNewGPSMarker(event.latLng)
+          this.placeNewMarker(event.latLng)
         }
       })
 
@@ -454,21 +524,6 @@ export default {
         }
       })
     },
-
-    setLocationName(locName, isEnd) {
-      var phaseint = document.getElementById('routeInputPhase').value
-      console.log(phaseint)
-
-      if (!isEnd) {
-        // startlocation
-        console.log(locName)
-        document.getElementById('fromLocationInputTop').value = locName
-      } else {
-        // endlocation
-        document.getElementById('toLocationInputTop').value = locName
-      }
-    },
-
     findNameOfLocation(loc, isReturn) {
       console.log('finding location ', loc)
 
@@ -535,105 +590,6 @@ export default {
       document.getElementById('routeInputPhase').value = phaseint
       this.setInstructionText(phaseint)
     },
-
-    setInstructionText(number) {
-      var spanish = document.getElementById('languageSelect').selectedIndex === 0
-
-      var instructionText = document.getElementById('userInstructionText')
-      var goBackButton = document.getElementById('goBackButton')
-      var recalculateButton = document.getElementById('recalculateButton')
-      var confirmButton = document.getElementById('confirmButtonTop')
-
-      recalculateButton.style.display = 'none'
-      if (number === 0) {
-        instructionText.textContent = spanish ? 'Haga clic en el mapa para establecer la ubicación de inicio y luego presione confirmar' : 'Click the map to select start location and then press confirm'
-        goBackButton.style.display = 'none'
-      }
-      if (number === 1) {
-        instructionText.textContent = spanish ? 'Haga clic para establecer la ubicación final y luego presione confirmar' : 'Click to set end location and then press confirm'
-        goBackButton.style.display = 'block'
-      }
-      if (number === 2) {
-        instructionText.textContent = spanish ? 'Calculando ruta...' : 'Calculating route...'
-        goBackButton.style.display = 'none'
-        confirmButton.style.display = 'none'
-        this.findDirections()
-      }
-      if (number === 3) {
-        instructionText.textContent = spanish ? 'Arrastra los marcadores de inicio/fin o la línea azul para que coincida con la ruta... luego haga clic en confirmar.' : 'Drag the start/end markers or the blue line to match it to the route... then click confirm.'
-        confirmButton.style.display = 'block'
-        recalculateButton.style.display = 'block'
-        goBackButton.style.display = 'none'
-      }
-      if (number === 4) {
-        instructionText.textContent = spanish ? 'Por favor complete la siguiente información para el servicio' : 'Please fill out the following information for the service'
-        document.getElementById('routeEditDiv').style.display = 'block'
-        document.getElementById('editInstructionText').style.display = 'none'
-        this.enableEditTop()
-      }
-      if (number === 5) {
-        // sub
-        var newId = this.uuidv4()
-        var curr = this.submitEditsTop(false, newId, false)
-
-        var line = this.drawLine(curr)
-        line.id = curr._id
-        line.route = curr
-        line.route.findMeId = newId
-        this.currentHighlightedRoute = line
-        instructionText.textContent = spanish ? 'Complete la información de la ruta de regreso y edite la ruta de regreso en el mapa' : 'Please fill out the return information, and edit the return route on the map'
-        document.getElementById('returnInfoTop').style.display = 'block'
-        this.enableAddReturnRoute()
-      }
-      if (number === 6) {
-        var current = this.submitEditsTop(false, this.currentHighlightedRoute.route.findMeId, true)
-
-        instructionText.textContent = 'Thank you!'
-
-        this.drawLineFromPoints(current.returnPoints, current, true)
-        document.getElementById('routeEditDiv').style.display = 'none'
-        document.getElementById('confirmButtonTop').style.display = 'none'
-
-        document.getElementById('addAnotherRoute').style.display = 'block'
-        this.directionsRendererLocal.setMap(null)
-        number++
-        // line.route = current
-        // currentHighlightedRoute = line;
-      }
-    },
-
-    enableAddReturnRoute() {
-      this.editingDirections = 'return'
-      this.editRoutePoints(false)
-      this.greenMarker.setMap(this.mapLocal)
-      this.redMarker.setMap(this.mapLocal)
-      var rml = this.redMarker.getPosition()
-      var gml = this.greenMarker.getPosition()
-      this.redMarker.setPosition(gml)
-      this.greenMarker.setPosition(rml)
-      // setInstructionText(6)
-      if (this.currentHighlightedRoute) {
-        this.currentHighlightedRoute.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: this.standardRouteOpacity })
-      }
-      if (this.currentHighlightedReturn) {
-        this.currentHighlightedReturn.setOptions({ zIndex: 0, strokeWeight: 5, strokeOpacity: 0.3 })
-      }
-      // findDirections(true)
-      document.getElementById('returnrouteEditDiv').style.display = 'block'
-
-      this.setEditInstructionText(0)
-    },
-
-    setSelectedIndex(selector, valueToSet) {
-      for (var i = 0; i < selector.options.length; i++) {
-        if (selector.options[i].value === valueToSet) {
-          selector.options[i].selected = true
-          return
-        }
-      }
-      return false
-    },
-
     goToLocation(event) {
       if (event) {
         if (event.keyCode === 13) {
@@ -641,28 +597,6 @@ export default {
         }
       } else {
         this.search()
-      }
-    },
-
-    showEditbuttons(show) {
-      var elemns = []
-      var ids =
-        ['enableRouteEditsButtonTop',
-          'addReturnButtonTop',
-          'submitEditsButtonTop',
-          'deleteRouteButtonTop']
-      ids.forEach(id => {
-        elemns.push(document.getElementById(id))
-      })
-
-      if (show === true) {
-        for (let item of elemns) {
-          item.style.display = 'block'
-        }
-      } else {
-        for (let item of elemns) {
-          item.style.display = 'none'
-        }
       }
     },
     toggleActive() {
@@ -675,97 +609,28 @@ export default {
         this.polylines.forEach(x => x.setMap(null))
       }
     },
-
-    enableEditTop() {
-      var startLocationInput = document.getElementById('fromLocationInputTop')
-      var toLocationInput = document.getElementById('toLocationInputTop')
-      var frequencySelectorInput = document.getElementById('frequencySelectorInfoInputTop')
-
-      if (this.mode === 2) {
-        startLocationInput.value = document.getElementById('fromLocationInfoTop').textContent
-        toLocationInput.value = document.getElementById('toLocationInfoTop').textContent
-      }
-      startLocationInput.style.display = 'block'
-      toLocationInput.style.display = 'block'
-      frequencySelectorInput.style.display = 'block'
-
-      if (this.setSelectedIndex(frequencySelectorInput, document.getElementById('frequencyInfoTop').textContent) === false) {
-        // frequencySelectorInput.selectedIndex = 0
-      }
-      var startTimeInput = document.getElementById('startTimeInputTop')
-      if (document.getElementById('startTimeTop').textContent != null) {
-        startTimeInput.value = document.getElementById('startTimeTop').textContent
-      } else {
-        startTimeInput.value = null
-      }
-      startTimeInput.style.display = 'block'
-
-      var endTimeInput = document.getElementById('endTimeInputTop')
-      if (document.getElementById('endTimeTop').textContent != null) {
-        endTimeInput.value = document.getElementById('endTimeTop').textContent
-      } else {
-        endTimeInput.value = null
-      }
-      endTimeInput.style.display = 'block'
-      console.log(this.currentHighlightedRoute)
-      if (this.currentHighlightedRoute && this.currentHighlightedRoute.route && this.currentHighlightedRoute.route.returnPoints) {
-        document.getElementById('returnrouteEditDiv').style.display = 'block'
-      } else {
-        document.getElementById('returnrouteEditDiv').style.display = 'none'
-      }
-      document.getElementById('fromLocationInfoTop').style.display = 'none'
-      document.getElementById('toLocationInfoTop').style.display = 'none'
-      document.getElementById('frequencyInfoTop').style.display = 'none'
-      document.getElementById('startTimeTop').style.display = 'none'
-      document.getElementById('endTimeTop').style.display = 'none'
-      document.getElementById('routeInformationDiv').style.display = 'block'
+    getNewDirectionsRenderer() {
+return new this.google.maps.DirectionsRenderer({ map: this.mapLocal, draggable: true, suppressMarkers: true, polylineOptions: { zIndex: 10, strokeColor: '#0000FF', strokeWeight: 10, strokeOpacity: 0.7 } })
     },
-
     findDirections(isReturnRoute) {
-      console.log('findDirections', this.currentHighlightedRoute)
-      console.log('currentHightlightedReturn', this.currentHighlightedReturn)
 
-      const directionsRenderer = new this.google.maps.DirectionsRenderer({ map: this.mapLocal, draggable: true, suppressMarkers: true, polylineOptions: { zIndex: 10, strokeColor: '#0000FF', strokeWeight: 10, strokeOpacity: 0.7 } })
+      if(this.directionsRendererLocal == null){
+        this.directionsRendererLocal = this.getNewDirectionsRenderer()
+      }
 
       const directionsService = new this.google.maps.DirectionsService()
-      this.directionsRendererLocal = directionsRenderer
-      // directionsRenderer.setMap()
 
-      if (isReturnRoute) {
-        this.editingDirections = 'return'
-      } else {
-        this.editingDirections = 'out'
-      }
-
-      this.google.maps.event.addListener(directionsRenderer,
+      this.google.maps.event.addListener(this.directionsRendererLocal,
         'directions_changed',
         () => {
-          // directionsRendererLocal.setMap(null)
-          // directionsRendererLocal.setMap(mapLocal)
-          var directions = directionsRenderer.getDirections()
-          if (this.mode === 1) {
-            // adding route
-            if (document.getElementById('routeInputPhase').value < 4) {
-              document.getElementById('routeInputPhase').value = '3'
-              this.setInstructionText(document.getElementById('routeInputPhase').value)
-            }
-          } else if (this.mode === 2) {
-            // editing route
-            // confirmedStartLocation directions.getPath()
-            // const newLat = (this.greenMarker.position.lat + this.redMarker.position.lat) / 2
-            // var newLng = (this.greenMarker.position.lng + this.redMarker.position.lng) / 2
-          }
-          this.onDirectionsChange(directions, this.editingDirections === 'return')
+          var directions = this.directionsRendererLocal.getDirections()
+          this.onDirectionsChange(directions)
         }
       )
 
-      const stepDisplay = new this.google.maps.InfoWindow()
+      //const stepDisplay = new this.google.maps.InfoWindow()
       this.calculateAndDisplayRoute(
-        directionsRenderer,
         directionsService,
-        this.markers,
-        stepDisplay,
-        this.mapLocal
       )
     },
 
@@ -836,7 +701,9 @@ export default {
 
       return routeJson
     },
-
+    goToPoint(point){
+      this.mapLocal.setCenter(point)
+    },
     search() {
       fetch(this.myIp + '/search', {
         method: 'POST',
@@ -852,57 +719,6 @@ export default {
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
       )
     },
-
-    submitRoute() {
-      this.routes.push(this.points)
-      var originName = document.getElementById('start').value
-      var destinationName = document.getElementById('end').value
-      var routeJson = {
-        colour: document.getElementById('colourPicker').value,
-        startTime: this.startTime,
-        endTime: this.endTime,
-        origin: originName,
-        destination: destinationName,
-        points: this.points,
-        polyline: this.overview_polyline,
-        frequency: document.getElementById('frequencySelector').value,
-        returnPoints: this.returnPoints,
-        returnPolyline: this.return_overview_polyline,
-        returnstartTime: this.returnstartTime,
-        returnEndTime: this.returnendTime
-      }
-
-      console.log('submitting route', routeJson)
-      fetch(this.myIp + '/saveRoute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(routeJson) // here this is how you send your datas
-      })
-        .then(response => console.log(response.text))
-    },
-
-    populateInfoTop(route) {
-      //if (from) { from.textContent = route.origin }
-    },
-
-    SetEndLocation(loc) {
-      document.getElementById('toLat').value = loc.lat()
-      document.getElementById('toLng').value = loc.lng()
-      this.redMarker.setMap(this.mapLocal)
-      this.redMarker.setPosition(loc)
-      this.findNameOfLocation(loc, true)
-    },
-
-    SetStartLocation(loc) {
-      document.getElementById('fromLat').value = loc.lat()
-      document.getElementById('fromLng').value = loc.lng()
-      this.greenMarker.setMap(this.mapLocal)
-      this.greenMarker.setPosition(loc)
-      var startLocation = document.getElementById('fromLocationInputTop')
-
-      startLocation.value = this.findNameOfLocation(loc, false)
-    },
-
     initialize() {
       var userLang = navigator.language || navigator.userLanguage
       console.log('The language is: ' + userLang)
@@ -913,65 +729,8 @@ export default {
         document.getElementById('languageSelect').selectedIndex = 0
         this.languageChange(-1)
       }
-      console.log(this.maps)
-      console.log(this.google)
-      console.log("hello yes we got initialised")
       store.dispatch('getRoutesFromServer')
-      var myLatlng = new this.google.maps.LatLng(16.733911888003078, -92.64308697053372)
 
-      let color = 'green'
-      let url = 'https://maps.google.com/mapfiles/ms/icons/'
-      url += color + '-dot.png'
-
-      this.greenMarker = new this.google.maps.Marker({
-        draggable: true,
-        position: myLatlng,
-        map: null,
-        title: 'Your location',
-        icon: {
-          url: url
-        },
-        label: 'start'
-      })
-
-      color = 'red'
-      url = 'https://maps.google.com/mapfiles/ms/icons/'
-      url += color + '-dot.png'
-
-      this.redMarker = new this.google.maps.Marker({
-        draggable: true,
-        position: myLatlng,
-        map: null,
-        title: 'Your location',
-        icon: {
-          url: url
-        },
-        label: 'destination'
-      })
-
-      this.google.maps.event.addListener(this.greenMarker, 'dragend', (event) => {
-        this.SetStartLocation(event.latLng)
-        if (document.getElementById('routeInputPhase').value >= 2 || this.mode === 2) {
-          this.recalculateRoute()
-        }
-      })
-
-      this.google.maps.event.addListener(this.redMarker, 'dragend', (event) => {
-        this.SetEndLocation(event.latLng)
-        this.recalculateRoute()
-      })
-      console.log(this.mapLocal)
-      this.google.maps.event.addListener(this.mapLocal, 'click', (event) => {
-        if (this.mode === 1) {
-          var phase = document.getElementById('routeInputPhase').value
-
-          if (phase === 0) {
-            this.SetStartLocation(event.latLng)
-          } else if (phase === 1) {
-            this.SetEndLocation(event.latLng)
-          }
-        }
-      })
     },
 
     removeIsolatedPoints(sequence) {
@@ -1058,7 +817,6 @@ export default {
     },
 
     drawPolylines(routes) {
-      console.log(routes.length, 'routes')
       this.routes = routes
       routes.forEach(route => {
         var line = this.drawLine(route)
@@ -1108,9 +866,9 @@ export default {
       }
     },
 
-    placeNewMarker(loc) {
+    placeNewMarker(loc, color) {
       var url = 'http://maps.google.com/mapfiles/ms/icons/'
-      url += 'blue' + '-dot.png'
+      url += color + '-dot.png'
 
       var blueMarker = new this.google.maps.Marker({
         draggable: true,
@@ -1121,31 +879,11 @@ export default {
           url: url
         }
       })
-      console.log(blueMarker)
-    },
-    placeNewGPSMarker(loc) {
-      var url = 'http://maps.google.com/mapfiles/ms/icons/'
-      url += 'blue' + '-dot.png'
-
-      var blueMarker = new this.google.maps.Marker({
-        draggable: false,
-        position: loc,
-        map: this.mapLocal,
-        title: 'Your location',
-        icon: {
-          url: url
-        }
-      })
-      this.followPoints.push(blueMarker)
+      return blueMarker
     },
 
     generateIcons(route, isReturn) {
       var finPercents = []
-
-      // var numWanted = 20
-
-      // var spacing = Math.floor(100 / numWanted)
-
       var pathy = !isReturn ? 'M -1,0 1,0 0,-1 z' : 'M -1,0 1,0 0,1 z'
 
       const symbolOne = {
@@ -1171,23 +909,18 @@ export default {
         if (percent - previousPercent <= route.points.length < 100 ? 100 / route.points.length : 1) {
           currentSection.push(percent)
         } else {
-          // endsection
           sections.push(currentSection)
-          // console.log("ends", currentSection)
           currentSection = []
         }
       }
       sections.push(currentSection)
       if (outArrowPercents.length > 0) {
-        console.log(sections)
         for (let i = 0; i < sections.length; i++) {
           var midIndex = Math.floor(sections[i].length / 2)
           var midSection = sections[i][midIndex]
           finPercents.push(midSection)
         }
       }
-      // console.log("generateIcons")
-
       var icons = []
 
       for (var i = 0; i < finPercents.length; i++) {
@@ -1199,31 +932,6 @@ export default {
           }
         )
       }
-
-      // for (var i = 0; i < numWanted; i++) {
-      //   var actuallyDoIt = false;
-      //   if (!isReturn) {
-      //     if (route.outArrowPercents && route.outArrowPercents.includes(spacing * i)) {
-      //       actuallyDoIt = true;
-      //     }
-      //   }
-      //   else {
-      //     if (route.returnArrowPercents && route.returnArrowPercents.includes(spacing * i)) {
-      //       actuallyDoIt = true;
-      //     }
-      //   }
-
-      //   if (actuallyDoIt) {
-      //     var str = (isReturn ? 100 - spacing * i : spacing * i) + "%"
-      //     icons.push(
-      //       {
-      //         icon: symbolOne,
-      //         offset: str
-      //       }
-      //     )
-      //   }
-      // }
-
       var symbol = {
         path: pathy,
         strokeColor: route.colour,
@@ -1251,7 +959,6 @@ export default {
           tosend.push({ lat: coord[0], lng: coord[1] })
         })
       }
-
       var icons = this.generateIcons(route, false)
 
       var routePath = new this.google.maps.Polyline({
@@ -1262,11 +969,9 @@ export default {
         strokeWeight: 5,
         icons: icons
       })
-      // console.log(this.google)
-      // console.log(this.maps)
 
       this.polylines.push(routePath)
-      console.log(routePath)
+      //console.log(routePath)
       routePath.setMap(this.mapLocal)
       routePath.id = route._id
       return routePath
@@ -1296,12 +1001,7 @@ export default {
 
         this.currentEditId = routePath.id
         if (this.mode === 0) {
-          console.log("populating")
-          console.log(infoHtml)
           this.populateInfo(route)
-          console.log(this.$refs.routeViewPanel.$el)
-          console.log(boxText)
-          //boxText.appendChild(infoHtml)
           var myOptions = {
             content: this.$refs.routeViewPanel.$el,
             position: { lat: route.points[0][0], lng: route.points[0][1] }
@@ -1314,14 +1014,7 @@ export default {
           // infoPanelLocal = ImageBitmapRenderingContext
           ib.open(this.mapLocal, this.maps)
           this.markers.push(ib)
-        } else if (this.mode === 2) {
-          this.setEditInstructionText(1)
-          this.populateInfoTop(route)
-          this.enableEditTop()
-          // editRoutePoints()
-        }
-        this.populateInfoTop(route)
-
+        } 
         //this.getOverlappingSegments(route)
       })
     },
@@ -1407,7 +1100,7 @@ export default {
       // Create a map and center it on Manhattan.
       this.maps = new this.google.maps.Map(document.getElementById('map'), {
         zoom: 13,
-        center: { lat: 16.715, lng: -92.63143780343951 },
+        center: { lat: 16.745, lng: -92.63143780343951 },
         clickableIcons: false,
         streetViewControl: false
       })
@@ -1419,60 +1112,40 @@ export default {
       this.initialized = true
     },
 
-    onDirectionsChange(newDirections, isReturnRoute) {
-      var newPoints = []
-      newDirections.routes[0].overview_path.forEach(point => {
-        newPoints.push([point.lat(), point.lng()])
-      })
-
-      if (isReturnRoute === true) {
-        this.returnPoints = newPoints
-        this.return_overview_polyline = newDirections.routes[0].overview_polyline
-      } else {
-        this.points = newPoints
-        this.overview_polyline = newDirections.routes[0].overview_polyline
-      }
-      // this.polylines.push(newDirections.routes[0].overview_polyline)
+    onDirectionsChange(newDirections) {
+      console.log("directions")
+      console.log(newDirections)
+      console.log(newDirections.routes[0])
+      let directions = newDirections.routes[0]
+      this.directions = newDirections;
+      this.$store.commit("setDirections", directions)
     },
-
     calculateAndDisplayRoute(
-      directionsRenderer,
-      directionsService,
-      markerArray,
-      stepDisplay,
-      map
+      directionsService
     ) {
-      // First, remove any existing markers from the map.
-      for (let i = 0; i < markerArray.length; i++) {
-        markerArray[i].setMap(null)
-      }
-      // directionsRenderer.set('directions', null);
-      // Retrieve the start and end locations and create a DirectionsRequest using
-      // WALKING directions.
-      // var shouldWeUseMarkers = document.getElementById('routeInputPhase').value == 2
-
+      let googleWaypoints = [];
+      this.$store.state.waypoints.forEach(element => {
+        console.log(element)
+        googleWaypoints.push({ location: toRaw(element).position})
+      });
       directionsService
         .route({
-          origin: this.greenMarker.position,
-          destination: this.redMarker.position,
-          travelMode: this.maps.TravelMode.DRIVING
+          origin: this.startLocation.position,
+          destination: this.endLocation.position,
+          travelMode: google.maps.DirectionsTravelMode.DRIVING,
+          waypoints: googleWaypoints
         })
         .then((result) => {
-          // Route the directions and pass the response to a to create
-          // markers for each step.
-          document.getElementById('warnings-panel').innerHTML =
-            '<b>' + result.routes[0].warnings + '</b>'
-
-          directionsRenderer.setMap(null)
-          directionsRenderer.setMap(this.mapLocal)
-          if (this.directionsRendered != null) {
-            this.directionsRendered.setMap(null)
-          }
-          directionsRenderer.setDirections(result)
-          this.directionsRendered = directionsRenderer
+          //this.directionsRendererLocal.setMap(null)
+          console.log("yo")
+          console.log(result)
+          this.directionsRendererLocal.setDirections(result);
+          //this.mapLocal.setZoom(13)
           // points = result.routes[0].points
-          this.onDirectionsChange(result, this.editingDirections === 'return')
-          this.showSteps(result, markerArray, stepDisplay, map)
+          
+        })
+        .then((x) => {
+          
         })
         .catch((e) => {
           window.alert('Directions request failed due to ' + e)
@@ -1484,118 +1157,7 @@ export default {
       }
       var newLang = element.value
       i18next.changeLanguage(newLang)
-      // var languageIndex = element.selectedIndex
-      // var spanish = languageIndex === 0
-      // var phaseInt = document.getElementById('routeInputPhase').value
-      // this.setInstructionText(phaseInt)
-      // if (this.greenMarker) {
-      //   this.greenMarker.setLabel(spanish ? 'Inicio de Ruta' : 'Route Start')
-      // }
-      // if (this.redMarker) {
-      //   this.redMarker.setLabel(spanish ? 'Fin de Ruta' : 'Route End')
-      // }
-
-      // if (languageIndex === 0) {
-      //   // spanish
-      //   document.getElementById('editInstructionText').textContent = 'Haga clic en una ruta para editarla'
-      //   document.getElementById('frequencySelectorLabel').textContent = 'Frequencia - Cada ~'
-      //   document.getElementById('goToLocationButtonImage').alt = 'Buscar'
-      //   document.getElementById('showMyLocation').textContent = 'Mostrar Mi Ubicación'
-      //   document.getElementById('followMeButton').textContent = 'Sígueme'
-      //   document.getElementById('stopFollowingButton').textContent = 'Deja de seguirme'
-      //   document.getElementById('goBackButton').textContent = 'Regresa'
-      //   document.getElementById('recalculateButton').textContent = 'Recalcular Ruta'
-      //   document.getElementById('fromLocationLabel').textContent = 'Inicio: '
-      //   document.getElementById('toLocationLabel').textContent = 'Fin: '
-      //   document.getElementById('startTimeLabelTop').textContent = 'Comienza: '
-      //   document.getElementById('endTimeLabelTop').textContent = 'Termina: '
-      //   document.getElementById('enableRouteEditsButtonTop').textContent = 'Editar Ruta'
-      //   document.getElementById('addReturnButtonTop').textContent = 'Crear ruta de regreso'
-      //   document.getElementById('startTimeEditLabel').textContent = 'Comienza: '
-      //   document.getElementById('endTimeEditLabel').textContent = 'Termina: '
-      //   document.getElementById('submitEditsButtonTop').textContent = 'Confirmar Cambios'
-      //   document.getElementById('deleteRouteButtonTop').textContent = 'Borrar Ruta'
-      //   document.getElementById('reallyDeleteRouteButtonTop').textContent = 'Realmente Borrar Ruta'
-      //   document.getElementById('cancelDeleteButton').textContent = 'Cancelar Borrar'
-      //   document.getElementById('everyLabel').textContent = 'Cada: '
-      //   document.getElementById('everyLabelReturn').textContent = 'Cada: '
-      //   document.getElementById('startTimeLabel').textContent = 'Comienza: '
-      //   document.getElementById('startTimeLabelReturn').textContent = 'Comienza: '
-      //   document.getElementById('endTimeLabel').textContent = 'Termina: '
-      //   document.getElementById('endTimeLabelRet').textContent = 'Termina: '
-      //   document.getElementById('confirmButtonTop').textContent = 'Confirmar'
-
-      //   const options = Array.from(document.getElementById('modeSelect').options)
-      //   options.forEach(element => {
-      //     if (element.value == 0) {
-      //       element.textContent = 'Ver'
-      //     } else if (element.value == 1) {
-      //       element.textContent = 'Crear'
-      //     } else if (element.value == 2) {
-      //       element.textContent = 'Editar'
-      //     }
-      //   })
-      // } else if (languageIndex === 1) {
-      //   // english
-      //   document.getElementById('editInstructionText').textContent = 'Click on a route to edit'
-
-      //   document.getElementById('frequencySelectorLabel').textContent = 'Frequency - Every ~'
-      //   document.getElementById('goToLocationButtonImage').alt = 'Search'
-      //   document.getElementById('showMyLocation').textContent = 'Show My Location'
-      //   document.getElementById('followMeButton').textContent = 'Follow Me'
-      //   document.getElementById('stopFollowingButton').textContent = 'Stop Following'
-      //   document.getElementById('goBackButton').textContent = 'Go Back'
-      //   document.getElementById('recalculateButton').textContent = 'Recalculate Route'
-      //   document.getElementById('fromLocationLabel').textContent = 'From: '
-      //   document.getElementById('toLocationLabel').textContent = 'To: '
-      //   document.getElementById('startTimeLabelTop').textContent = 'First: '
-      //   document.getElementById('endTimeLabelTop').textContent = 'Last: '
-      //   document.getElementById('enableRouteEditsButtonTop').textContent = 'Edit Route'
-      //   document.getElementById('addReturnButtonTop').textContent = 'Add Return Route'
-      //   document.getElementById('startTimeEditLabel').textContent = 'First: '
-      //   document.getElementById('endTimeEditLabel').textContent = 'Last: '
-      //   document.getElementById('submitEditsButtonTop').textContent = 'Submit Edits'
-      //   document.getElementById('deleteRouteButtonTop').textContent = 'Delete Route'
-      //   document.getElementById('reallyDeleteRouteButtonTop').textContent = 'Really Delete Route'
-      //   document.getElementById('cancelDeleteButton').textContent = 'Cancel Delete'
-      //   document.getElementById('everyLabel').textContent = 'Every: '
-      //   document.getElementById('everyLabelReturn').textContent = 'Every: '
-      //   document.getElementById('startTimeLabel').textContent = 'First: '
-      //   document.getElementById('startTimeLabelReturn').textContent = 'First: '
-      //   document.getElementById('endTimeLabel').textContent = 'Last: '
-      //   document.getElementById('endTimeLabelRet').textContent = 'Last: '
-      //   // confirmButtonTop
-      //   document.getElementById('confirmButtonTop').textContent = 'Confirm'
-
-      //   let options = Array.from(document.getElementById('modeSelect').options)
-      //   options.forEach(element => {
-      //     if (element.value == 0) {
-      //       element.textContent = 'View'
-      //     } else if (element.value == 1) {
-      //       element.textContent = 'Create'
-      //     } else if (element.value == 2) {
-      //       element.textContent = 'Edit'
-      //     }
-      //   })
-      // } else {
-      //   console.log('something went wrong')
-      // }
     },
-
-    showSteps(directionResult, markerArray, stepDisplay, map) {
-      // For each step, place a marker, and add the text to the marker's infowindow.
-      // Also attach the marker to an array so we can keep track of it and remove it
-      // when calculating new routes.
-      // const myRoute = directionResult.routes[0].legs[0];
-
-      // for (let i = 0; i < myRoute.steps.length; i++) {
-      //   const marker = (markerArray[i] =
-      //     markerArray[i] || this.maps.Marker());
-
-      //   //marker.setMap(map);
-      //   //marker.setPosition(myRoute.steps[i].start_location);
-      // }
-    }
   }
 }
 </script>

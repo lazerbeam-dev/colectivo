@@ -26,14 +26,6 @@ app.use(
   })
 )
 
-// app.use(
-//   cookieSession({
-//     name: "RutasColectivosSession",
-//     secret: process.env.COOKIE_SECRET,
-//     httpOnly: true
-//   })
-// );
-
 app.use('/', express.static('views'))
 app.use('/js', express.static(path.resolve(__dirname, './dist/js')))
 app.use('/img', express.static(path.resolve(__dirname, './dist/img')))
@@ -66,13 +58,12 @@ app.get('/favicon.ico', async (req, res) => {
 })
 
 app.post('/saveRoute', (req, res) => {
-  saveRoute(req.body)
+  repo.saveRoute(req.body)
   res.send("route saved!")
 })
 
 app.post('/likeRoute', async (req, res) => {
   try{
-    console.log('got here')
     const body = req.body
 
     const userReporting = await repo.getById(repo.collections.users, body.userId)
@@ -92,7 +83,6 @@ app.post('/likeRoute', async (req, res) => {
 
       // if body like, we are liking, removing dislikes by same user
       if(body.like == true){
-        console.log("like")
         if(!routeReporting.likes.includes(userId)){
           routeReporting.likes.push(userId)
         }
@@ -262,14 +252,9 @@ app.post('/signIn', async function (req, res) {
 
 app.post('/signUp', async function (req, res) {
   try {
-    console.log("sign up")
-    //console.log(req)
-    console.log(req.body)
     let newUser = req.body
     var existingUser = await repo.getByValue("users", "email", req.body.email)
-    console.log(existingUser)
     if (existingUser.length > 0) {
-      console.log('user already exists');
       res.status(401).send("user already exists");
     }
     else {
@@ -279,7 +264,6 @@ app.post('/signUp', async function (req, res) {
         
         const result = repo.insertToCollection(repo.collections.users, newUser).then(x => 
         {
-          console.log('x')
           console.log(x)
           const token = jwt.sign(
             { user_id: x._id, email: x.email },
@@ -316,7 +300,7 @@ app.get('/getRoutes', function (req, res) {
 app.post('/deleteRoute', function (req, res) {
   console.log(req.body)
   repo.deleteRouteById(req.body.id)
-  res.send("heard you")
+  res.send("delete successful")
   res.end()
 });
 
