@@ -235,7 +235,10 @@ export default {
       //console.log(taskId)
     },
     initDirections(dir){
-      console.log(dir)
+      console.log(dir.start)
+
+      this.setStartLocation({ lat: dir.start[0], lng: dir.start[1]})
+      this.setEndLocation({ lat: dir.end[0], lng: dir.end[1]})
     },
     toggleMinimize(){
       var mini = document.getElementById("minimizableContent");
@@ -341,7 +344,7 @@ export default {
                 })
               }
               else{
-                this.startLocation.setPosition(clickEvent.latLng)
+                this.startLocation.setPosition(newLoc)
               }
               this.$store.commit("setStartLocation", this.startLocation.position)
     },
@@ -353,7 +356,7 @@ export default {
                 })
               }
               else{
-                this.endLocation.setPosition(clickEvent.latLng)
+                this.endLocation.setPosition(newLoc)
               }
               this.$store.commit("setEndLocation", this.endLocation.position)
     },
@@ -642,64 +645,6 @@ return new this.google.maps.DirectionsRenderer({ map: this.mapLocal, draggable: 
       }).then(response => response.json()).then(x => {
         this.drawPolylines(x)
       })
-    },
-
-    submitEditsTop(refresh, followOnId, submittingReturn) {
-      var startName = document.getElementById('fromLocationInputTop').value
-      var endName = document.getElementById('toLocationInputTop').value
-      var freq = document.getElementById('frequencySelectorInfoInputTop').value
-      var startTime = document.getElementById('startTimeInputTop').value
-      var endTime = document.getElementById('endTimeInputTop').value
-      var returnstartTime = document.getElementById('startTimeReturnTop').value
-      var returnendTime = document.getElementById('endTimeReturnTop').value
-
-      var pointsEdited = this.points.length > 0
-      var returnPointsEdited = this.returnPoints.length > 0
-
-      var routeJson = {
-        colour: document.getElementById('colourPickerTop').value,
-        startTime: startTime,
-        endTime: endTime,
-        origin: startName,
-        destination: endName,
-        points: pointsEdited ? this.points : this.currentHighlightedRoute.route.points,
-        polyline: pointsEdited ? this.overview_polyline : this.currentHighlightedRoute.route.polyline,
-        frequency: freq,
-        returnPoints: returnPointsEdited ? this.returnPoints : this.currentHighlightedRoute ? this.currentHighlightedRoute.route.returnPoints : null,
-        returnPolyline: returnPointsEdited ? this.return_overview_polyline : this.currentHighlightedRoute ? this.currentHighlightedRoute.route.returnPolyline : null,
-        returnStartTime: returnstartTime,
-        returnEndTime: returnendTime,
-        id: this.currentHighlightedRoute ? this.currentHighlightedRoute.route._id : null,
-        newId: followOnId || null,
-        findId: submittingReturn === true ? followOnId : null
-      }
-
-      var overlaps = this.getOverlappingSegments(routeJson)
-      if (overlaps) {
-        routeJson.outArrowPercents = overlaps.out
-        routeJson.returnArrowPercents = overlaps.return
-      }
-      console.log(routeJson.findId)
-
-      console.log('submitting edits top')
-
-      fetch(this.myIp + '/saveRoute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(routeJson) // here this is how you send your datas
-      })
-        .then(response => console.log(response.text)).then(x => {
-          if (refresh) {
-            this.initMap()
-          }
-          // else{
-          //   // since we don't want to refresh, we just want to populate the id with the one we got from back end
-          //   currentEditId = response.text
-          //   console.log("yoyoy", response.text)
-          // }
-        })
-
-      return routeJson
     },
     goToPoint(point){
       this.mapLocal.setCenter(point)

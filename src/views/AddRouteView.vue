@@ -91,7 +91,7 @@ import { cwd } from 'process';
 export default {
   name: "InformationView",
   emits: ["clickmode", "directions", "saveDirections", "goToLocation", "removeWaypointAtIndex", "initDirections"],
-  data: function () {
+  data() {
     return {
       // route info
       startTime: null,
@@ -244,9 +244,10 @@ export default {
         }
         )
     }
-  ,
+  },
   computed: {
     startDirections() {
+      console.log("yo", this.$store.state.startLocation)
       return this.$store.state.startLocation;
     },
     endDirections() {
@@ -261,7 +262,6 @@ export default {
     routePolyline() {
       return this.$store.state.directions?.overview_polyline;
     }
-  }
 }
 }
 </script>
