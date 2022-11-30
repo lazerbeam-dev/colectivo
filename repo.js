@@ -13,10 +13,10 @@ saveGPS = async function (newGPS) {
   
   saveRoute = async function (newRoute) {
   
-    var findId = newRoute.findId;
+    const findId = newRoute.findId;
     delete newRoute.findId;
   
-    if (newRoute.points.length > 0) {
+    if (newRoute.points?.length ?? 0 > 0) {
       newRoute.startLat = newRoute.points[0][0]
       newRoute.startLng = newRoute.points[0][1]
       newRoute.endLat = newRoute.points[newRoute.points.length - 1][0]
@@ -65,7 +65,7 @@ saveGPS = async function (newGPS) {
     const database = client.db("Collectivivo");
     const routes = database.collection("routes");
   
-    const result = await routes.deleteOne({ "_id": ObjectId(id) }).then(x => { });
+    const result = await routes.deleteOne({ "_id": ObjectId(id) })
     console.log(result);
     console.log('delete')
   }

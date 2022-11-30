@@ -87,9 +87,9 @@
         :title="$t('dislike')">
         <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/2107/2107616.png" alt="dislike" />
       </button>
-      <!-- <button class="editButton" @click="editRouteDetails()" :title="$t('suggest_edit')">
+      <button class="editButton" v-if="this.$store.state.signedInUser != null" @click="editRouteDetails()" :title="$t('suggest_edit')">
         <img class="likeImg" src="https://cdn-icons-png.flaticon.com/512/61/61456.png" alt="edit" />
-      </button> -->
+      </button>
     </div>
 
   </div>
@@ -99,7 +99,7 @@
 <script>
 import { TypedChainedSet } from 'webpack-chain';
 import axios from 'axios'
-const emit = ['goLogin', 'updateRoute']
+const emit = ['goLogin', 'updateRoute', "editRoute"]
 
 export default {
   name: "RouteView",

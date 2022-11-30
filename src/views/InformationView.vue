@@ -17,11 +17,9 @@
                 We believe that San Cris needs a map of all of the colectivo routes, 
                 so that people can plan their travels with the confidence that they 
                 will end up where they expected! 
-                Accurate information, intuitive display and user experience are our 
-                three highest values. Because of that, we have made a GPS based route 
-                capture system which allows anyone to add any route that they like; route
-                feedback so that any bad information can be weeded out quickly, and all
-                for free so that everyone in the community can benefit. 
+                Accurate information and great user experience are our highest values.
+                We are making a GPS based route capture system which will allow anyone to add accurate routes easily; In the meantime, 
+                We are currently adding the routes by asking the drivers. Stay tuned for more routes weekly!
             </p>
             </div>
             <div class="info">

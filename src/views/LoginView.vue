@@ -30,8 +30,8 @@
 </template>
 
 <script>
-import { defineEmits } from 'vue'
-const emit = defineEmits(['close', 'signInUser', 'goToRegistration'])
+// import { defineEmits } from 'vue'
+// const emit = defineEmits(['close', 'signInUser', 'goToRegistration'])
 import axios from 'axios'
 import i18next from 'i18next'
 import store from '@/store';
