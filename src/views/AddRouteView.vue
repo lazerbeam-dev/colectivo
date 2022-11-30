@@ -145,6 +145,7 @@ export default {
           if (x.status == 200) {
             console.log(x)
             this.setInstructionText("save_successful")
+            window.location.reload()
           }
           else{
             this.setInstructionText("error")
@@ -218,10 +219,12 @@ export default {
     addOutboundPoints() {
       this.showDirectionsController = true
       this.$refs.outboundDirections.appendChild(this.$refs.directionsController)
+      this.$emit("initDirections")
     },
     editOutboundPoints() {
       this.showDirectionsController = true
       this.$refs.outboundDirections.appendChild(this.$refs.directionsController)
+      this.$emit("initDirections", { start: this.pointsOutbound[0], end: this.pointsOutbound[this.pointsOutbound.length - 1]})
     },
     addReturnPoints(){
       this.showDirectionsController = true

@@ -235,10 +235,13 @@ export default {
       //console.log(taskId)
     },
     initDirections(dir){
-      console.log(dir.start)
-
-      this.setStartLocation({ lat: dir.start[0], lng: dir.start[1]})
-      this.setEndLocation({ lat: dir.end[0], lng: dir.end[1]})
+      if(dir != null){
+        console.log(dir.start)
+        this.setStartLocation({ lat: dir.start[0], lng: dir.start[1]})
+        this.setEndLocation({ lat: dir.end[0], lng: dir.end[1]})
+      }
+      this.addDirectionsClickEvents()
+     
     },
     toggleMinimize(){
       var mini = document.getElementById("minimizableContent");
@@ -360,11 +363,8 @@ export default {
               }
               this.$store.commit("setEndLocation", this.endLocation.position)
     },
-    showAddRoute() {
-      if (this.actionRequiresLogin() == true) {
-        this.addRoute = !this.addRoute
-        console.log(this.addRoute)
-        this.google.maps.event.clearListeners(this.mapLocal, 'click');
+    addDirectionsClickEvents() {
+      this.google.maps.event.clearListeners(this.mapLocal, 'click');
         this.google.maps.event.addListener(this.mapLocal, 'click', (clickEvent) => {
         console.log(this.clickmode)
           switch(this.clickmode){
@@ -391,6 +391,11 @@ export default {
           }
         
       })
+    },
+    showAddRoute() {
+      if (this.actionRequiresLogin() == true) {
+        this.addRoute = !this.addRoute
+        console.log(this.addRoute)
         console.log("adding route")
       }
     },
