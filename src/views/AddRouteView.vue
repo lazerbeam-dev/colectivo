@@ -87,7 +87,6 @@
 import i18next from 'i18next'
 import axios from 'axios'
 import { toRaw } from 'vue';
-import { cwd } from 'process';
 export default {
   name: "InformationView",
   emits: ["clickmode", "directions", "saveDirections", "goToLocation", "removeWaypointAtIndex", "initDirections"],
