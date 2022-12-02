@@ -1,56 +1,61 @@
 <template>
   <div id="container">
     <div id="floating-panel" class="center navbar">
-      <img src="https://i.ibb.co/XjwhkdC/3.png" class="noPointers" id="logo"
-        style="max-height: 40px; max-width: 40px; float: left; padding-right: 10px;">
-      <span id="minimizableContent">
-      
-        <input id="goToLocationInput" @keyup.enter="goToLocation" class="center" :placeholder="$t('search_routes')">
-        <button id="goToLocationButton" :title="$t('search_routes')" class="functionalButton center marginRight"
-          @click="goToLocation()">
-          <img class="buttonImage" src="../assets/magnifying-glass.svg">
-        </button>
-        <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
-          @mouseleave="this.showProfileDropdown = false" title="Profile"
-          @click="this.showProfileDropdown = !this.showProfileDropdown">
-          <img id="profileButton" class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
-            alt="profile" :title="$t('profile')">
-          <span v-show="this.signedInUsername != null">{{ this.signedInUsername }} </span>
-          <div v-show="showProfileDropdown" class="dropdownContent">
-            <div class="dropdownItem" v-show="this.signedInUsername == null"
-              @click="showLogin = true; showRegistration = false">
-              {{ $t('log_in') }}
-            </div>
-            <div class="dropdownItem" v-show="this.signedInUsername == null"
-              @click="showRegistration = true; showLogin = false">
-              {{ $t('create_account') }}
-            </div>
-            <div class="dropdownItem" v-show="this.signedInUsername != null" @click="this.signOutUser()">
-              {{ $t('log_out') }}
-            </div>
-            <div class="dropdownItem" @click="this.showInformation = !this.showInformation">
-              {{ $t('information') }}
-            </div>
+      <div id="allDashboardContent">
+        <div is="logoImage">
+          <img src="https://i.ibb.co/XjwhkdC/3.png" class="noPointers" id="logo">
+        </div>
+        <div id="minimizableContent">
+          <div id="dashboardContent">
+  
+            <input id="goToLocationInput" @keyup.enter="goToLocation" class="center" :placeholder="$t('search_routes')">
+            <button id="goToLocationButton" :title="$t('search_routes')" class="functionalButton center marginRight"
+              @click="goToLocation()">
+              <img class="buttonImage" src="../assets/magnifying-glass.svg">
+            </button>
+            <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
+              @mouseleave="this.showProfileDropdown = false" title="Profile"
+              @click="this.showProfileDropdown = !this.showProfileDropdown">
+              <img id="profileButton" class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+                alt="profile" :title="$t('profile')">
+              <span v-show="this.signedInUsername != null">{{ this.signedInUsername }} </span>
+              <div v-show="showProfileDropdown" class="dropdownContent">
+                <div class="dropdownItem" v-show="this.signedInUsername == null"
+                  @click="showLogin = true; showRegistration = false">
+                  {{ $t('log_in') }}
+                </div>
+                <div class="dropdownItem" v-show="this.signedInUsername == null"
+                  @click="showRegistration = true; showLogin = false">
+                  {{ $t('create_account') }}
+                </div>
+                <div class="dropdownItem" v-show="this.signedInUsername != null" @click="this.signOutUser()">
+                  {{ $t('log_out') }}
+                </div>
+                <div class="dropdownItem" @click="this.showInformation = !this.showInformation">
+                  {{ $t('information') }}
+                </div>
+              </div>
+            </button>
+            <button v-if="signedInUsername != null" class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
+              <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1828/1828921.png" alt="Add Route">
+            </button>
+  
+            <button class="functionalButton marginRight" :title="$t('select_language')">
+              <select id="languageSelect" ref="languageSelectElem" @change="this.languageChange($refs.languageSelectElem)">
+                <option value="es">ES</option>
+                <option value="en">EN</option>
+              </select>
+            </button>
           </div>
+        </div>
+        <button class="functionalButton minimize" :title="$t('minimize')" v-show="this.minimized == false" @click="this.toggleMinimize()">
+          <img class="buttonImage" src="../assets/arrow-line-left.svg">
         </button>
-        <button v-if="signedInUsername != null" class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
-          <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1828/1828921.png" alt="Add Route">
-        </button>
+        <button class="functionalButton minimize" :title="$t('maximize')" v-show="this.minimized == true" @click="this.toggleMinimize()">
+          <img class="buttonImage" src="../assets/arrow-line-right.svg">
+        </button>   
+      </div>
 
-        <button class="functionalButton marginRight" :title="$t('select_language')">
-          <select id="languageSelect" ref="languageSelectElem" @change="this.languageChange($refs.languageSelectElem)">
-            <option value="es">ES</option>
-            <option value="en">EN</option>
-          </select>
-        </button>
-      </span>
-      <button class="functionalButton minimize" :title="$t('minimize')" v-show="this.minimized == false" @click="this.toggleMinimize()">
-        <img class="buttonImage" src="../assets/arrow-line-left.svg">
-      </button>
-      <button class="functionalButton minimize" :title="$t('maximize')" v-show="this.minimized == true" @click="this.toggleMinimize()">
-        <img class="buttonImage" src="../assets/arrow-line-right.svg">
-      </button>   
-      <br/>
     <div v-show="this.addRoute">
       <AddRouteView @initDirections="x => this.initDirections(x)" @removeWaypointAtIndex="" @goToLocation="x => this.goToPoint(x)" @directions="this.findDirections()" @clickmode="x => this.clickmode = x" ref="addRoute">
       </AddRouteView>
@@ -205,6 +210,12 @@ export default {
     this.container.addEventListener("touchstart", this.dragStart, false);
     this.container.addEventListener("touchend", this.dragEnd, false);
     this.container.addEventListener("touchmove", this.drag, false);
+
+    if (window.innerWidth >= 480) {
+      this.container.addEventListener("touchstart", this.dragStart, false);
+      this.container.addEventListener("touchend", this.dragEnd, false);
+      this.container.addEventListener("touchmove", this.drag, false);
+    }
 
     this.container.addEventListener("mousedown", this.dragStart, false);
     this.container.addEventListener("mouseup", this.dragEnd, false);
@@ -1107,66 +1118,4 @@ return new this.google.maps.DirectionsRenderer({ map: this.mapLocal, draggable: 
 }
 </script>
 
-<style scoped>
-#map {
-  height: 100px;
-  position: inherit !important;
-}
 
-.dropdown {
-  display: inline-block;
-  position: relative;
-}
-
-.dropdownContent {
-  position: absolute;
-  min-width: 200px;
-  overflow: auto;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  padding: 12px 16px;
-  border-radius: 10px;
-  z-index: 1;
-  background-color: white;
-  transform: translate(-50%, 0);
-
-}
-
-.dropdownItem {
-  text-decoration: none;
-  border-radius: 10px;
-}
-
-.dropdownItem:hover {
-  text-decoration: none;
-  background: #9ED6AD;
-  color: black;
-  transition: .7s;
-}
-
-.dropdown:hover .dropdownContent {
-  display: block;
-}
-
-.navbar {
-  background-color: white;
-  border-radius: 10px;
-}
-
-.marginRight {
-  margin-right: 2px;
-}
-
-.marginLeft {
-  margin-left: 120px;
-}
-
-.mini{
-  display:none;
-}
-
-.buttonImage {
-  max-height: 15px;
-  max-width: 15px;
-  margin: 0 auto;
-}
-</style>
