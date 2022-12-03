@@ -57,6 +57,6 @@ body {
 }
 
 body{
-  font-family: "Roboto", "sans-serif";
+  font-family: 'Barlow', sans-serif!important;
 }
 </style>

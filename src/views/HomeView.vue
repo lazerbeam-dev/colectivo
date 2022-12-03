@@ -16,6 +16,7 @@
             <button class="functionalButton marginRight" @mouseenter="this.showProfileDropdown = true"
               @mouseleave="this.showProfileDropdown = false" title="Profile"
               @click="this.showProfileDropdown = !this.showProfileDropdown">
+              
               <img id="profileButton" class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
                 alt="profile" :title="$t('profile')">
               <span v-show="this.signedInUsername != null">{{ this.signedInUsername }} </span>
@@ -37,7 +38,7 @@
               </div>
             </button>
             <button v-if="signedInUsername != null" class="functionalButton marginRight" :title="$t('add_route')" @click="showAddRoute()">
-              <img class="buttonImage" src="https://cdn-icons-png.flaticon.com/512/1828/1828921.png" alt="Add Route">
+              <img class="buttonImage" src="../assets/plus.svg" alt="Add Route">
             </button>
   
             <button class="functionalButton marginRight" :title="$t('select_language')">
