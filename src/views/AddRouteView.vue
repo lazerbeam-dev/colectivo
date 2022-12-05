@@ -109,7 +109,7 @@
 
 
   </div>
-  <button @click="this.showDetails = !this.showDetails" class="outlineButton"> Add details </button>
+  <button @click="this.showDetails = !this.showDetails" class="outlineButton"> Details </button>
   <button id="submitRoute" @click="submitRoute()" class="filledButton"> {{ $t('save') }}</button>
   <div id="deleteyStuff" class="floatRight" v-show="this.mode == 'editRoute'">
     <button @click="this.showDeleteRoute = true" v-show="this.showDeleteRoute == false" class="functionalButton">{{ $t('delete_route') }}</button>
