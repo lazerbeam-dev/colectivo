@@ -450,13 +450,6 @@ export default {
         this.showingRoutes = true
       }
     },
-
-    recalculateRoute() {
-      if (this.directionsRendererLocal !== '') {
-        this.directionsRendererLocal.setMap(null)
-      }
-      this.findDirections(this.editingDirections === 'return')
-    },
     startFollowing() {
       this.following = true
       console.log(store.state.mapLocal)
@@ -488,14 +481,6 @@ export default {
         body: JSON.stringify(gpsPoints)
       })
     },
-
-    searchKeyPress(event) {
-      var key = event.keyCode || event.which
-      if (key === 13) {
-        // search
-      }
-    },
-
     cancelDelete() {
       document.getElementById('reallyDeleteRouteButtonTop').style.display = 'none'
       document.getElementById('cancelDeleteButton').style.display = 'none'
@@ -634,7 +619,7 @@ export default {
       }
     },
     getNewDirectionsRenderer() {
-return new this.google.maps.DirectionsRenderer({ map: this.mapLocal, draggable: true, suppressMarkers: true, polylineOptions: { zIndex: 10, strokeColor: '#0000FF', strokeWeight: 10, strokeOpacity: 0.7 } })
+return new this.google.maps.DirectionsRenderer({ preserveViewport: true, map: this.mapLocal, draggable: true, suppressMarkers: true, polylineOptions: { zIndex: 10, strokeColor: '#0000FF', strokeWeight: 10, strokeOpacity: 0.7 } })
     },
     findDirections(isReturnRoute) {
 
