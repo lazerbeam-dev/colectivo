@@ -1,77 +1,116 @@
 <template>
-  <div ref="contents" class="normalCursor">
-    <span>{{ $t(mode) }}</span>
-  <button type="button" v-show="this.mode == 'editRoute'" class="functionalButton"
+  <div ref="contents" class="normalCursor" id="addRouteLayout">
+    <h3>{{ $t(mode) }}</h3>
+  <button type="button" v-show="this.mode == 'editRoute'" class="outlineButtonTerciary"
     @click="cancel()">
     {{ $t('cancel') }}
   </button>
   <div>
     <div ref="outboundDirections">
       <span>{{ $t('outbound_points') + ': ' + this.pointsOutbound?.length }}</span>
-      <button class="functionalButton" @click="addOutboundPoints()" v-show="this.pointsOutbound == null">{{ $t('add')
+      <button class="filledButton" @click="addOutboundPoints()" v-show="this.pointsOutbound == null">{{ $t('add')
       }}</button>
-      <button class="functionalButton" @click="editOutboundPoints()" v-show="this.pointsOutbound != null">{{ $t('edit')
+      <button class="outlineButtonSecondary" @click="editOutboundPoints()" v-show="this.pointsOutbound != null">{{ $t('edit')
       }}</button><br>
     </div>
     <div ref="returnDirections">
       <span>{{ $t('return_points') + ': ' + this.pointsReturn?.length }} </span>
       <button @click="addReturnPoints()" v-show="this.pointsOutbound != null && this.pointsReturn == null"
-        class="functionalButton">{{ $t('add') }}</button>
-      <br>
-      <button @click="editReturnPoints()" v-show="this.pointsReturn != null" class="functionalButton">{{ $t('edit')
+        class="filledButton">{{ $t('add') }}</button>
+      <button @click="editReturnPoints()" v-show="this.pointsReturn != null" class="outlineButtonSecondary">{{ $t('edit')
       }}</button>
-      <br>
     </div>
 
 
     <div id="directionsController" v-show="this.showDirectionsController" ref="directionsController">
-      <span id="instructionText">{{ $t(instructionText) }}</span>
-      <br>
-      <button type="button" class="functionalButton" @click="addStart()">
-        {{ $t('add_start') }}
-      </button>
-      <span @click="this.$emit('goToLocation', this.startDirections)">{{ startDirections }}</span>
-      <br>
-      <button type="button" class="functionalButton" @click="addWaypoint()">
-        {{ $t('add_waypoint') }}
-      </button>
-      <br>
-      <li v-for="(waypoint, i) in this.intermediatePoints" @click="this.$emit('goToLocation', waypoint)">{{ waypoint }}
-        <button @click="this.$store.commit('removeWaypointAtIndex', i)">X</button>
-      </li>
-      <button type="button" class="functionalButton" @click="addEnd()">
-        {{ $t('add_end') }}
-      </button>
-      <span @click="this.$emit('goToLocation', this.endDirections)">{{ endDirections }}</span>
-      <br>
-      <button type="button" class="functionalButton" @click="findDirections()">
-        {{ $t('get_directions') }}
-      </button>
-      <span>{{ routePoints?.length }}</span>
-    </div>
-    <div id="returnDirections">
-      <button type="button" class="functionalButton" v-show="this.showAddReturn">{{
-          $t('add_return')
-      }}</button>
+      <label id="instructionText">{{ $t(instructionText) }}</label>
+      <div id="routeButtons">
+        <button type="button" class="outlineButton" @click="addStart()">
+          {{ $t('add_start') }}
+        </button>
+        <div @click="this.$emit('goToLocation', this.startDirections)">{{ startDirections }}</div>
+        <button type="button" class="outlineButton" @click="addWaypoint()">
+          {{ $t('add_waypoint') }}
+        </button>
+        <li v-for="(waypoint, i) in this.intermediatePoints" @click="this.$emit('goToLocation', waypoint)">{{ waypoint }}
+          <button @click="this.$store.commit('removeWaypointAtIndex', i)">X</button>
+        </li>
+        <button type="button" class="outlineButton" @click="addEnd()">
+          {{ $t('add_end') }}
+        </button>
+        <div @click="this.$emit('goToLocation', this.endDirections)">{{ endDirections }}</div>
+        <button type="button" class="filledButton" @click="findDirections()">
+          {{ $t('get_directions') }}
+        </button>
+        <div>{{ routePoints?.length }}</div>
+      </div>
+      <div id="returnDirections">
+        <button type="button" class="functionalButton" v-show="this.showAddReturn">{{
+            $t('add_return')
+        }}</button>
+      </div>
     </div>
 
   </div>
   <div id="routeCreateInfo" v-show="this.showDetails">
-    <b>{{ $t('start_location') }}</b>
-    <input id="start" v-model="startLocation"><br />
-    <b>{{ $t('end_location') }}</b>
-    <input id="end" v-model="endLocation"><br />
-    <b> {{ $t('colour') }}</b>
-    <input id="colourPicker" type="color" v-model="color"><br />
-    <b>{{ $t('every') }}</b>
-    <input id="frequencySelectorInput" name="frequency" v-model="frequency"> m <br />
-    <b>{{ $t('price') }}</b>
-    <input v-model="price"> pesos <br />
-    <b>{{ $t('start_time') }}<input type="time" v-model="startTime"></b> <br />
-    <b>{{ $t('end_time') }} <input type="time" v-model="endTime"> </b><br />
+    
+    <div class="formItems">
+      <div class="formItem">
+        <label>{{ $t('start_location') }}</label>
+        <input class="form-control" id="start" v-model="startLocation"><br />
+      </div>
+
+      <div class="formItem">
+        <label>{{ $t('end_location') }}</label>
+        <input class="form-control"  id="end" v-model="endLocation"><br />
+      </div>
+    </div>
+
+    <div class="formItems">
+      
+      <div class="formItem">
+        <label>{{ $t('every') }}</label>
+        <div class="formType">
+          <input class="form-control" id="frequencySelectorInput" name="frequency" v-model="frequency"> 
+          <p class="inputLabel">minutes</p>
+        </div>
+      </div>
+      
+      <div class="formItem">
+        
+        <label>{{ $t('price') }}</label>
+        <div class="formType">
+          <input class="form-control" v-model="price">
+          <p class="inputLabel">pesos</p>
+        </div>
+      </div>
+
+    </div>
+    
+    <div class="formItems">
+      
+      <div class="formItem">
+        <label>{{ $t('start_time') }}</label>
+        <input class="form-control" type="time" v-model="startTime">
+      </div>
+      
+      <div class="formItem">
+        <label>{{ $t('end_time') }} </label>
+        <input class="form-control" type="time" v-model="endTime"> 
+      </div>
+
+      <div class="formItem">
+        <label> {{ $t('colour') }}</label>
+        <input class="form-control" id="colourPicker" type="color" v-model="color"><br />
+      </div>
+    </div>
+
+
+
+
   </div>
-  <button @click="this.showDetails = !this.showDetails" class="functionalButton"> ^ </button>
-  <button id="submitRoute" @click="submitRoute()" class="functionalButton"> {{ $t('save') }}</button>
+  <button @click="this.showDetails = !this.showDetails" class="outlineButton"> Details </button>
+  <button id="submitRoute" @click="submitRoute()" class="filledButton"> {{ $t('save') }}</button>
   <div id="deleteyStuff" class="floatRight" v-show="this.mode == 'editRoute'">
     <button @click="this.showDeleteRoute = true" v-show="this.showDeleteRoute == false" class="functionalButton">{{ $t('delete_route') }}</button>
   <button @click="deleteRoute()" v-show="this.showDeleteRoute" class="functionalButton">{{ $t('confirm_delete_route') }}</button>

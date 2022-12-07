@@ -1,8 +1,8 @@
 <template>
   <div id="infoPanel" v-show="show">
     <div id="rowDiv" style="display: flex;">
-      <div ref="outboundInfoBox" id="outboundInfo" style="flex:50%; border-right: solid; padding-right:5px;">
-        <p>
+      <div ref="outboundInfoBox" id="outboundInfo">
+        <!-- <p>
           <span id="fromLocationInfo"> {{ startLocation }}</span>
         </p>
         <p>
@@ -13,8 +13,43 @@
             startTime
         }}</span> <span id="endTimeLabel">{{ $t('until_time') }}: </span> <span id="endTime"
            > {{ endTime
-            }}</span> </p>
+            }}</span> </p> -->
+
+        <label> {{ $t('start_location') }}  </label>
+
+        <div id="fromLocationInfo"> 
+          <h2 class="capitalize">
+            {{ startLocation }}
+          </h2>
+        </div>
+
+        <label>{{ $t('end_location') }}</label>
+        <div id="toLocationInfo"> 
+            <h2 class="capitalize">
+              {{ endLocation }}
+            </h2>
+        </div>
+
+        <div class="popUpInfo">
+          <div class="timeDisplay">
+            <div id="everyLabel" > <p class="miniLabel"> {{ $t('every') }} </p></div><div class="timetableItem"> {{ frequency }} </div>
+          </div>
+
+          <div class="timeDisplay">
+            <div class="miniLabel" id="startTimeLabel"> <p class="miniLabel">{{ $t('from_time') }} </p></div> <div class="timetableItem" id="startTime"> {{
+                startTime
+            }}</div> 
+          </div>
+          <div class="timeDisplay">
+
+            <div  class="miniLabel" id="endTimeLabel"> <p class="miniLabel">{{ $t('until_time') }} </p> </div> <div class="timetableItem" id="endTime"
+              > {{ endTime
+                }}</div> 
+          </div>
+        </div>
       </div>
+      
+
       <div ref="returnInfoBox" id="returnInfo" style="flex:50%; border-left: solid; padding-left: 5px;"
         v-show="hasReturn">
         <p>
@@ -164,51 +199,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-.likeImg {
-  height: 10px;
-  width: 10px;
-}
-
-.likeButton {
-  border: none;
-  background-color: white;
-  border-radius: 4px;
-  float: left
-}
-
-.editButton {
-  border: none;
-  background-color: white;
-  border-radius: 4px;
-  float: right;
-}
-
-.reviewInfo {
-  width: 100%;
-}
-
-.editButton:hover {
-  background-color: #a39dfb;
-}
-
-.likeButton:hover {
-  background-color: #83EA9F;
-}
-
-.dislikeButton:hover {
-  background-color: #EC7272;
-}
-
-.active {
-  background-color: #83EA9F;
-}
-
-.activeDislike {
-  background-color: #EC7272;
-}
-
-.reviewInfo {
-  float: left;
-}
-</style>
