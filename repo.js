@@ -111,22 +111,6 @@ saveGPS = async function (newGPS) {
     const query = {}
     const options = {}
     return await routes.find().toArray()
-    //await client.close()
-  
-    // if ((await cursor.count()) === 0) {
-    //   console.log("No documents found!");
-    // }
-  
-  
-    // replace console.dir with your callback to access individual elements
-    //await cursor.forEach((item) => {routesToReturn.push(item)});
-    // const query = { runtime: { $lt: 15 } };
-    // const options = {
-    //   // sort returned documents in ascending order by title (A->Z)
-    //   sort: { title: 1 },
-    //   // Include only the `title` and `imdb` fields in each returned document
-    //   projection: { _id: 0, title: 1, imdb: 1 },
-    // };
   }
 
   //generic method, returns array so if you know you gonna get one thing, use ?[0]

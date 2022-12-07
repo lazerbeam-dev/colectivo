@@ -39,8 +39,6 @@ export default new Vuex.Store({
       this.state.waypointLocations.push(toRaw(newPoint).position);
     },
     setWaypointLocation(state, {waypointIndex, ltlng}){
-      console.log(ltlng, waypointIndex)
-
       this.state.waypointLocations[waypointIndex] = [ltlng.lat, ltlng.lng]
       //raw.position = newWaypoint;
     },
@@ -109,7 +107,6 @@ export default new Vuex.Store({
         directions: null,
         addingReturnDirections: false,
       })
-      console.log("initializing store")
       if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === ""){
         this.commit("setLocalServer", true)
       }

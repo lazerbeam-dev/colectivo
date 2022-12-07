@@ -9,19 +9,19 @@ i18next
   // init i18next
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
-    debug: true,
+    debug: false,
     fallbackLng: 'en',
     resources: {
         en: {
             translation: {
               search_routes: 'search routes',
               information: 'information',
-              about_colectivos: 'About Colectivos',
-              about_rc: 'About Rutas Colectivos',
-              contact_info: 'Contact',
+              about_colectivos: 'about colectivos',
+              about_rc: 'about Rutas Colectivos',
+              contact_info: 'contact',
               log_in: 'log in',
-              create_account: 'Create account',
-              profile: 'Profile',
+              create_account: 'create account',
+              profile: 'profile',
               add_route: 'add route',
               no_account: 'no account?',
               create_one: 'create one!',
@@ -80,7 +80,7 @@ i18next
               search_routes: 'buscar rutas',
               information: 'informacion',
               about_colectivos: 'sobre colectivos',
-              about_rc: 'sobre rutas colectivos',
+              about_rc: 'sobre Rutas Colectivos',
               contact_info: 'contacto',
               log_in: 'iniciar sesión',
               create_account: 'crear una cuenta',

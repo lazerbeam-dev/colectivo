@@ -258,10 +258,13 @@ export default {
       //console.log(taskId)
     },
     initDirections(dir){
-      console.log(dir.start)
-
-      this.setStartLocation({ lat: dir.start[0], lng: dir.start[1]})
-      this.setEndLocation({ lat: dir.end[0], lng: dir.end[1]})
+      if(dir != null){
+        console.log(dir.start)
+        this.setStartLocation({ lat: dir.start[0], lng: dir.start[1]})
+        this.setEndLocation({ lat: dir.end[0], lng: dir.end[1]})
+      }
+      this.addDirectionsClickEvents()
+     
     },
     toggleMinimize(){
       var mini = document.getElementById("minimizableContent");
@@ -326,15 +329,11 @@ export default {
       el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)";
     },
     editRoute() {
-
-      console.log("editing")
-      console.log(this.$refs)
       this.$refs.addRoute.populateInfo(this.routeEditing)
       this.addRoute = true
     },
     tokenLogin() {
       var serverUrl = this.$store.state.serverUrl;
-      console.log(serverUrl)
       var tokey = localStorage.getItem("loginToken");
       var fullUrl = serverUrl + '/signIn';
 
@@ -383,11 +382,8 @@ export default {
               }
               this.$store.commit("setEndLocation", this.endLocation.position)
     },
-    showAddRoute() {
-      if (this.actionRequiresLogin() == true) {
-        this.addRoute = !this.addRoute
-        console.log(this.addRoute)
-        this.google.maps.event.clearListeners(this.mapLocal, 'click');
+    addDirectionsClickEvents() {
+      this.google.maps.event.clearListeners(this.mapLocal, 'click');
         this.google.maps.event.addListener(this.mapLocal, 'click', (clickEvent) => {
         console.log(this.clickmode)
           switch(this.clickmode){
@@ -414,17 +410,19 @@ export default {
           }
         
       })
-        console.log("adding route")
+    },
+    showAddRoute() {
+      if (this.actionRequiresLogin() == true) {
+        this.addRoute = !this.addRoute
+        if(this.addRoute){
+          this.$refs.addRoute.initCreateRoute()
+        }
       }
     },
     populateInfo(route) {
       console.log(route)
       this.routeEditing = route
       this.$refs.routeViewPanel.populateInfo(route)
-      //RouteView. populateInfo(route)
-      console.log("PI")
-
-
     },
     stopBackgroundTask() {
       console.log('stop background task')
@@ -648,8 +646,10 @@ return new this.google.maps.DirectionsRenderer({ map: this.mapLocal, draggable: 
 
       this.google.maps.event.addListener(this.directionsRendererLocal,
         'directions_changed',
-        () => {
+        (dirs) => {
+          this.clearAllLines()
           var directions = this.directionsRendererLocal.getDirections()
+          console.log(dirs)
           this.onDirectionsChange(directions)
         }
       )
@@ -661,7 +661,6 @@ return new this.google.maps.DirectionsRenderer({ map: this.mapLocal, draggable: 
     },
 
     drawRoutes() {
-      console.log(this.myIp)
       fetch(this.myIp + '/getRoutes', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 'encoding': 'utf-8', 'Access-Control-Allow-Origin': '*' }
@@ -689,7 +688,6 @@ return new this.google.maps.DirectionsRenderer({ map: this.mapLocal, draggable: 
     },
     initialize() {
       var userLang = navigator.language || navigator.userLanguage
-      console.log('The language is: ' + userLang)
       if (userLang.includes('en')) {
         document.getElementById('languageSelect').selectedIndex = 1
         this.languageChange(-1)
