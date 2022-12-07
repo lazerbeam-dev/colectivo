@@ -9,7 +9,7 @@ i18next
   // init i18next
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
-    debug: true,
+    debug: false,
     fallbackLng: 'en',
     resources: {
         en: {
@@ -21,7 +21,7 @@ i18next
               contact_info: 'contact',
               log_in: 'log in',
               create_account: 'create account',
-              profile: 'Profile',
+              profile: 'profile',
               add_route: 'add route',
               no_account: 'no account?',
               create_one: 'create one!',

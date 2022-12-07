@@ -7,14 +7,14 @@
   </button>
   <div>
     <div ref="outboundDirections">
-      <span>{{ $t('outbound_points') + ': ' + this.pointsOutbound?.length }}</span>
-      <button class="filledButton" @click="addOutboundPoints()" v-show="this.pointsOutbound == null">{{ $t('add')
+      <span v-show="this.pointsOutbound != null">{{ $t('outbound_points') + ': ' + this.pointsOutbound?.length }}</span>
+      <button ref="addOutboundPoints" class="filledButton" @click="addOutboundPoints()" v-show="this.pointsOutbound == null">{{ $t('add')
       }}</button>
       <button class="outlineButtonSecondary" @click="editOutboundPoints()" v-show="this.pointsOutbound != null">{{ $t('edit')
       }}</button><br>
     </div>
     <div ref="returnDirections">
-      <span>{{ $t('return_points') + ': ' + this.pointsReturn?.length }} </span>
+      <span v-show="(this.pointsOutbound != null)">{{ $t('return_points') + ': ' + this.pointsReturn?.length }} </span>
       <button @click="addReturnPoints()" v-show="this.pointsOutbound != null && this.pointsReturn == null"
         class="filledButton">{{ $t('add') }}</button>
       <button @click="editReturnPoints()" v-show="this.pointsReturn != null" class="outlineButtonSecondary">{{ $t('edit')
@@ -25,20 +25,18 @@
     <div id="directionsController" v-show="this.showDirectionsController" ref="directionsController">
       <label id="instructionText">{{ $t(instructionText) }}</label>
       <div id="routeButtons">
-        <button type="button" class="outlineButton" @click="addStart()">
+        <button type="button" class="outlineButton" @click="addStart()" v-bind:class="{filledButton: this.startDirections != null}">
           {{ $t('add_start') }}
         </button>
-        <div @click="this.$emit('goToLocation', this.startDirections)">{{ startDirections }}</div>
         <button type="button" class="outlineButton" @click="addWaypoint()">
           {{ $t('add_waypoint') }}
         </button>
-        <li v-for="(waypoint, i) in this.intermediatePoints" @click="this.$emit('goToLocation', waypoint)">{{ waypoint }}
+        <li v-for="(waypoint, i) in this.intermediatePoints" class="tiny">{{ waypoint }}
           <button @click="this.$store.commit('removeWaypointAtIndex', i)">X</button>
         </li>
-        <button type="button" class="outlineButton" @click="addEnd()">
+        <button type="button" class="outlineButton" @click="addEnd()" v-bind:class="{filledButton: this.endDirections != null}">
           {{ $t('add_end') }}
         </button>
-        <div @click="this.$emit('goToLocation', this.endDirections)">{{ endDirections }}</div>
         <button type="button" class="filledButton" @click="findDirections()">
           {{ $t('get_directions') }}
         </button>
@@ -172,6 +170,7 @@ export default {
           destination: this.endLocation,
           points: routePointsToSave,
           polyline: this.overview_polyline,
+          price: this.price,
           frequency: this.frequency,
           returnPoints: this.pointsReturn,
           returnPolyline: this.return_overview_polyline,
@@ -253,7 +252,6 @@ export default {
       this.showDetails = true
       this.id = r._id
       this.showDirectionsController = false;
-      console.log(this.id)
     },
     addOutboundPoints() {
       this.showDirectionsController = true
@@ -269,6 +267,9 @@ export default {
       this.showDirectionsController = true
       this.$refs.returnDirections.appendChild(this.$refs.directionsController)
       this.$emit("initDirections", { start: this.pointsOutbound[this.pointsOutbound.length - 1], end: this.pointsOutbound[0]})
+    },
+    initCreateRoute() {
+      this.$refs.addOutboundPoints.click()
     },
     deleteRoute(){
       console.log(this.id)
@@ -288,7 +289,6 @@ export default {
   },
   computed: {
     startDirections() {
-      console.log("yo", this.$store.state.startLocation)
       return this.$store.state.startLocation;
     },
     endDirections() {
