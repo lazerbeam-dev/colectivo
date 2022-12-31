@@ -42,16 +42,24 @@
   border-radius: 10px;
 }
 
-#minimizableContent {
-}
-
 
 #dashboardContent {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+}
+
+#dashboardButtons {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
 }
 
 #allDashboardContent{
+  display: flex;
+  align-items: flex-start;
+}
+
+#searchFunction {
   display: flex;
   align-items: center;
 }
@@ -93,7 +101,6 @@
   min-width: 300px;
   max-width: 350px;
   margin-right: 10px;
-  text-transform: capitalize;
   font-size: 10px;
 }
 
@@ -283,8 +290,10 @@ body {
   padding-left: 10px;
   min-width: 300px;
   color: #606060;
-  margin-right: 10px;
+  margin: 10px;
+  text-transform: capitalize;
 }
+
 
 .form-control {
   height: 40px;
@@ -612,6 +621,7 @@ h2 {
 #profileButton {
   display: flex!important;
   align-items: center!important;
+  text-transform: capitalize;
 }
 
 @media only screen and (max-width: 480px) {
@@ -627,6 +637,7 @@ h2 {
     text-align: left;
     line-height: 30px;
     display: flex;
+    
     align-items: flex-start;
     justify-content: space-between;
     flex-direction: column;
@@ -634,6 +645,11 @@ h2 {
   }
 
   #dashboardContent {
+    /* flex-direction: column; */
+    flex-direction: column-reverse;
+  }
+
+  #allDashboardContent {
     flex-direction: column;
   }
 
@@ -654,5 +670,65 @@ h2 {
 
   #app {
     overflow: hidden;
+  }
+
+  #routeButtons {
+    flex-direction: column;
+  }
+  .outlineButton {
+    margin-bottom: 10px;
+
+  }
+
+  .formItems {
+    flex-direction: column;
+  }
+
+  .filledButton {
+    margin-bottom: 5px;
+    width: 100%;
+  }
+  
+  .dropdownContent {
+    height: 40vh;
+    min-width: 100%;
+    transform: translate(0%, 0);
+    display:flex;
+    justify-content: space-around;
+    align-items:center;
+    flex-direction: column;
+    position: fixed;
+    /* top: 0; */
+    left: 0;
+    right: 0;
+    bottom: 560px;
+  }
+
+  .dropdownItem {
+    text-transform: uppercase;
+    font-size: 36px;
+    padding: 30px;
+  }
+
+  .modal {
+    height: 100vh;
+    min-width: 100vh;
+    transform: translate(0%, 0);
+    display:flex;
+    justify-content: space-around;
+    align-items:center;
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  p {
+    font-size: 22px;
+  }
+
+  label {
+    font-size: 18px;
   }
 }
