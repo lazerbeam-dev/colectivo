@@ -1,6 +1,11 @@
+Trying to display all of the available colectivo routes of San Cristobal De Las Casas and beyond.
+
 https://www.rutascolectivos.info/
 
+Create an account to add routes! 
 
+
+# deployment
 ## frontend
 
 1. Install packages
